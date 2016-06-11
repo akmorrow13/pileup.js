@@ -12,6 +12,7 @@ import ReactDOM from 'react-dom';
 
 // Data sources
 import TwoBitDataSource from './sources/TwoBitDataSource';
+import ReferenceDataSource from './sources/ReferenceDataSource';
 import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
@@ -126,6 +127,7 @@ var pileup = {
     vcf: VcfDataSource.create,
     variants: VariantDataSource.create,
     twoBit: TwoBitDataSource.create,
+    reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
     empty: EmptySource.create
   },
