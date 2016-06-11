@@ -10,26 +10,19 @@ var sources = [
   {
     viz: pileup.viz.genome(),
     isReference: true,
+    data: pileup.formats.twoBit({
+      url: 'http://www.biodalliance.org/datasets/hg19.2bit'
+    }),
+    name: 'Reference'
+  },
+ {
+    viz: pileup.viz.genome(),
+    isReference: true,
     data: pileup.formats.reference({
-      url: '/reference',
-      contigList: [{
-        name:"chrM",
-        length: 1000
-      },{
-        name:"22",
-        length: 1000
-      }]
+      prefix:"../json/"
     }),
     name: 'Reference'
   }
-// {
-//    viz: pileup.viz.genome(),
-//    isReference: true,
-//    data: pileup.formats.reference({
-//      prefix:"../json/"
-//    }),
-//    name: 'Reference'
-//  }
 //  {
 //    viz: pileup.viz.scale(),
 //    name: 'Scale'
@@ -80,4 +73,4 @@ var sources = [
 //  }
 ];
 
-var range = {contig: 'chrM', start: 0, stop: 10};
+var range = {contig: 'chr17', start: 7512284, stop: 7512644};
