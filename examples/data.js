@@ -21,15 +21,15 @@ var sources = [
       }]
     }),
     name: 'Reference'
-  },
- {
-    viz: pileup.viz.genome(),
-    isReference: true,
-    data: pileup.formats.reference({
-      prefix:"../json/"
-    }),
-    name: 'Reference'
   }
+// {
+//    viz: pileup.viz.genome(),
+//    isReference: true,
+//    data: pileup.formats.reference({
+//      prefix:"../json/"
+//    }),
+//    name: 'Reference'
+//  }
 //  {
 //    viz: pileup.viz.scale(),
 //    name: 'Scale'
