@@ -41,3 +41,12 @@ dist
 # Generated files
 src/lib
 *.pyc
+.idea/.name
+.idea/compiler.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/pileup.js.iml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/copyright/profiles_settings.xml
+.idea/dictionaries/akmorrow.xml
