@@ -24,7 +24,7 @@ import EmptySource from './sources/EmptySource';
 // Visualizations
 import CoverageTrack from './viz/CoverageTrack';
 import GenomeTrack from './viz/GenomeTrack';
-import GeneTrack from './viz/GeneTrack';
+import GeneTrack from './viz/GeneTrack'; //use this for features
 import LocationTrack from './viz/LocationTrack';
 import PileupTrack from './viz/PileupTrack';
 import ScaleTrack from './viz/ScaleTrack';
