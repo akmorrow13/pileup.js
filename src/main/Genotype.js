@@ -1,5 +1,6 @@
 /**
  * Class for Genotypes, shared between BAM and GA4GH backends.
+ * @flow
  */
 
 import type ContigInterval from './ContigInterval';
@@ -26,6 +27,5 @@ class Genotype {
     isPhased: boolean;
     phaseSetId: number;
     phaseQuality: number;
-
     
 }

@@ -1,5 +1,6 @@
 /**
  * Class for Variants, shared between BAM and GA4GH backends.
+ * @flow
  */
 
 import type ContigInterval from './ContigInterval';
@@ -55,7 +56,7 @@ class Variant {
         return this.svAllele;
     }
 
-    setAlternatieAllele(value: string) {
+    setAlternativeAllele(value: string) {
         this.alternateAllele = value;
     }
 
