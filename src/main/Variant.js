@@ -55,7 +55,7 @@ class Variant {
         return this.svAllele;
     }
 
-    setAlternatieAllele(value: string) {
+    setAlternativeAllele(value: string) {
         this.alternateAllele = value;
     }
 
