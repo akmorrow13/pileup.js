@@ -1,5 +1,6 @@
 /**
  * Class for features, shared between BAM and GA4GH backends.
+ * @flow
  */
 
 import type ContigInterval from './ContigInterval';
@@ -22,7 +23,7 @@ class Feature {
     value: number;
     dbxrefs: Dbxref[];
     parentIds: string[];
-    attributes: Object;
+    attributes: Object; //Or use array of attribute objects with key, value
 
     constructor(featureId: string, featureType: string, source: string, 
         contig: ContigInterval<string>, start: number, end: number, 
@@ -40,6 +41,12 @@ class Feature {
         this.parentIds = parentIds;
         this.attributes = attributes;
     }
+
+    /**
+     * constructor(input: Object) {
+     * 
+     * }
+     */
 
     getAttributes(): Object {
         return this.attributes;
@@ -85,9 +92,6 @@ class Feature {
         return this.value;
     }
 
-    /** Feature.Builder methods
-        May need to separate these */
-
     setAttributes(value: Object) {
         this.attributes = value;
     }
@@ -131,7 +135,16 @@ class Feature {
     setValue(value: number) {
         this.value = value;
     }
+
 }
+
+export type FeatureDataSource = {
+  rangeChanged: (newRange: GenomeRange) => void;
+  getFeaturesInRange: (range: ContigInterval<string>) => Feature[];
+  on: (event: string, handler: Function) => void;  // really => FeatureDataSource
+  once: (event: string, handler: Function) => void;
+  off: (event: string) => void;
+};
 
 module.exports = Feature;
 
