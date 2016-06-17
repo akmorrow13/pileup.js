@@ -1,5 +1,6 @@
 /**
  * Class for Variants, shared between BAM and GA4GH backends.
+ * @flow
  */
 
 import type ContigInterval from './ContigInterval';
