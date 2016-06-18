@@ -7,33 +7,64 @@ import GA4GHAlignment from '../main/GA4GHAlignment';
 import RemoteFile from '../main/RemoteFile';
 import Bam from '../main/data/bam';
 
-describe('ADAM_Alignment', function() {
+describe('GA4GHAlignment', function() {
   var sampleAlignments = [];
 
   before(function() {
     return new RemoteFile('/test-data/adam-alignments.json').getAllString().then(data => {
-      // console.log("data: "+ JSON.parse(data).alignments);
       sampleAlignments = JSON.parse(data).alignments;
-      // console.log("sampleAlignments: " + sampleAlignments);
-      // console.log("sampleAlignments length: " +sampleAlignments.length);
     });
   });
- 
+
   it('should read the sample alignments', function() {
-    // console.log("sampleAlignments length: " +sampleAlignments.length);
-    expect(sampleAlignments).to.have.length(1046);
+    expect(sampleAlignments).to.have.length(14);
   });
 
   it('should provide basic accessors', function() {
     var a = new GA4GHAlignment(sampleAlignments[0]);
-    expect(a.name).to.equal('613F0AAXX100423:5:47:2891:8862');
-    expect(a.getSequence()).to.equal('GTTAATGTAGCTTAATAACAAAGCAAAGCACTGAAAATGCTTAGATGGATCATTGTATCCCATAAACACAAAGTTTTGGTCCTGGCCTTATAATTACTTAG');
-    expect(a.getQualityScores()).to.deep.equal([17, 28, 10, 23, 27, 28, 17, 31, 22, 10, 16, 19, 9, 15, 16, 22, 15, 14, 15, 20, 15, 9, 15, 15, 9, 32, 32, 25, 27, 9, 21, 25, 32, 28, 28, 31, 31, 23, 22, 22, 9, 17, 22, 12, 25, 24, 14, 10, 26, 26, 10, 32, 26, 30, 32, 31, 25, 31, 31, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]);
+    expect(a.name).to.equal('r000');
+    expect(a.getSequence()).to.equal('ATTTAGCTAC');
+    expect(a.getQualityScores()).to.deep.equal([32,32,32,32,32,32,32,32,32,32]);
     expect(a.getStrand()).to.equal('+');
-    expect(a.getInterval().toString()).to.equal('chrM:0-58');  // 0-based
+    expect(a.getInterval().toString()).to.equal('chr17:4-13');  // 0-based
     expect(a.cigarOps).to.deep.equal([
-      {length:59, op: 'M'},{length: 42,op:'S'}
+      {op: 'M', length: 10}
     ]);
+    expect(a.getMateProperties()).to.deep.equal({
+      ref: 'chr17',
+      pos: 79,
+      strand: '+'
+    });
   });
-  // Can not check with SamReads because we don't have the corresponding BAM file
+
+  it('should match SamRead', function() {
+    var bam = new Bam(new RemoteFile('/test-data/chr17.1-250.bam'));
+    return bam.readAll().then(({alignments: samReads}) => {
+      // This is a workaround. See https://github.com/ga4gh/server/issues/488
+      samReads.splice(-1, 1);
+
+      expect(sampleAlignments.length).to.equal(samReads.length);
+      for (var i = 0; i < sampleAlignments.length; i++) {
+        var ga4gh = new GA4GHAlignment(sampleAlignments[i]),
+            bam = samReads[i];
+        expect(ga4gh.getSequence()).to.equal(bam.getSequence());
+        // See https://github.com/ga4gh/server/issues/491
+        // expect(ga4gh.getStrand()).to.equal(bam.getStrand());
+        // For the if statement, see https://github.com/ga4gh/server/issues/492
+        var quality = ga4gh.getQualityScores();
+        if (quality.length) {
+          expect(quality).to.deep.equal(bam.getQualityScores());
+        }
+        expect(ga4gh.cigarOps).to.deep.equal(bam.cigarOps);
+        // After ga4gh#491, change this to a .deep.equal on getMateProperties()
+        var ga4ghMate = ga4gh.getMateProperties(),
+            bamMate = bam.getMateProperties();
+        expect(!!ga4ghMate).to.equal(!!bamMate);
+        if (ga4ghMate && bamMate) {
+          expect(ga4ghMate.ref).to.equal(bamMate.ref);
+          expect(ga4ghMate.pos).to.equal(bamMate.pos);
+        }
+      }
+    });
+  });
 });
