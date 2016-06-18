@@ -1,0 +1,18 @@
+[{
+	"range": {
+		"name": "chrM",
+		"start": 0,
+		"end": 2000
+	},
+	"features": [{
+		"featureId": "4ee7469a-b468-429b-a109-07a484817037",
+		"featureType": "rs575272151",
+		"start": 1107,
+		"end": 1200
+	}, {
+		"featureId": "e105ce29-a840-4fc6-819f-a9aac5166163",
+		"featureType": "rs544419019",
+		"start": 1011,
+		"end": 1012
+	}]
+}]
