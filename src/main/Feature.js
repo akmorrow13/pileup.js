@@ -12,48 +12,44 @@ export type Dbxref = {
     db: string;
 }
 
+export type attribute = {
+    key: string;
+    value: string;
+}
+
 class Feature {
     featureId: string;
     featureType: string;
     source: string;
-    contig: ContigInterval<string>;
+    range: ContigInterval<string>;
     start: number;
     end: number;
     strand: Strand;
     value: number;
     dbxrefs: Dbxref[];
     parentIds: string[];
-    attributes: Object; //Or use array of attribute objects with key, value
+    attributes: attribute[]; //Or use array of attribute objects with key, value
 
-    constructor(featureId: string, featureType: string, source: string, 
-        contig: ContigInterval<string>, start: number, end: number, 
-        strand: Strand, value: number, dbxrefs: Dbxref[], parentIds: string[],
-        attributes: Object) {
-        this.featureId = featureId;
-        this.featureTyp = featureType;
-        this.source = source;
-        this.contig = contig;
-        this.start = start;
-        this.end = end;
-        this.strand = strand;
-        this.value = value;
-        this.dbxrefs = dbxrefs;
-        this.parentIds = parentIds;
-        this.attributes = attributes;
+    constructor(input: Object) {
+        this.featureId = input.featureId;
+        this.featureType = input.featureType;
+        this.source = input.source;
+        this.range = new ContigInterval(input.range.name, input.range.start, input.range.end);
+        this.start = input.start;
+        this.end = input.end;
+        this.strand = input.strand;
+        this.value = input.value;
+        this.dbxrefs = input.dbxrefs;
+        this.parentIds = input.parentIds;
+        this.attributes = input.attributes;
     }
-
-    /**
-     * constructor(input: Object) {
-     * 
-     * }
-     */
 
     getAttributes(): Object {
         return this.attributes;
     }
 
-    getContig(): Contig {
-        return this.contig;
+    getContig(): ContigInterval {
+        return this.range;
     }
 
     getDbxrefs(): Dbxref[] {
@@ -96,8 +92,8 @@ class Feature {
         this.attributes = value;
     }
 
-    setContig(value: number) {
-        this.contig = value;
+    setContig(value: ContigInterval) {
+        this.range = value;
     }
 
     setDbxrefs(value: List<Dbxref>) {
