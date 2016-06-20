@@ -10,10 +10,21 @@ var sources = [
   {
     viz: pileup.viz.genome(),
     isReference: true,
-    data: pileup.formats.twoBit({
-      url: 'http://www.biodalliance.org/datasets/hg19.2bit'
+    data: pileup.formats.reference({
+      url: 'reference'
     }),
     name: 'Reference'
+  },
+  {
+    viz: pileup.viz.pileup(),
+    data: pileup.formats.ga4gh({
+      spec: {
+        url: "localhost:8080",
+        readGroupId: "sadf",
+        killChr: true
+      };
+    }),
+    name: 'Alignments'
   }
 // {
 //    viz: pileup.viz.genome(),
