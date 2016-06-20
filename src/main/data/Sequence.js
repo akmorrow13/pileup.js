@@ -5,12 +5,45 @@
  */
 'use strict';
 
+import Q from 'q';
 import type RemoteRequest from '../RemoteRequest';
-import TwoBit from './TwoBit';
 
-type SequenceRecord = {
-  name: string,
-  length: number
+export type SequenceRecord = {
+  name: string;
+  length: number;
+}
+
+var BASE_PAIRS = [
+  'T',  // 0=00
+  'C',  // 1=01
+  'A',  // 2=10
+  'G'   // 3=11
+];
+
+/**
+ * Read 2-bit encoded base pairs from a DataView into an array of 'A', 'T',
+ * 'C', 'G' strings.
+ * These are returned as an array (rather than a string) to facilitate further
+ * modification.
+ */
+function unpackDNA(dataView: DataView, startBasePair: number, numBasePairs: number): Array<string> {
+  // TODO: use jBinary bitfield for this
+  var basePairs: Array<string> = [];
+  basePairs.length = dataView.byteLength * 4;  // pre-allocate
+  var basePairIdx = -startBasePair;
+  for (var i = 0; i < dataView.byteLength; i++) {
+    var packed = dataView.getUint8(i);
+    for (var shift = 6; shift >= 0; shift -= 2) {
+      var bp = BASE_PAIRS[(packed >> shift) & 3];
+      if (startBasePair >= 0) {
+        basePairs[basePairIdx] = bp;
+      }
+      basePairIdx++;
+    }
+  }
+  // Remove base pairs from the end if the sequence terminated mid-byte.
+  basePairs.length = numBasePairs;
+  return basePairs;
 }
 
 class Sequence {
@@ -23,8 +56,8 @@ class Sequence {
   }
 
     // Returns a list of contig names.
-    getContigList(): string[] {
-      return this.contigList.map(seq => seq.name);
+      getContigList(): Q.Promise<string[]> {
+      return Promise.resolve(this.contigList.map(seq => seq.name));
     }
 
   /**
@@ -39,9 +72,7 @@ class Sequence {
 
     return this.remoteRequest.get(contig, start, stop).then(buffer => {
         var dataView = new DataView(buffer);
-        return TwoBit.markUnknownDNA(
-            TwoBit.unpackDNA(dataView, start % 4, stop - start + 1), start)
-            .join('');
+        return unpackDNA(dataView, start % 4, stop - start + 1).join('');
     });
   }
 
