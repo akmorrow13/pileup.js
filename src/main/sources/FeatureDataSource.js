@@ -3,7 +3,7 @@
 
 import type {Gene, BigBedSource} from './BigBedDataSource';
 import type ContigInterval from '../ContigInterval';
-import BigBed from '../data/BigBed';
+// import BigBed from '../data/BigBed';   
 import {Events} from 'backbone';
 
 function parseBedFeature(f): Gene {
