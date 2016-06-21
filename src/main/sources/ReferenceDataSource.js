@@ -163,6 +163,16 @@ function testBasePairsToFetch(num?: number): any {
   }
 }
 
+// Getter/setter for base pairs per fetch.
+// This should only be used for testing.
+function testBasePairsToFetch(num?: number): any {
+  if (num) {
+    BASE_PAIRS_PER_FETCH = num;
+  } else {
+    return BASE_PAIRS_PER_FETCH;
+  }
+}
+
 module.exports = {
   create,
   createFromReferenceUrl,
