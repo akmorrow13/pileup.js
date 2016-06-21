@@ -1,7 +1,10 @@
 /* @flow */
+'use strict';
 
 import type {Gene, BigBedSource} from './BigBedDataSource';
 import type ContigInterval from '../ContigInterval';
+import BigBed from '../data/BigBed';
+import {Events} from 'backbone';
 
 function parseBedFeature(f): Gene {
   var position = new ContigInterval(f.contig, f.start, f.stop),
@@ -25,6 +28,13 @@ function parseBedFeature(f): Gene {
   };
 }
 
+function notifyFailure(message: string) {
+    o.trigger('networkfailure', message);
+    o.trigger('networkdone');
+    console.warn(message);
+  }
+
+
 function addFeaturesFromResponse(response: Object) {
     response.features.forEach(fb => {
         coveredRanges.push(fb.range);
@@ -34,7 +44,7 @@ function addFeaturesFromResponse(response: Object) {
         //we have new data from our internal block range
         o.trigger('newdata', fb.range);
     });
-  }
+}
 
 function createFromFeatureEndpoint(url: string): BigBedSource{
     // Collection of genes that have already been loaded.
@@ -90,9 +100,9 @@ function createFromFeatureEndpoint(url: string): BigBedSource{
         if (response.errorCode) {
           notifyFailure('Error from GA4GH endpoint: ' + JSON.stringify(response));
         } else {
-          addFeaturesFromResponse(response); 
+          addFeaturesFromResponse(response);
           o.trigger('newdata', interval);  // display data as it comes in.
-          o.trigger('networkdone');   
+          o.trigger('networkdone');
         }
       }
     });
@@ -149,5 +159,4 @@ function create(data: {url: string}): BigBedSource {
 
 module.exports = {
     create
-}
- 
+};

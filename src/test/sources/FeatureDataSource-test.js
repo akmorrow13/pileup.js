@@ -1,10 +1,10 @@
 /* @flow */
-'use strict'
+'use strict';
 
 import {expect} from 'chai';
 
-import BigBed from '../../main/data/BigBed';
-import BigBedDataSource from '../../main/sources/BigBedDataSource';
+// import BigBed from '../../main/data/BigBed';
+// import BigBedDataSource from '../../main/sources/BigBedDataSource';
 import ContigInterval from '../../main/ContigInterval';
 import FeatureDataSource from '../../main/sources/FeatureDataSource';
 
@@ -12,7 +12,7 @@ var url = "http://localhost:8080/features/chrM?start=0&end=1000";
 
 describe('FeatureDataSource', function() {
     function getTestSource() {
-        return FeatureDatasource.createFromFeatureEndpoint(url);
+        return FeatureDataSource.createFromFeatureEndpoint(url);
     }
 
     it('should extract features in a range from a given endpoint', function(done) {
@@ -22,7 +22,7 @@ describe('FeatureDataSource', function() {
         // No genes fetched initially
         var testrange = new ContigInterval('chrM', 0, 1000);
         var test = source.getGenesInRange(testrange);
-        expect(rest).to.deep.equal([]);
+        expect(test).to.deep.equal([]);
 
         // Fetching that one gene should cache its entire blok.
         source.on('newdata', () => {
@@ -35,9 +35,9 @@ describe('FeatureDataSource', function() {
             done();
         });
         source.rangeChanged({
-            contig: testrange.contig;
-            start: testrange.start();
-            stop: testrange.stop();
+            contig: testrange.contig,
+            start: testrange.start(),
+            stop: testrange.stop()
         });
     });
 });

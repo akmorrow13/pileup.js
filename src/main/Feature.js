@@ -2,6 +2,7 @@
  * Class for features, shared between BAM and GA4GH backends.
  * @flow
  */
+ 'use strict';
 
 import type ContigInterval from './ContigInterval';
 
@@ -143,4 +144,3 @@ export type FeatureDataSource = {
 };
 
 module.exports = Feature;
-
