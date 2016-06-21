@@ -13,13 +13,6 @@ export type SequenceRecord = {
   length: number;
 }
 
-var BASE_PAIRS = [
-  'T',  // 0=00
-  'C',  // 1=01
-  'A',  // 2=10
-  'G'   // 3=11
-];
-
 /**
  * Read 2-bit encoded base pairs from a DataView into an array of 'A', 'T',
  * 'C', 'G' strings.
@@ -29,17 +22,10 @@ var BASE_PAIRS = [
 function unpackDNA(dataView: DataView, startBasePair: number, numBasePairs: number): Array<string> {
   // TODO: use jBinary bitfield for this
   var basePairs: Array<string> = [];
-  basePairs.length = dataView.byteLength * 4;  // pre-allocate
-  var basePairIdx = -startBasePair;
+  // basePairs.length = dataView.byteLength * 4;  // pre-allocate
   for (var i = 0; i < dataView.byteLength; i++) {
     var packed = dataView.getUint8(i);
-    for (var shift = 6; shift >= 0; shift -= 2) {
-      var bp = BASE_PAIRS[(packed >> shift) & 3];
-      if (startBasePair >= 0) {
-        basePairs[basePairIdx] = bp;
-      }
-      basePairIdx++;
-    }
+    basePairs[i] = String.fromCharCode(packed);
   }
   // Remove base pairs from the end if the sequence terminated mid-byte.
   basePairs.length = numBasePairs;
@@ -56,8 +42,8 @@ class Sequence {
   }
 
     // Returns a list of contig names.
-      getContigList(): Q.Promise<string[]> {
-      return Promise.resolve(this.contigList.map(seq => seq.name));
+      getContigList(): string[] {
+      return this.contigList.map(seq => seq.name);
     }
 
   /**
@@ -69,10 +55,10 @@ class Sequence {
     if (start > stop) {
       throw `Requested a range with start > stop (${start}, ${stop})`;
     }
-
     return this.remoteRequest.get(contig, start, stop).then(buffer => {
         var dataView = new DataView(buffer);
-        return unpackDNA(dataView, start % 4, stop - start + 1).join('');
+        var d = unpackDNA(dataView, start % 4, stop - start + 1).join('');
+        return d;
     });
   }
 
