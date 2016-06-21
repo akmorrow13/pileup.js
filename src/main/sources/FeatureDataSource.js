@@ -2,9 +2,14 @@
 'use strict';
 
 import type {Gene, BigBedSource} from './BigBedDataSource';
-import type ContigInterval from '../ContigInterval';
+import ContigInterval from '../ContigInterval';
 // import BigBed from '../data/BigBed';   
+import Interval from '../Interval';
+import Q from 'q';
+import _ from 'underscore';
 import {Events} from 'backbone';
+
+var FEATURES_PER_REQUEST = 200; //TODO Arbitrary number for now
 
 function parseBedFeature(f): Gene {
   var position = new ContigInterval(f.contig, f.start, f.stop),
@@ -28,27 +33,9 @@ function parseBedFeature(f): Gene {
   };
 }
 
-function notifyFailure(message: string) {
-    o.trigger('networkfailure', message);
-    o.trigger('networkdone');
-    console.warn(message);
-  }
-
-
-function addFeaturesFromResponse(response: Object) {
-    response.features.forEach(fb => {
-        coveredRanges.push(fb.range);
-        coveredRanges = ContigInterval.coalesce(coveredRanges);
-        var genes = fb.rows.map(parseBedFeature);
-        genes.forEach(gene => addGene(gene));
-        //we have new data from our internal block range
-        o.trigger('newdata', fb.range);
-    });
-}
-
 function createFromFeatureEndpoint(url: string): BigBedSource{
     // Collection of genes that have already been loaded.
-  var genes: {[key:string]: Gene} = {};
+  var genes: {[key:string]: Gene} = {}; //TODO features
 
   // Ranges for which we have complete information -- no need to hit network.
   var coveredRanges: Array<ContigInterval<string>> = [];
@@ -98,7 +85,7 @@ function createFromFeatureEndpoint(url: string): BigBedSource{
         notifyFailure(this.status + ' ' + this.statusText + ' ' + JSON.stringify(response));
       } else {
         if (response.errorCode) {
-          notifyFailure('Error from GA4GH endpoint: ' + JSON.stringify(response));
+          notifyFailure('Error from Feature endpoint: ' + JSON.stringify(response));
         } else {
           addFeaturesFromResponse(response);
           o.trigger('newdata', interval);  // display data as it comes in.
@@ -110,17 +97,18 @@ function createFromFeatureEndpoint(url: string): BigBedSource{
       notifyFailure('Request failed with status: ' + this.status);
     });
 
-    o.trigger('networkprogress', {numRequests});
+    var numRequests = 1;
+    o.trigger('networkprogress', {numRequests}); //Num requests only applies to pagination
     xhr.send(JSON.stringify({
-      pageSize: ALIGNMENTS_PER_REQUEST,
-      readGroupIds: [spec.readGroupId],
+      pageSize: FEATURES_PER_REQUEST,
+      // readGroupIds: [spec.readGroupId], //TODO give features an ID
       referenceName: range.contig,
       start: range.start(),
       end: range.stop()
     }));
 
     /** End of JSON request */
-
+    /** replace this with modified sequence method that creates a BigBedSource */
     return remoteSource.getFeatureBlocksOverlapping(interval).then(featureBlocks => {
       featureBlocks.forEach(fb => {
         coveredRanges.push(fb.range);
@@ -144,6 +132,24 @@ function createFromFeatureEndpoint(url: string): BigBedSource{
     off: () => {},
     trigger: () => {}
   };
+
+  function notifyFailure(message: string) {
+    o.trigger('networkfailure', message);
+    o.trigger('networkdone');
+    console.warn(message);
+  }
+
+  function addFeaturesFromResponse(response: Object) {
+    response.features.forEach(fb => {
+        coveredRanges.push(fb.range);
+        coveredRanges = ContigInterval.coalesce(coveredRanges);
+        var genes = fb.rows.map(parseBedFeature);
+        genes.forEach(gene => addGene(gene));
+        //we have new data from our internal block range
+        o.trigger('newdata', fb.range);
+    });
+  }
+
   _.extend(o, Events);  // Make this an event emitter
 
   return o;

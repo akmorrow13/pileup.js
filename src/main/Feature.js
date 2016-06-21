@@ -1,10 +1,10 @@
 /**
- * Class for features, shared between BAM and GA4GH backends.
+ * Class for features
  * @flow
  */
  'use strict';
 
-import type ContigInterval from './ContigInterval';
+import ContigInterval from './ContigInterval';
 
 export type Strand = '-' | '+';
 
@@ -35,7 +35,6 @@ class Feature {
         this.featureId = input.featureId;
         this.featureType = input.featureType;
         this.source = input.source;
-        this.range = new ContigInterval(input.range.name, input.range.start, input.range.end);
         this.start = input.start;
         this.end = input.end;
         this.strand = input.strand;
@@ -43,6 +42,7 @@ class Feature {
         this.dbxrefs = input.dbxrefs;
         this.parentIds = input.parentIds;
         this.attributes = input.attributes;
+        this.range = new ContigInterval(input.range.name, input.range.start, input.range.end);
     }
 
     getAttributes(): Object {
