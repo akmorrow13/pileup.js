@@ -11,20 +11,16 @@ var sources = [
     viz: pileup.viz.genome(),
     isReference: true,
     data: pileup.formats.reference({
-      url: 'reference'
+      url: '/reference',
+      contigList: [{
+        name:"chrM",
+        length: 1000
+      },{
+        name:"22",
+        length: 1000
+      }]
     }),
     name: 'Reference'
-  },
-  {
-    viz: pileup.viz.pileup(),
-    data: pileup.formats.ga4gh({
-      spec: {
-        url: "localhost:8080",
-        readGroupId: "sadf",
-        killChr: true
-      };
-    }),
-    name: 'Alignments'
   }
 // {
 //    viz: pileup.viz.genome(),
@@ -84,4 +80,4 @@ var sources = [
 //  }
 ];
 
-var range = {contig: 'chr17', start: 7512284, stop: 7512644};
+var range = {contig: 'chrM', start: 0, stop: 10};
