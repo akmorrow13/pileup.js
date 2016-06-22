@@ -42,7 +42,7 @@ class Sequence {
   }
 
     // Returns a list of contig names.
-      getContigList(): string[] {
+    getContigList(): string[] {
       return this.contigList.map(seq => seq.name);
     }
 
