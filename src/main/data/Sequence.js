@@ -13,25 +13,6 @@ export type SequenceRecord = {
   length: number;
 }
 
-/**
- * Read 2-bit encoded base pairs from a DataView into an array of 'A', 'T',
- * 'C', 'G' strings.
- * These are returned as an array (rather than a string) to facilitate further
- * modification.
- */
-function unpackDNA(dataView: DataView, startBasePair: number, numBasePairs: number): Array<string> {
-  // TODO: use jBinary bitfield for this
-  var basePairs: Array<string> = [];
-  // basePairs.length = dataView.byteLength * 4;  // pre-allocate
-  for (var i = 0; i < dataView.byteLength; i++) {
-    var packed = dataView.getUint8(i);
-    basePairs[i] = String.fromCharCode(packed);
-  }
-  // Remove base pairs from the end if the sequence terminated mid-byte.
-  basePairs.length = numBasePairs;
-  return basePairs;
-}
-
 class Sequence {
   remoteRequest: RemoteRequest;
   contigList: SequenceRecord[];
@@ -55,9 +36,9 @@ class Sequence {
     if (start > stop) {
       throw `Requested a range with start > stop (${start}, ${stop})`;
     }
-    return this.remoteRequest.get(contig, start, stop).then(buffer => {
-        var dataView = new DataView(buffer);
-        var d = unpackDNA(dataView, start % 4, stop - start + 1).join('');
+    return this.remoteRequest.get(contig, start, stop).then(sequence => {
+        // var dataView = new DataView(buffer);
+        var d = sequence.substring(start, (stop-start + 1));
         return d;
     });
   }
