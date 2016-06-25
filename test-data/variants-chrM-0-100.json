@@ -1,0 +1,16 @@
+[{
+	"contig": "chrM",
+	"position": 10,
+	"ref": "C",
+	"alt": "G"
+}, {
+	"contig": "chrM",
+	"position": 20,
+	"ref": "G",
+	"alt": "T"
+}, {
+	"contig": "chrM",
+	"position": 20,
+	"ref": "A",
+	"alt": "C"
+}]
