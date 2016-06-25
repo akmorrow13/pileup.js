@@ -48,7 +48,6 @@ describe('VariantDataSource', function() {
 
     source.on('newdata', () => {
       var variants = source.getFeaturesInRange(range);
-      console.log("variants",variants);
       expect(variants).to.have.length(2);
       expect(variants[1].contig).to.equal('chrM');
       expect(variants[1].position).to.equal(20);

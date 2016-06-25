@@ -12,25 +12,6 @@ export type SequenceRecord = {
   name: string;
   length: number;
 }
-//
-// /**
-//  * Read 2-bit encoded base pairs from a DataView into an array of 'A', 'T',
-//  * 'C', 'G' strings.
-//  * These are returned as an array (rather than a string) to facilitate further
-//  * modification.
-//  */
-// function unpackDNA(sequence: Object, startBasePair: number, numBasePairs: number): Array<string> {
-//   // TODO: use jBinary bitfield for this
-//   console.log("in unpack",dataView);
-//   var basePairs: Array<string> = [];
-//   for (var i = 0; i < dataView.byteLength; i++) {
-//     var packed = dataView.getUint8(i);
-//     basePairs[i] = String.fromCharCode(packed);
-//   }
-//   // Remove base pairs from the end if the sequence terminated mid-byte.
-//   basePairs.length = numBasePairs;
-//   return basePairs;
-// }
 
 class Sequence {
   remoteRequest: RemoteRequest;
