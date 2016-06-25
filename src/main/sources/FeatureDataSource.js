@@ -3,7 +3,9 @@
 
 import type {Gene, BigBedSource} from './BigBedDataSource';
 import ContigInterval from '../ContigInterval';
-// import BigBed from '../data/BigBed';   
+// import BigBed from '../data/BigBed';
+import RemoteRequest from '../RemoteRequest';
+import FeatureEndpoint from '../data/FeatureEndpoint';
 import Interval from '../Interval';
 import Q from 'q';
 import _ from 'underscore';
@@ -11,7 +13,8 @@ import {Events} from 'backbone';
 
 var FEATURES_PER_REQUEST = 200; //TODO Arbitrary number for now
 
-function parseBedFeature(f): Gene {
+function parseBedFeature(f): Feature {
+  var contig = new ContigInterval(f.contig, f.start, f.stop);
   var position = new ContigInterval(f.contig, f.start, f.stop),
       x = f.rest.split('\t'),
       // exons arrays sometimes have trailing commas
@@ -21,134 +24,87 @@ function parseBedFeature(f): Gene {
                .map(function([start, length]) {
                  return new Interval(f.start + start, f.start + start + length);
                });
-
+  //TODO replace this JSON format with the proper one needed for Feature object
   return {
-    position,
-    id: x[0],  // e.g. ENST00000359597
-    strand: x[2],  // either + or -
-    codingRegion: new Interval(Number(x[3]), Number(x[4])),
-    geneId: x[9],
-    name: x[10],
+    range: contig,
+    featureId: x[0],  // e.g. ENST00000359597
+    featureType: x[1],
+    start: x[2],
+    end: x[3],
     exons
   };
 }
 
-function createFromFeatureEndpoint(url: string): BigBedSource{
+function createFromFeatureEndpoint(remoteSource: FeatureEndpoint): BigBedSource {
     // Collection of genes that have already been loaded.
-  var genes: {[key:string]: Gene} = {}; //TODO features
+  var features: {[key:string]: feature} = {}; //TODO features
 
   // Ranges for which we have complete information -- no need to hit network.
   var coveredRanges: Array<ContigInterval<string>> = [];
 
-  function addGene(newGene) {
-    if (!genes[newGene.id]) {
-      genes[newGene.id] = newGene;
+  function addFeature(newfeature) {
+    if (!feature[newFeature.featureId]) {
+      feature[newFeature.featureId] = newFeature;
     }
   }
 
-  function getGenesInRange(range: ContigInterval<string>): Gene[] {
+  function getFeaturesInRange(range: ContigInterval<string>): Feature[] {
     if (!range) return [];
     var results = [];
-    _.each(genes, gene => {
-      if (range.intersects(gene.position)) {
-        results.push(gene);
+    _.each(Feature, feature => {
+      if (range.intersects(feature.range)) {
+        results.push(feature);
       }
     });
     return results;
   }
 
-  function fetch(range: GenomeRange) {
-    var interval = new ContigInterval(range.contig, range.start, range.stop);
+  function fetch(range: ContigInterval) {
 
     // Check if this interval is already in the cache.
-    if (interval.isCoveredBy(coveredRanges)) {
+    if (range.isCoveredBy(coveredRanges)) {
       return Q.when();
     }
 
-    coveredRanges.push(interval);
+    coveredRanges.push(range);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
 
-    /** Call JSON request */
-
     /** Modify URL */
-    // url = "http://localhost:8080/" + range.contig.contig + "?start=" + range.start + "&end=" + range.stop;
-    url = url + range.contig.contig + "?start=" + range.start + "&end=" + range.stop;
+    remoteSource.remoteRequest.url += range.contig.contig + "?start=" + range.start + "&end=" + range.stop;
 
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-    xhr.responseType = 'json';
-    xhr.setRequestHeader('Content-Type', 'application/json');
-
-    xhr.addEventListener('load', function(e) {
-      var response = this.response;
-      if (this.status >= 400) {
-        notifyFailure(this.status + ' ' + this.statusText + ' ' + JSON.stringify(response));
-      } else {
-        if (response.errorCode) {
-          notifyFailure('Error from Feature endpoint: ' + JSON.stringify(response));
-        } else {
-          addFeaturesFromResponse(response);
-          o.trigger('newdata', interval);  // display data as it comes in.
-          o.trigger('networkdone');
-        }
-      }
-    });
-    xhr.addEventListener('error', function(e) {
-      notifyFailure('Request failed with status: ' + this.status);
-    });
-
-    var numRequests = 1;
-    o.trigger('networkprogress', {numRequests}); //Num requests only applies to pagination
-    xhr.send(JSON.stringify({
-      pageSize: FEATURES_PER_REQUEST,
-      // readGroupIds: [spec.readGroupId], //TODO give features an ID
-      referenceName: range.contig,
-      start: range.start(),
-      end: range.stop()
-    }));
-
-    /** End of JSON request */
-    /** replace this with modified sequence method that creates a BigBedSource */
-    return remoteSource.getFeatureBlocksOverlapping(interval).then(featureBlocks => {
-      featureBlocks.forEach(fb => {
-        coveredRanges.push(fb.range);
-        coveredRanges = ContigInterval.coalesce(coveredRanges);
-        var genes = fb.rows.map(parseBedFeature);
-        genes.forEach(gene => addGene(gene));
-        //we have new data from our internal block range
-        o.trigger('newdata', fb.range);
-      });
-    });
+    return remoteSource.getFeaturesInRange(range.contig.contig, range.start, range.end);
   }
 
   var o = {
     rangeChanged: function(newRange: GenomeRange) {
-      fetch(newRange).done();
+      normalizeRange(newRange).then(r => {
+        var range = new ContigInterval(r.contig, r.start, r.stop);
+
+        if (range.isCoveredBy(coveredRanges)) {
+          return;
+        }
+
+        var newRanges = range.complementIntervals(coveredRanges);
+        coveredRanges.push(range);
+        coveredRanges = ContigInterval.coalesce(coveredRanges);
+
+        for (var newRange of newRanges) {
+          fetch(newRange);
+        }
+      }).done()
     },
-    getGenesInRange,
+    getRange,
+    getRangeAsString,
+    contigList: () => contigList,
+    normalizeRange,
+    getFeaturesInRange,
 
     // These are here to make Flow happy.
     on: () => {},
+    once: () -> {},
     off: () => {},
     trigger: () => {}
   };
-
-  function notifyFailure(message: string) {
-    o.trigger('networkfailure', message);
-    o.trigger('networkdone');
-    console.warn(message);
-  }
-
-  function addFeaturesFromResponse(response: Object) {
-    response.features.forEach(fb => {
-        coveredRanges.push(fb.range);
-        coveredRanges = ContigInterval.coalesce(coveredRanges);
-        var genes = fb.rows.map(parseBedFeature);
-        genes.forEach(gene => addGene(gene));
-        //we have new data from our internal block range
-        o.trigger('newdata', fb.range);
-    });
-  }
 
   _.extend(o, Events);  // Make this an event emitter
 
@@ -160,7 +116,7 @@ function create(data: {url: string}): BigBedSource {
       if (!url) {
         throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
       }
-      return createFromFeatureEndpoint(url);
+      return createFromFeatureEndpoint(new RemoteRequest(url));
 }
 
 module.exports = {

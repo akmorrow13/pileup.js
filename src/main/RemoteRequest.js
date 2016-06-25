@@ -9,6 +9,7 @@
 import Q from 'q';
 import ContigInterval from './ContigInterval';
 
+
 class RemoteRequest {
   url: string;
   cache: Object;

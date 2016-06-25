@@ -34,15 +34,15 @@ class Feature {
     constructor(input: Object) {
         this.featureId = input.featureId;
         this.featureType = input.featureType;
-        this.source = input.source;
+        // this.source = input.source;
         this.start = input.start;
         this.end = input.end;
-        this.strand = input.strand;
-        this.value = input.value;
-        this.dbxrefs = input.dbxrefs;
-        this.parentIds = input.parentIds;
-        this.attributes = input.attributes;
-        this.range = new ContigInterval(input.range.name, input.range.start, input.range.end);
+        // this.strand = input.strand;
+        // this.value = input.value;
+        // this.dbxrefs = input.dbxrefs;
+        // this.parentIds = input.parentIds;
+        // this.attributes = input.attributes;
+        this.range = input.range;
     }
 
     getAttributes(): Object {
