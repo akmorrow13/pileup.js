@@ -40,11 +40,7 @@ type GA4GHSpec = {
 };
 
 function create(spec: GA4GHSpec): AlignmentDataSource {
-  if (spec.endpoint.slice(-6) != 'v0.5.1') {
-    throw new Error('Only v0.5.1 of the GA4GH API is supported by pileup.js');
-  }
-
-  var url = spec.endpoint + '/reads/search';
+  var url = spec.endpoint ;
 
   var reads: {[key:string]: Alignment} = {};
 
@@ -53,12 +49,16 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
 
   function addReadsFromResponse(response: Object) {
     response.alignments.forEach(alignment => {
-      // optimization: don't bother constructing a GA4GHAlignment unless it's new.
-      var key = GA4GHAlignment.keyFromGA4GHResponse(alignment);
-      if (key in reads) return;
+      try{
+        // optimization: don't bother constructing a GA4GHAlignment unless it's new.
+        var key = GA4GHAlignment.keyFromGA4GHResponse(alignment);
+        if (key in reads) return;
 
-      var ga4ghAlignment = new GA4GHAlignment(alignment);
-      reads[key] = ga4ghAlignment;
+        var ga4ghAlignment = new GA4GHAlignment(alignment);
+        reads[key] = ga4ghAlignment;
+      } catch(TypeError){
+        console.log("Error in Matepair Data Source.")
+      }
     });
   }
 
@@ -87,7 +87,10 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
                                       pageToken: ?string,
                                       numRequests: number) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
+ 
+    var endpoint = url + "/" + range.contig + "?start=" + range.start() + "&end=" + range.stop()+"&sample="+spec.readGroupId;
+
+    xhr.open('GET', endpoint);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');
 
