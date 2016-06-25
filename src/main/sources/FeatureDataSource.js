@@ -1,7 +1,7 @@
 /* @flow */
 'use strict';
 
-import type {Gene, BigBedSource} from './BigBedDataSource';
+// import type {Gene, BigBedSource} from './BigBedDataSource';
 import ContigInterval from '../ContigInterval';
 // import BigBed from '../data/BigBed';
 import RemoteRequest from '../RemoteRequest';

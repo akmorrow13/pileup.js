@@ -5,7 +5,7 @@
  */
 'use strict';
 
-import Q from 'q';
+// import Q from 'q';
 import type RemoteRequest from '../RemoteRequest';
 //TODO import bedrow here
 
@@ -26,7 +26,7 @@ function unpackFeatures(dataView: DataView, start: number, end: number): Array<s
     features[i] = String.fromCharCode(packed);
   }
   // Remove base pairs from the end if the sequence terminated mid-byte.
-  features.length = numBasePairs;
+  // features.length = numBasePairs; //TODO Determine length
   return features;
 }
 
