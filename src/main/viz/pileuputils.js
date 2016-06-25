@@ -139,7 +139,8 @@ export type OpInfo = {
 // Breaks the read down into Cigar Ops suitable for display
 function getOpInfo(read: Alignment, referenceSource: Object): OpInfo {
   var ops = read.cigarOps;
-
+  // console.log(read);
+  
   var range = read.getInterval(),
       start = range.start(),
       seq = read.getSequence(),
@@ -158,7 +159,11 @@ function getOpInfo(read: Alignment, referenceSource: Object): OpInfo {
         start: refPos,
         stop: refPos + op.length - 1
       });
+      // console.log(seq);
+      // console.log("seqPos:"+seqPos);
+      // console.log("op.length:"+op.length);
       var mSeq = seq.slice(seqPos, seqPos + op.length);
+      // console.log(mSeq)
       mismatches = mismatches.concat(findMismatches(ref, mSeq, refPos, scores));
     }
 
