@@ -39,11 +39,12 @@ class GA4GHAlignment /* implements Alignment */ {
   // https://github.com/ga4gh/schemas/blob/v0.5.1/src/main/resources/avro/reads.avdl
   constructor(alignment: Object) {
     this.alignment = alignment;
-    this.pos = alignment.alignment.position.position;
-    this.ref = alignment.alignment.position.referenceName;
-    this.name = alignment.fragmentName;
+    // console.log(alignment)
+    this.pos =  alignment.alignment.position.position;
+    this.ref =  alignment.alignment.position.referenceName;
+    this.name =  alignment.fragmentName;
 
-    this.cigarOps = alignment.alignment.cigar.map(
+    this.cigarOps =  alignment.alignment.cigar.map(
         ({operation, operationLength: length}) => ({ op: OP_MAP[operation], length }));
     this._interval = new ContigInterval(this.ref,
                                         this.pos,
@@ -79,7 +80,7 @@ class GA4GHAlignment /* implements Alignment */ {
   }
 
   getMateProperties(): ?MateProperties {
-    var next = this.alignment.nextMatePosition;
+    var next = this.nextMatePosition;
     return next && {
       ref: next.referenceName,
       pos: next.position,
