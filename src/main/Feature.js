@@ -22,7 +22,7 @@ class Feature {
     featureId: string;
     featureType: string;
     source: string;
-    range: ContigInterval<string>;
+    range: ContigInterval;
     start: number;
     end: number;
     strand: Strand;

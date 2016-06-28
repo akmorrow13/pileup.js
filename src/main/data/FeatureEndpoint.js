@@ -39,7 +39,7 @@ class FeatureEndpoint {
         this.contigList = contigList;
     }
 
-    getContigList(): string[] {
+    contigList(): string[] {
         return this.contigList.map(seq => seq.name);
     }
 
@@ -50,13 +50,13 @@ class FeatureEndpoint {
    */
   
     getFeaturesInRange(contig: string, start: number, stop: number): Q.Promise<BedRow[]> {
-    if (start > stop) {
-      throw `Requested a range with start > stop (${start}, ${stop})`;
-    }
-    return this.remoteRequest.get(contig, start, stop).then(buffer => {
-        var dataView = new DataView(buffer);
-        var d = unpackFeatures(dataView, start, stop).join('');
-        return d;
-    });
+      if (start > stop) {
+        throw `Requested a range with start > stop (${start}, ${stop})`;
+      }
+      return this.remoteRequest.get(contig, start, stop).then(buffer => {
+          var dataView = new DataView(buffer);
+          var d = unpackFeatures(dataView, start, stop).join('');
+          return d;
+      });
     }
 }
