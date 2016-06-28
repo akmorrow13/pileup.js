@@ -149,7 +149,8 @@ function create(data: {url:string, contigList: SequenceRecord[]}): TwoBitSource 
   if (!contigList) {
     throw new Error(`Missing ContigList from track: ${JSON.stringify(data)}`);
   }
-  return createFromReferenceUrl(new Sequence(new RemoteRequest(urlPrefix), contigList));
+  var key = "reference" // key is not required for reference but required for Remote Request
+  return createFromReferenceUrl(new Sequence(new RemoteRequest(urlPrefix, key), contigList));
 }
 
 // Getter/setter for base pairs per fetch.

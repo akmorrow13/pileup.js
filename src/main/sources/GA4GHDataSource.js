@@ -21,7 +21,7 @@ var ALIGNMENTS_PER_REQUEST = 200;  // TODO: explain this choice.
 // TODO: tune this value -- setting it close to the read length will result in
 // lots of reads being fetched twice, but setting it too large will result in
 // bulkier requests.
-var BASE_PAIRS_PER_FETCH = 100;
+var BASE_PAIRS_PER_FETCH = 1000;
 
 function expandRange(range: ContigInterval<string>) {
   var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
@@ -87,8 +87,8 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
                                       pageToken: ?string,
                                       numRequests: number) {
     var xhr = new XMLHttpRequest();
- 
-    var endpoint = url + "/" + range.contig + "?start=" + range.start() + "&end=" + range.stop()+"&sample="+spec.readGroupId;
+
+    var endpoint = url + "/" + range.contig + "?start=" + range.start() + "&end=" + range.stop()+"&key="+spec.readGroupId;
 
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
