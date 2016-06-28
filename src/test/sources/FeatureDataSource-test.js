@@ -8,9 +8,8 @@ import sinon from 'sinon';
 import ContigInterval from '../../main/ContigInterval';
 import FeatureDataSource from '../../main/sources/FeatureDataSource';
 import RemoteFile from '../../main/RemoteFile';
-import sample from '../../main/samplefeature';
-
-var url = "http://localhost:8080/features/chrM?start=0&end=1000";
+// import sample from '../../main/samplefeature';
+// var url = "http://localhost:8080/features/chrM?start=0&end=1000";
 
 describe('FeatureDataSource', function() {
     var server: any = null, response;
@@ -26,7 +25,7 @@ describe('FeatureDataSource', function() {
 
     after(function () {
         server.restore();
-    })
+    });
 
     function getTestSource() {
         var source = FeatureDataSource.create({
@@ -45,12 +44,12 @@ describe('FeatureDataSource', function() {
     it('should fetch contigs', function() {
         var source = getTestSource();
         var contigs = source.contigList();
-        expect(contigs).to.deep.equal(['chrM','93'])
+        expect(contigs).to.deep.equal(['chrM','93']);
     });
 
     it('should normalize range', function() {
         var source = getTestSource();
-        var range = {contig: 'chrM', start: x, stop: y};
+        var range = {contig: 'chrM', start: 1011, stop: 1012};
         source.normalizeRange(range).then(normalized => {
             expect(normalized.to.deep.equal(range));
         }).done();
