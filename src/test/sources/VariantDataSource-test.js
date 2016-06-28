@@ -18,7 +18,7 @@ describe('VariantDataSource', function() {
       response = data;
       server = sinon.fakeServer.create();
       // server.respondWith('GET', '/variants',[200, { "Content-Type": "application/json" }, response]);
-      server.respondWith('GET', '/variants/chrM?start=1&end=1000',[200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/variants/chrM?start=1&end=1000&key=test',[200, { "Content-Type": "application/json" }, response]);
     });
   });
 
@@ -29,13 +29,7 @@ describe('VariantDataSource', function() {
   function getTestSource() {
     var source = VariantDataSource.create({
       url: '/variants',
-      contigList: [{
-        name:"chrM",
-        length: 1000
-      },{
-        name:"22",
-        length: 1000
-      }]
+      key: 'test'
     });
     return source;
   }

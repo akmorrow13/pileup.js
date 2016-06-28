@@ -98,17 +98,16 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
   return o;
 }
 
-function create(data: {url:string, contigList: SequenceRecord[]}): VcfDataSource {
-  var url = data.url;
-  var contigList = data.contigList;
+function create(data: {url?:string, key?:string}): VcfDataSource {
+  var {url, key} = data;
   if (!url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  // verify contiglist was correctly set
-  if (!contigList) {
-    throw new Error(`Missing ContigList from track: ${JSON.stringify(data)}`);
+  // verify key was correctly set
+  if (!key) {
+    throw new Error(`Missing key from track: ${JSON.stringify(data)}`);
   }
-  var request = new RemoteRequest(url, contigList);
+  var request = new RemoteRequest(url, key);
   var endpoint = new VariantEndpoint(request);
   return createFromVariantUrl(endpoint);
 }
