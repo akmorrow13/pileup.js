@@ -23,11 +23,10 @@ class VariantEndpoint {
      var contig = range.contig;
      var start = range.interval.start;
      var stop = range.interval.stop;
-     console.log("in get range endpoint", range);
 
-      return this.remoteRequest.get(contig, start, stop).then(object => {
-          var d = extractVariants(object); // TODO: should parts to Variant[]
-          return d;
+    return this.remoteRequest.get(contig, start, stop).then(object => {
+      var d = extractVariants(object); // TODO: should parts to Variant[]
+      return d;
     });
   }
 }
