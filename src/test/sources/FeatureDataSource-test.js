@@ -46,6 +46,7 @@ describe('FeatureDataSource', function() {
         var contigs = source.contigList();
         expect(contigs).to.deep.equal(['chrM','93']);
     });
+    //call server.respond
 
     it('should normalize range', function() {
         var source = getTestSource();
