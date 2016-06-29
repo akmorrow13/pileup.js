@@ -39,7 +39,7 @@ class FeatureEndpoint {
         this.contigList = contigList;
     }
 
-    contigList(): string[] {
+    getContigList(): string[] {
         return this.contigList.map(seq => seq.name);
     }
 

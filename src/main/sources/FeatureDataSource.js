@@ -15,7 +15,7 @@ var FEATURES_PER_REQUEST = 200;
 function createFromFeatureEndpoint(remoteSource: FeatureEndpoint): BigBedSource {
     // Collection of genes that have already been loaded.
   var features: {[key:string]: feature} = {}; //TODO features
-
+  var contigList = remoteSource.getContigList();
   // Ranges for which we have complete information -- no need to hit network.
   var coveredRanges: Array<ContigInterval<string>> = [];
 
@@ -70,15 +70,14 @@ function createFromFeatureEndpoint(remoteSource: FeatureEndpoint): BigBedSource 
         }
       }).done()
     },
-    getRange,
-    getRangeAsString,
+    // getRange,
+    // getRangeAsString,
     contigList: () => contigList,
-    normalizeRange,
+    // normalizeRange,
     getFeaturesInRange,
 
     // These are here to make Flow happy.
     on: () => {},
-    once: () -> {},
     off: () => {},
     trigger: () => {}
   };
