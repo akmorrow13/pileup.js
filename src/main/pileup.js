@@ -16,6 +16,7 @@ import ReferenceDataSource from './sources/ReferenceDataSource';
 import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
+import GenotypeDataSource from './sources/GenotypeDataSource';
 import BamDataSource from './sources/BamDataSource';
 import GA4GHDataSource from './sources/GA4GHDataSource';
 import EmptySource from './sources/EmptySource';
@@ -28,6 +29,7 @@ import LocationTrack from './viz/LocationTrack';
 import PileupTrack from './viz/PileupTrack';
 import ScaleTrack from './viz/ScaleTrack';
 import VariantTrack from './viz/VariantTrack';
+import GenotypeTrack from './viz/GenotypeTrack';
 import Root from './Root';
 
 type GenomeRange = {
@@ -126,6 +128,7 @@ var pileup = {
     ga4gh: GA4GHDataSource.create,
     vcf: VcfDataSource.create,
     variants: VariantDataSource.create,
+    genotypes: GenotypeDataSource.create,
     twoBit: TwoBitDataSource.create,
     reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
@@ -138,6 +141,7 @@ var pileup = {
     location: makeVizObject(LocationTrack),
     scale:    makeVizObject(ScaleTrack),
     variants: makeVizObject(VariantTrack),
+    genotypes: makeVizObject(GenotypeTrack),
     pileup:   makeVizObject(PileupTrack)
   },
   version: '0.6.8'

@@ -30,7 +30,6 @@ function renderGenome(ctx: DataCanvasRenderingContext2D,
   var pxPerLetter = scale(1) - scale(0);
   var mode = DisplayMode.getDisplayMode(pxPerLetter);
   var showText = DisplayMode.isText(mode);
-
   if (mode != DisplayMode.HIDDEN) {
     ctx.textAlign = 'center';
     if (mode == DisplayMode.LOOSE) {
@@ -94,7 +93,7 @@ class GenomeTiledCanvas extends TiledCanvas {
     // The +/-1 ensures that partially-visible bases on the edge are rendered.
     var genomeRange = {
       contig: range.contig,
-      start: range.start() - 1,
+      start: Math.max(0, (range.start() - 1)),
       stop: range.stop() + 1
     };
     var basePairs = this.source.getRangeAsString(genomeRange);

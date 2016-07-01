@@ -37,7 +37,6 @@ class Sequence {
       throw `Requested a range with start > stop (${start}, ${stop})`;
     }
     return this.remoteRequest.get(contig, start, stop).then(sequence => {
-        // var dataView = new DataView(buffer);
         var d = sequence.substring(start, (stop-start + 1));
         return d;
     });

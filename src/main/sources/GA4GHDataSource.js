@@ -57,7 +57,7 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
         var ga4ghAlignment = new GA4GHAlignment(alignment);
         reads[key] = ga4ghAlignment;
       } catch(TypeError){
-        console.log("Error in Matepair Data Source.")
+        console.log("Error in Matepair Data Source.");
       }
     });
   }
