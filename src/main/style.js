@@ -11,10 +11,10 @@
 module.exports = {
   // Colors for individual base pairs
   BASE_COLORS: {
-    'A': '#188712',
-    'G': '#C45C16',
-    'C': '#0600F9',
-    'T': '#F70016',
+    'A': '#5050FF', //'#188712',
+    'G': '#00C000', //'#C45C16',
+    'C': '#E00000', //'#0600F9',
+    'T': '#E6E600',// '#F70016',
     'U': '#F70016',
     'N': 'black'
   },
@@ -63,7 +63,11 @@ module.exports = {
 
   // Variant Track
   VARIANT_STROKE: 'blue',
-  VARIANT_FILL: '#ddd',
+  VARIANT_FILL: 'blue',
   VARIANT_HEIGHT: 14,
 
+  // Genotype Track
+  GENOTYPE_SPACING: 1,
+  GENOTYPE_FILL: 'red',
+  GENOTYPE_HEIGHT: 10,
 };
