@@ -77,14 +77,14 @@ class VariantTrack extends React.Component {
     ctx.reset();
     ctx.save();
 
-    ctx.fillStyle = style.VARIANT_FILL;
-    ctx.strokeStyle = style.VARIANT_STROKE;
     variants.forEach(variant => {
       ctx.pushObject(variant);
+      ctx.fillStyle = style.BASE_COLORS[variant.alt];
+      ctx.strokeStyle = style.BASE_COLORS[variant.ref];
       var x = Math.round(scale(variant.position));
       var width = Math.round(scale(variant.position + 1)) - 1 - x;
-      ctx.fillRect(x - 0.5, y - 0.5, width, style.VARIANT_HEIGHT);
-      ctx.strokeRect(x - 0.5, y - 0.5, width, style.VARIANT_HEIGHT);
+      ctx.fillRect(x - 0.2, y - 0.2, width, style.VARIANT_HEIGHT);
+      ctx.strokeRect(x - 0.2, y - 0.2, width, style.VARIANT_HEIGHT);
       ctx.popObject();
     });
 
