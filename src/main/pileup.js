@@ -12,9 +12,11 @@ import ReactDOM from 'react-dom';
 
 // Data sources
 import TwoBitDataSource from './sources/TwoBitDataSource';
+import ReferenceDataSource from './sources/ReferenceDataSource';
 import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
+import GenotypeDataSource from './sources/GenotypeDataSource';
 import BamDataSource from './sources/BamDataSource';
 import GA4GHDataSource from './sources/GA4GHDataSource';
 import EmptySource from './sources/EmptySource';
@@ -23,11 +25,13 @@ import EmptySource from './sources/EmptySource';
 // Visualizations
 import CoverageTrack from './viz/CoverageTrack';
 import GenomeTrack from './viz/GenomeTrack';
-import GeneTrack from './viz/GeneTrack'; //use this for features
+import GeneTrack from './viz/GeneTrack';
+import FeatureTrack from './viz/FeatureTrack'; 
 import LocationTrack from './viz/LocationTrack';
 import PileupTrack from './viz/PileupTrack';
 import ScaleTrack from './viz/ScaleTrack';
 import VariantTrack from './viz/VariantTrack';
+import GenotypeTrack from './viz/GenotypeTrack';
 import Root from './Root';
 
 type GenomeRange = {
@@ -126,7 +130,10 @@ var pileup = {
     ga4gh: GA4GHDataSource.create,
     vcf: VcfDataSource.create,
     variants: VariantDataSource.create,
+    genotypes: GenotypeDataSource.create,
+    features: FeatureDataSource.create,
     twoBit: TwoBitDataSource.create,
+    reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
     empty: EmptySource.create
   },
@@ -134,12 +141,14 @@ var pileup = {
     coverage: makeVizObject(CoverageTrack),
     genome:   makeVizObject(GenomeTrack),
     genes:    makeVizObject(GeneTrack),
+    features: makeVizObject(FeatureTrack),
     location: makeVizObject(LocationTrack),
     scale:    makeVizObject(ScaleTrack),
     variants: makeVizObject(VariantTrack),
+    genotypes: makeVizObject(GenotypeTrack),
     pileup:   makeVizObject(PileupTrack)
   },
-  version: '0.6.8'
+  version: '0.6.6'
 };
 
 module.exports = pileup;

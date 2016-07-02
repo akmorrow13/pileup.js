@@ -1,79 +1,99 @@
-  /** @flow */
+/**
+ * The "glue" between TwoBit.js and GenomeTrack.js.
+ *
+ * GenomeTrack is pure view code -- it renders data which is already in-memory
+ * in the browser.
+ *
+ * TwoBit is purely for data parsing and fetching. It only knows how to return
+ * promises for various genome features.
+ *
+ * This code acts as a bridge between the two. It maintains a local version of
+ * the data, fetching remote data and informing the view when it becomes
+ * available.
+ *
+ * @flow
+ */
 'use strict';
 
-import BigBedSource from './BigBedDataSource';
+import Q from 'q';
+import _ from 'underscore';
+import {Events} from 'backbone';
+
 import ContigInterval from '../ContigInterval';
 import RemoteRequest from '../RemoteRequest';
 import FeatureEndpoint from '../data/FeatureEndpoint';
-import Interval from '../Interval';
-import Q from 'q';
-import _ from 'underscore';
-import { Events } from 'backbone';
+import type {Feature} from '../data/FeatureEndPoint';
 
-var FEATURES_PER_REQUEST = 200;
+// Flow type for export.
+export type FeatureDataSource = {
+  rangeChanged: (newRange: GenomeRange) => void;
+  getFeaturesInRange: (range: ContigInterval<string>) => Feature[];
+  on: (event: string, handler: Function) => void;
+  off: (event: string) => void;
+  trigger: (event: string, ...args:any) => void;
+}
 
-function createFromFeatureEndpoint(remoteSource: FeatureEndpoint): BigBedSource {
-    // Collection of genes that have already been loaded.
-  var features: {[key:string]: feature} = {}; //TODO features
-  var contigList = remoteSource.getContigList();
+
+// Requests for 2bit ranges are expanded to begin & end at multiples of this
+// constant. Doing this means that panning typically won't require
+// additional network requests.
+var BASE_PAIRS_PER_FETCH = 1000;
+
+function expandRange(range: ContigInterval<string>) {
+  var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
+  var newStart = Math.max(1, roundDown(range.start())),
+      newStop = roundDown(range.stop() + BASE_PAIRS_PER_FETCH - 1);
+
+  return new ContigInterval(range.contig, newStart, newStop);
+}
+
+function featureKey(f: Feature): string {
+  return `${f.contig}:${f.start}`;
+}
+
+
+function createFromFeatureUrl(remoteSource: FeatureEndpoint): FeatureDataSource {
+  var features: {[key: string]: Feature} = {};
+
   // Ranges for which we have complete information -- no need to hit network.
-  var coveredRanges: Array<ContigInterval<string>> = [];
+  var coveredRanges: ContigInterval<string>[] = [];
 
-  function addFeature(newfeature) {
-    if (!feature[newFeature.featureId]) {
-      feature[newFeature.featureId] = newFeature;
+  function addFeature(f: Feature) {
+    var key = featureKey(f);
+    if (!features[key]) {
+      features[key] = f;
     }
   }
 
-  function getFeaturesInRange(range: ContigInterval<string>): Feature[] {
-    if (!range) return [];
-    var results = [];
-    _.each(Feature, feature => {
-      if (range.intersects(feature.range)) {
-        results.push(feature);
-      }
-    });
-    return results;
-  }
-
-  function fetch(range: ContigInterval) {
+  function fetch(range: GenomeRange) {
+    var interval = new ContigInterval(range.contig, range.start, range.stop);
 
     // Check if this interval is already in the cache.
-    if (range.isCoveredBy(coveredRanges)) {
+    if (interval.isCoveredBy(coveredRanges)) {
       return Q.when();
     }
 
-    coveredRanges.push(range);
+    interval = expandRange(interval);
+
+    // "Cover" the range immediately to prevent duplicate fetches.
+    coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
+    return remoteSource.getFeaturesInRange(interval).then(features => {
+      features.forEach(feature => addFeature(feature));
+      o.trigger('newdata', interval);
+    });
+  }
 
-    /** Modify URL */
-    remoteSource.remoteRequest.url += range.contig.contig + "?start=" + range.start + "&end=" + range.stop;
-
-    return remoteSource.getFeaturesInRange(range.contig.contig, range.start, range.end);
+  function getFeaturesInRange(range: ContigInterval<string>): Feature[] {
+    if (!range) return [];  // XXX why would this happen?
+    var x = _.filter(features, f => range.chrContainsLocus(f.contig, f.start));
+    return x;
   }
 
   var o = {
     rangeChanged: function(newRange: GenomeRange) {
-      normalizeRange(newRange).then(r => {
-        var range = new ContigInterval(r.contig, r.start, r.stop);
-
-        if (range.isCoveredBy(coveredRanges)) {
-          return;
-        }
-
-        var newRanges = range.complementIntervals(coveredRanges);
-        coveredRanges.push(range);
-        coveredRanges = ContigInterval.coalesce(coveredRanges);
-
-        for (var newRange of newRanges) {
-          fetch(newRange);
-        }
-      }).done()
+      fetch(newRange).done();
     },
-    // getRange,
-    // getRangeAsString,
-    contigList: () => contigList,
-    // normalizeRange,
     getFeaturesInRange,
 
     // These are here to make Flow happy.
@@ -81,20 +101,27 @@ function createFromFeatureEndpoint(remoteSource: FeatureEndpoint): BigBedSource 
     off: () => {},
     trigger: () => {}
   };
-
   _.extend(o, Events);  // Make this an event emitter
 
   return o;
-};
-
-function create(data: {url: string}): BigBedSource {
-      var url = data.url;
-      if (!url) {
-        throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
-      }
-      return createFromFeatureEndpoint(new RemoteRequest(url));
 }
 
+function create(data: {url?:string, key?:string}): FeatureDataSource {
+  var {url, key} = data;
+  if (!url) {
+    throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
+  }
+  // verify key was correctly set
+  if (!key) {
+    throw new Error(`Missing key from track: ${JSON.stringify(data)}`);
+  }
+  var request = new RemoteRequest(url, key);
+  var endpoint = new FeatureEndpoint(request);
+  return createFromFeatureUrl(endpoint);
+}
+
+
 module.exports = {
-    create
+  create,
+  createFromFeatureUrl
 };
