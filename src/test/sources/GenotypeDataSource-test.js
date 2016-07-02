@@ -41,7 +41,6 @@ describe('GenotypeDataSource', function() {
 
     source.on('newdata', () => {
       var genotypes = source.getFeaturesInRange(range);
-      console.log(genotypes);
       expect(genotypes).to.have.length(3);
       expect(genotypes[1].sampleIds).to.contain('sample1');
       expect(genotypes[1].variant.contig).to.equal('chrM');

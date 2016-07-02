@@ -1,10 +1,12 @@
 [{
-	"rest": "4ee7469a-b468-429b-a109-07a484817037",
+	"id": "4ee7469a-b468-429b-a109-07a484817037",
+	"featureType": "peak",
 	"contig": "chrM",
 	"start": 1107,
 	"end": 1200
 }, {
-	"rest": "e105ce29-a840-4fc6-819f-a9aac5166163",
+	"id": "e105ce29-a840-4fc6-819f-a9aac5166163",
+	"featureType": "peak",
 	"contig": "chrM",
 	"start": 1011,
 	"end": 1012
