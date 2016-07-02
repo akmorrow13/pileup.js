@@ -7,56 +7,36 @@
 
 // import Q from 'q';
 import type RemoteRequest from '../RemoteRequest';
-//TODO import bedrow here
 
-export type FeatureRecord = {
-    featureId: string;
-    featureType: string;
-    start: number;
-    end: number;
-    range: ContigInterval<string>
+type Feature = {
+  id: string;
+  featureType: string;
+  contig: string;
+  start: number;
+  stop: number;
 }
 
-function unpackFeatures(dataView: DataView, start: number, end: number): Array<string> {
-  // TODO: use jBinary bitfield for this
-  var features: Array<string> = [];
-  // basePairs.length = dataView.byteLength * 4;  // pre-allocate
-  for (var i = 0; i < dataView.byteLength; i++) {
-    var packed = dataView.getUint8(i);
-    features[i] = String.fromCharCode(packed);
-  }
-  // Remove base pairs from the end if the sequence terminated mid-byte.
-  // features.length = numBasePairs; //TODO Determine length
+function extractFeatures(features: Object): Feature[] {
   return features;
 }
 
 class FeatureEndpoint {
-    remoteRequest: RemoteRequest;
-    contigList: FeatureRecord[];
+  remoteRequest: RemoteRequest;
 
-    constructor(remoteRequest: RemoteRequest, contigList: FeatureRecord[]) {
-        this.remoteRequest = remoteRequest;
-        this.contigList = contigList;
-    }
+  constructor(remoteRequest: RemoteRequest) {
+    this.remoteRequest = remoteRequest;
+  }
 
-    getContigList(): string[] {
-        return this.contigList.map(seq => seq.name);
-    }
+  getFeaturesInRange(range: ContigInterval<string>): Q.Promise<Feature[]> {
+     var contig = range.contig;
+     var start = range.interval.start;
+     var stop = range.interval.stop;
 
-    /**
-   * Returns the Features in contig:start-stop.
-   * The range is inclusive and zero-based.
-   * Returns empty string if no data is available on this range.
-   */
-  
-    getFeaturesInRange(contig: string, start: number, stop: number): Q.Promise<BedRow[]> {
-      if (start > stop) {
-        throw `Requested a range with start > stop (${start}, ${stop})`;
-      }
-      return this.remoteRequest.get(contig, start, stop).then(buffer => {
-          var dataView = new DataView(buffer);
-          var d = unpackFeatures(dataView, start, stop).join('');
-          return d;
-      });
-    }
+    return this.remoteRequest.get(contig, start, stop).then(object => {
+      var d = extractFeatures(object);
+      return d;
+    });
+  }
 }
+
+module.exports = FeatureEndpoint;
