@@ -14,6 +14,7 @@ import ContigInterval from '../ContigInterval';
 import GA4GHAlignment from '../GA4GHAlignment';
 
 var ALIGNMENTS_PER_REQUEST = 200;  // TODO: explain this choice.
+var MAX_BASE_PAIRS_TO_FETCH = 40000;
 
 
 // Genome ranges are rounded to multiples of this for fetching.
@@ -86,6 +87,11 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
   function fetchAlignmentsForInterval(range: ContigInterval<string>,
                                       pageToken: ?string,
                                       numRequests: number) {
+
+    var span = range.length();
+    if (span > MAX_BASE_PAIRS_TO_FETCH) {
+      return Q.when();  // empty promise
+    }
     var xhr = new XMLHttpRequest();
 
     var endpoint = url + "/" + range.contig + "?start=" + range.start() + "&end=" + range.stop()+"&key="+spec.readGroupId;
