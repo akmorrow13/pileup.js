@@ -12,10 +12,8 @@ import type {Scale} from './d3utils';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import _ from 'underscore';
 import shallowEquals from 'shallow-equals';
 
-import Interval from '../Interval';
 import d3utils from './d3utils';
 import scale from '../scale';
 import ContigInterval from '../ContigInterval';
@@ -72,12 +70,7 @@ class FeatureTrack extends React.Component {
     // Hold off until height & width are known.
     if (width === 0) return;
 
-    var sc = this.getScale(),
-        // We can't clamp scale directly because of offsetPx.
-        clampedScale = scale.linear()
-            .domain([sc.invert(0), sc.invert(width)])
-            .range([0, width])
-            .clamp(true);
+    var sc = this.getScale();
 
     d3utils.sizeCanvas(canvas, width, height);
 
@@ -85,8 +78,6 @@ class FeatureTrack extends React.Component {
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    var featureLineY = Math.round(height / 4);
-    var textIntervals = [];  // x-intervals with rendered feature names, to avoid over-drawing.
     // TODO: don't pull in features via state.
     ctx.font = `${style.GENE_FONT_SIZE}px ${style.GENE_FONT}`;
     ctx.textAlign = 'center';
