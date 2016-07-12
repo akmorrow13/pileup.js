@@ -1,0 +1,855 @@
+[{
+	"position": {
+		"referenceName": "chrM",
+		"start": 14362,
+		"end": 24886,
+		"orientation": {}
+	},
+	"id": "ENST00000541675",
+	"strand": false,
+	"codingRegion": {
+		"start": 14362,
+		"end": 24886
+	},
+	"exons": [{
+		"exonId": "ENSE00002254515",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 24733,
+			"end": 24886,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002303227",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 18267,
+			"end": 18369,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003638984",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17914,
+			"end": 18061,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003629019",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17605,
+			"end": 17742,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002285713",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17497,
+			"end": 17504,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001656010",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17232,
+			"end": 17364,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001760358",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16853,
+			"end": 17055,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003497546",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14969,
+			"end": 15038,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003511598",
+		"transcriptId": "ENST00000541675",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14362,
+			"end": 14829,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000227232",
+	"name": "ENST00000541675"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 14403,
+		"end": 29570,
+		"orientation": {}
+	},
+	"id": "ENST00000488147",
+	"strand": false,
+	"codingRegion": {
+		"start": 14403,
+		"end": 29570
+	},
+	"exons": [{
+		"exonId": "ENSE00001890219",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 29533,
+			"end": 29570,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003507205",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 24737,
+			"end": 24891,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003477500",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 18267,
+			"end": 18366,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003565697",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17914,
+			"end": 18061,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003475637",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17605,
+			"end": 17742,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003502542",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17232,
+			"end": 17368,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003553898",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16857,
+			"end": 17055,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003621279",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16606,
+			"end": 16765,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002030414",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15795,
+			"end": 15947,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001935574",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15004,
+			"end": 15038,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001843071",
+		"transcriptId": "ENST00000488147",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14403,
+			"end": 14501,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000227232",
+	"name": "ENST00000488147"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 14362,
+		"end": 29370,
+		"orientation": {}
+	},
+	"id": "ENST00000423562",
+	"strand": false,
+	"codingRegion": {
+		"start": 14362,
+		"end": 29370
+	},
+	"exons": [{
+		"exonId": "ENSE00001718035",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 29320,
+			"end": 29370,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003603734",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 24737,
+			"end": 24891,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003513603",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17914,
+			"end": 18061,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003565315",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17605,
+			"end": 17742,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003685767",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17232,
+			"end": 17368,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003553898",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16857,
+			"end": 17055,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003621279",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16606,
+			"end": 16765,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002030414",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15795,
+			"end": 15947,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003591210",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14969,
+			"end": 15038,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003693168",
+		"transcriptId": "ENST00000423562",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14362,
+			"end": 14829,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000227232",
+	"name": "ENST00000423562"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 14362,
+		"end": 29370,
+		"orientation": {}
+	},
+	"id": "ENST00000438504",
+	"strand": false,
+	"codingRegion": {
+		"start": 14362,
+		"end": 29370
+	},
+	"exons": [{
+		"exonId": "ENSE00001718035",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 29320,
+			"end": 29370,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003624050",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 24737,
+			"end": 24891,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001642865",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 18267,
+			"end": 18379,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003638984",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17914,
+			"end": 18061,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001699689",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17601,
+			"end": 17742,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001656010",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17232,
+			"end": 17364,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001760358",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16853,
+			"end": 17055,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003618297",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16606,
+			"end": 16765,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001375216",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15903,
+			"end": 15947,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001388009",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15795,
+			"end": 15901,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003497546",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14969,
+			"end": 15038,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003511598",
+		"transcriptId": "ENST00000438504",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14362,
+			"end": 14829,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000227232",
+	"name": "ENST00000438504"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 14410,
+		"end": 29806,
+		"orientation": {}
+	},
+	"id": "ENST00000538476",
+	"strand": false,
+	"codingRegion": {
+		"start": 14410,
+		"end": 29806
+	},
+	"exons": [{
+		"exonId": "ENSE00001378845",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 29533,
+			"end": 29806,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002317443",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 24736,
+			"end": 24891,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003682243",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 18267,
+			"end": 18366,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003638984",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17914,
+			"end": 18061,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001699689",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17601,
+			"end": 17742,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001656010",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 17232,
+			"end": 17364,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003632482",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16857,
+			"end": 17055,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002275850",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16747,
+			"end": 16765,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002241734",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 16606,
+			"end": 16745,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001375216",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15903,
+			"end": 15947,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001388009",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 15795,
+			"end": 15901,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002215305",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14999,
+			"end": 15038,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002295553",
+		"transcriptId": "ENST00000538476",
+		"strand": false,
+		"region": {
+			"referenceName": "chrM",
+			"start": 14410,
+			"end": 14502,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000227232",
+	"name": "ENST00000538476"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 11873,
+		"end": 14409,
+		"orientation": {}
+	},
+	"id": "ENST00000518655",
+	"strand": true,
+	"codingRegion": {
+		"start": 11873,
+		"end": 14409
+	},
+	"exons": [{
+		"exonId": "ENSE00002269724",
+		"transcriptId": "ENST00000518655",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 11873,
+			"end": 12227,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002270865",
+		"transcriptId": "ENST00000518655",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12594,
+			"end": 12721,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002216795",
+		"transcriptId": "ENST00000518655",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13402,
+			"end": 13655,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002303382",
+		"transcriptId": "ENST00000518655",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13660,
+			"end": 14409,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000223972",
+	"name": "ENST00000518655"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 11871,
+		"end": 14412,
+		"orientation": {}
+	},
+	"id": "ENST00000515242",
+	"strand": true,
+	"codingRegion": {
+		"start": 11871,
+		"end": 14412
+	},
+	"exons": [{
+		"exonId": "ENSE00002234632",
+		"transcriptId": "ENST00000515242",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 11871,
+			"end": 12227,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003608237",
+		"transcriptId": "ENST00000515242",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12612,
+			"end": 12721,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002306041",
+		"transcriptId": "ENST00000515242",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13224,
+			"end": 14412,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000223972",
+	"name": "ENST00000515242"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 11868,
+		"end": 14409,
+		"orientation": {}
+	},
+	"id": "ENST00000456328",
+	"strand": true,
+	"codingRegion": {
+		"start": 11868,
+		"end": 14409
+	},
+	"exons": [{
+		"exonId": "ENSE00002234944",
+		"transcriptId": "ENST00000456328",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 11868,
+			"end": 12227,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00003582793",
+		"transcriptId": "ENST00000456328",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12612,
+			"end": 12721,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00002312635",
+		"transcriptId": "ENST00000456328",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13220,
+			"end": 14409,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000223972",
+	"name": "ENST00000456328"
+}, {
+	"position": {
+		"referenceName": "chrM",
+		"start": 12009,
+		"end": 13670,
+		"orientation": {}
+	},
+	"id": "ENST00000450305",
+	"strand": true,
+	"codingRegion": {
+		"start": 12009,
+		"end": 13670
+	},
+	"exons": [{
+		"exonId": "ENSE00001948541",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12009,
+			"end": 12057,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001671638",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12178,
+			"end": 12227,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001758273",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12612,
+			"end": 12697,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001799933",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 12974,
+			"end": 13052,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001746346",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13220,
+			"end": 13374,
+			"orientation": {}
+		}
+	}, {
+		"exonId": "ENSE00001863096",
+		"transcriptId": "ENST00000450305",
+		"strand": true,
+		"region": {
+			"referenceName": "chrM",
+			"start": 13452,
+			"end": 13670,
+			"orientation": {}
+		}
+	}],
+	"geneId": "ENSG00000223972",
+	"name": "ENST00000450305"
+}]

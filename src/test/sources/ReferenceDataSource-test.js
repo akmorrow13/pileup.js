@@ -16,8 +16,8 @@ before(function () {
     response = data;
     server = sinon.fakeServer.create();
     server.respondWith('GET', '/reference/chrM?start=0&end=10000&key=reference',[200, { "Content-Type": "application/json" }, response]);
-    server.respondWith('GET', '/reference/chrM?start=0&end=10&key=reference',[200, { "Content-Type": "application/json" }, response]);
     server.respondWith('GET', '/reference/22?start=0&end=10000&key=reference',[200, { "Content-Type": "application/json" }, response]);
+    server.respondWith('GET', '/reference/22?start=10001&end=20000&key=reference',[200, { "Content-Type": "application/json" }, response]);
   });
 });
 
@@ -74,11 +74,46 @@ it('should fetch base pairs', function(done) {
      'chrM:3': 'T'
     });
     expect(source.getRangeAsString(range)).to.equal('NGTT');
-
     done();
   });
   source.rangeChanged(range);
   server.respond();
+});
+
+it('should add new chunk', function(done) {
+  var source = getTestSource();
+  var range1 = {contig: 'chrM', start: 0, stop: 3};
+  var range2 = {contig: 'chrM', start: 10000, stop: 10003};
+
+  source.on('newdata', () => {
+    expect(source.getRange(range1)).to.deep.equal({
+     'chrM:0': 'N',
+     'chrM:1': 'G',
+     'chrM:2': 'T',
+     'chrM:3': 'T'
+    });
+    expect(source.getRangeAsString(range1)).to.equal('NGTT');
+
+    done();
+  });
+  source.rangeChanged(range1);
+  server.respond();
+
+  source.on('newdata', () => {
+
+    expect(source.getRange(range2)).to.deep.equal({
+     'chrM:0': 'N',
+     'chrM:1': 'G',
+     'chrM:2': 'T',
+     'chrM:3': 'T'
+    });
+    expect(source.getRangeAsString(range2)).to.equal('NGTT');
+
+    done();
+  });
+  source.rangeChanged(range2);
+  server.respond();
+
 });
 
 it('should fetch nearby base pairs', function(done) {
@@ -114,6 +149,7 @@ it('should add chr', function(done) {
   var range = {contig: '22', start: 0, stop: 3};
 
   source.on('newdata', () => {
+
     expect(source.getRange(range)).to.deep.equal({
       '22:0': 'N',
       '22:1': 'G',

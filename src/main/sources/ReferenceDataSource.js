@@ -31,7 +31,7 @@ import utils from '../utils';
 // Requests for 2bit ranges are expanded to begin & end at multiples of this
 // constant. Doing this means that panning typically won't require
 // additional network requests.
-var BASE_PAIRS_PER_FETCH = 10000;
+var BASE_PAIRS_PER_FETCH = 15000;
 
 var MAX_BASE_PAIRS_TO_FETCH = 100000;
 
