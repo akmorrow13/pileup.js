@@ -16,6 +16,7 @@ import ReferenceDataSource from './sources/ReferenceDataSource';
 import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
+import GeneDataSource from './sources/GeneDataSource';
 import GenotypeDataSource from './sources/GenotypeDataSource';
 import BamDataSource from './sources/BamDataSource';
 import GA4GHDataSource from './sources/GA4GHDataSource';
@@ -26,7 +27,7 @@ import EmptySource from './sources/EmptySource';
 import CoverageTrack from './viz/CoverageTrack';
 import GenomeTrack from './viz/GenomeTrack';
 import GeneTrack from './viz/GeneTrack';
-import FeatureTrack from './viz/FeatureTrack'; 
+import FeatureTrack from './viz/FeatureTrack';
 import LocationTrack from './viz/LocationTrack';
 import PileupTrack from './viz/PileupTrack';
 import ScaleTrack from './viz/ScaleTrack';
@@ -135,6 +136,7 @@ var pileup = {
     twoBit: TwoBitDataSource.create,
     reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
+    genes: GeneDataSource.create,
     empty: EmptySource.create
   },
   viz: {
