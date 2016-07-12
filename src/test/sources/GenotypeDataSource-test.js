@@ -6,7 +6,7 @@ import {expect} from 'chai';
 
 import sinon from 'sinon';
 
-import VariantDataSource from '../../main/sources/GenotypeDataSource';
+import VariantDataSource from '../../main/sources/VariantDataSource';
 import ContigInterval from '../../main/ContigInterval';
 import RemoteFile from '../../main/RemoteFile';
 
