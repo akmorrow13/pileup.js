@@ -50,6 +50,7 @@ class RemoteRequest {
     var endpoint = this.getEndpointFromContig(range.contig, range.start(), range.stop(), modifier);
     // Fetch from the network
     return this.getFromNetwork(endpoint);
+
   }
 
   /**

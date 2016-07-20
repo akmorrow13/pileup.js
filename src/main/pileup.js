@@ -20,6 +20,7 @@ import GeneDataSource from './sources/GeneDataSource';
 import GenotypeDataSource from './sources/GenotypeDataSource';
 import BamDataSource from './sources/BamDataSource';
 import GA4GHDataSource from './sources/GA4GHDataSource';
+import CoverageDataSource from './sources/CoverageDataSource';
 import EmptySource from './sources/EmptySource';
 import FeatureDataSource from './sources/FeatureDataSource';
 
@@ -136,7 +137,7 @@ var pileup = {
     twoBit: TwoBitDataSource.create,
     reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
-    genes: GeneDataSource.create,
+    coverage: CoverageDataSource.create,
     empty: EmptySource.create
   },
   viz: {

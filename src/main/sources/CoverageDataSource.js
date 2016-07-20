@@ -33,6 +33,7 @@ export type PositionCount = {
   count: number;
 }
 
+<<<<<<< HEAD
 function keyFunction(p: PositionCount): string {
   return `${p.contig}:${p.position}`;
 }
@@ -60,6 +61,7 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
 
     // Cover the range immediately to prevent duplicate fetches.
     cache.coverRange(interval);
+    coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval, endpointModifier).then(positions => {
       positions.forEach(p => cache.put(p));
       o.trigger('newdata', interval);
