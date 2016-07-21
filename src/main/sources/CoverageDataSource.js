@@ -33,7 +33,6 @@ export type PositionCount = {
   count: number;
 }
 
-<<<<<<< HEAD
 function keyFunction(p: PositionCount): string {
   return `${p.contig}:${p.position}`;
 }
