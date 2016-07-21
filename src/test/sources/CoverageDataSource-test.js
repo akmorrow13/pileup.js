@@ -34,7 +34,6 @@ describe('CoverageDataSource', function() {
     expect(source.getCoverageInRange(requestInterval))
         .to.deep.equal([]);
 
-    var progress = [];
     source.on('newdata', () => {
       var coverage = source.getCoverageInRange(requestInterval);
       expect(coverage).to.have.length(12);
