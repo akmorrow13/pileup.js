@@ -25,8 +25,9 @@ class RemoteRequest {
     this.numNetworkRequests = 0;
   }
 
-  get(contig: string, start: number, stop: number): Q.Promise<Object> {
-    var length = stop - start;
+  get(contig: string, start: number, stop: number, modifier:string=""): Q.Promise<Object> {
+    
+    var length=stop -start;
     if (length <= 0) {
       return Q.reject(`Requested <0 bytes (${length}) from ${this.url}`);
     }
@@ -38,7 +39,7 @@ class RemoteRequest {
     }
 
     // Need to fetch from the network.
-    return this.getFromNetwork(contig, start, stop);
+    return this.getFromNetwork(contig, start, stop, modifier);
   }
 
   getFromCache(start: number, stop: number): ?Object {
@@ -54,13 +55,20 @@ class RemoteRequest {
     /**
      * Request must be of form "url/contig?start=start&end=stop"
     */
-  getFromNetwork(contig: string, start: number, stop: number): Q.Promise<Object> {
+  getFromNetwork(contig: string, start: number, stop: number, modifier: string = ""): Q.Promise<Object> {
     var length = stop - start;
     if (length > 50000000) {
       throw `Monster request: Won't fetch ${length} bytes from ${this.url}`;
     }
     var xhr = new XMLHttpRequest();
-    var endpoint = this.url + "/" + contig + "?start=" + start + "&end=" + stop + "&key=" + this.key;
+    var endpoint = ""
+    if (modifier.length > 0){
+      endpoint = this.url + "/" + contig + "?start=" + start + "&end=" + stop + "&" + modifier;
+    }
+    else {
+      endpoint = this.url + "/" + contig + "?start=" + start + "&end=" + stop;
+    }
+
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');

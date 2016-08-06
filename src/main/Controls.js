@@ -109,8 +109,8 @@ class Controls extends React.Component {
         <select ref='contig' onChange={this.handleContigChange.bind(this)}>
           {contigOptions}
         </select>{' '}
-        <input ref='position' type='text' />{' '}
-        <button className='btn-submit' onClick={this.handleFormSubmit.bind(this)}>Go</button>{' '}
+        <input ref='position' type='text' id="form-field" />{' '}
+        <button className='btn-submit' id="go" onClick={this.handleFormSubmit.bind(this)}>Go</button>{' '}
         <div className='zoom-controls'>
           <button className='btn-zoom-out' onClick={this.zoomOut.bind(this)}></button>{' '}
           <button className='btn-zoom-in' onClick={this.zoomIn.bind(this)}></button>

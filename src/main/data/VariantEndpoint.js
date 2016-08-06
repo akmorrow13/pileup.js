@@ -19,13 +19,12 @@ class VariantEndpoint {
     this.remoteRequest = remoteRequest;
   }
 
-  getFeaturesInRange(range: ContigInterval<string>): Q.Promise<Variant[]> {
+  getFeaturesInRange(range: ContigInterval<string>,modifier: string): Q.Promise<Variant[]> {
      var contig = range.contig;
      var start = range.interval.start;
      var stop = range.interval.stop;
 
-
-    return this.remoteRequest.get(contig, start, stop).then(object => {
+    return this.remoteRequest.get(contig, start, stop,modifier).then(object => {
       var d = extractVariants(object); // TODO: should parts to Variant[]
       return d;
     });
