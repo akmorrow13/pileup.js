@@ -1,5 +1,5 @@
 /**
- * Data management for CoverageTrack.
+ * Data management for PileupCoverageTrack.
  *
  * This class tracks counts and mismatches at each locus.
  *

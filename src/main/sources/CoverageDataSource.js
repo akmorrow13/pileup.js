@@ -18,6 +18,7 @@ import ContigInterval from '../ContigInterval';
 import RemoteRequest from '../RemoteRequest';
 
 export type CoverageDataSource = {
+  maxCoverage: (range: ContigInterval<string>) => number;
   rangeChanged: (newRange: GenomeRange) => void;
   getCoverageInRange: (range: ContigInterval<string>) => PositionCount[];
   on: (event: string, handler: Function) => void;
@@ -44,6 +45,12 @@ function filterFunction(range: ContigInterval<string>, p: PositionCount): boolea
 function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource {
   var cache: ResolutionCache<PositionCount> =
     new ResolutionCache(filterFunction, keyFunction);
+
+  function maxCoverage(range: ContigInterval<string>): number {
+    var positions: number[] = cache.get(range).map(r => r.count);
+    var maxCoverage = Math.max.apply(Math, positions);
+    return maxCoverage;
+  }
 
   function fetch(range: GenomeRange) {
     var interval = new ContigInterval(range.contig, range.start, range.stop);
@@ -73,6 +80,7 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
   }
 
   var o = {
+    maxCoverage,
     rangeChanged: function(newRange: GenomeRange) {
       fetch(newRange).done();
     },

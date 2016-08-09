@@ -4,13 +4,12 @@
  */
 'use strict';
 
+import type {Alignment, AlignmentDataSource} from '../Alignment';
 import type Interval from '../Interval';
-import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
+import type {BinSummary} from './CoverageCache';
 import type {Scale} from './d3utils';
-import CoverageDataSource from '../sources/CoverageDataSource';
-import PositionCount from '../sources/CoverageDataSource';
 
 import React from 'react';
 import scale from '../scale';
@@ -19,31 +18,28 @@ import d3utils from './d3utils';
 import _ from 'underscore';
 import dataCanvas from 'data-canvas';
 import canvasUtils from './canvas-utils';
+import CoverageCache from './CoverageCache';
+import TiledCanvas from './TiledCanvas';
 import style from '../style';
 import ContigInterval from '../ContigInterval';
-import TiledCanvas from './TiledCanvas';
 
+// Basic setup (TODO: make this configurable by the user)
+const SHOW_MISMATCHES = true;
 
-type Props = {
-  width: number;
-  height: number;
-  range: GenomeRange;
-  source: CoverageDataSource;
-  options: {
-    vafColorThreshold: number
-  }
-};
+// Only show mismatch information when there are more than this many
+// reads supporting that mismatch.
+const MISMATCH_THRESHOLD = 1;
 
 
 class CoverageTiledCanvas extends TiledCanvas {
   height: number;
   options: Object;
-  source: CoverageDataSource;
+  cache: CoverageCache;
 
-  constructor(source: CoverageDataSource, height: number, options: Object) {
+  constructor(cache: CoverageCache, height: number, options: Object) {
     super();
 
-    this.source = source;
+    this.cache = cache;
     this.height = Math.max(1, height);
     this.options = options;
   }
@@ -59,18 +55,19 @@ class CoverageTiledCanvas extends TiledCanvas {
   }
 
   yScaleForRef(ref: string): (y: number) => number {
-    var maxCoverage = this.source.maxCoverage();
+    var maxCoverage = this.cache.maxCoverageForRef(ref);
 
+    var padding = 10;  // TODO: move into style
     return scale.linear()
       .domain([maxCoverage, 0])
-      .range([style.COVERAGE_PADDING, this.height - style.COVERAGE_PADDING])
+      .range([padding, this.height - padding])
       .nice();
   }
 
   render(ctx: DataCanvasRenderingContext2D,
          xScale: (x: number)=>number,
          range: ContigInterval<string>) {
-    var bins = this.source.getFeaturesInRange(range);
+    var bins = this.cache.binsForRef(range.contig);
     var yScale = this.yScaleForRef(range.contig);
     var relaxedRange = new ContigInterval(
         range.contig, range.start() - 1, range.stop() + 1);
@@ -84,7 +81,7 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
                     xScale: (num: number) => number,
                     yScale: (num: number) => number,
                     range: ContigInterval<string>,
-                    bins: PositionCount[],
+                    bins: {[key: number]: BinSummary},
                     options: Object) {
   if (_.isEmpty(bins)) return;
 
@@ -100,6 +97,7 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
     return {barX1, barX2, barY};
   };
 
+  var mismatchBins = ({} : {[key:number]: BinSummary});  // keep track of which ones have mismatches
   var vBasePosY = yScale(0);  // the very bottom of the canvas
   var start = range.start(),
       stop = range.stop();
@@ -119,17 +117,75 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
       ctx.lineTo(barX2 + 1, vBasePosY);
     }
 
+    if (SHOW_MISMATCHES && !_.isEmpty(bin.mismatches)) {
+      mismatchBins[pos] = bin;
+    }
+
     ctx.popObject();
   }
   let {barX2} = binPos(stop, (stop in bins) ? bins[stop].count : 0);
   ctx.lineTo(barX2, vBasePosY);  // right edge of the right bar.
   ctx.closePath();
   ctx.fill();
+
+  // Now render the mismatches
+  _.each(mismatchBins, (bin, pos) => {
+    if (!bin.mismatches) return;  // this is here for Flow; it can't really happen.
+    const mismatches = _.clone(bin.mismatches);
+    pos = Number(pos);  // object keys are strings, not numbers.
+
+    // If this is a high-frequency variant, add in the reference.
+    var mismatchCount = _.reduce(mismatches, (x, y) => x + y);
+    var mostFrequentMismatch = _.max(mismatches);
+    if (mostFrequentMismatch > MISMATCH_THRESHOLD &&
+        mismatchCount > options.vafColorThreshold * bin.count &&
+        mismatchCount < bin.count) {
+      if (bin.ref) {  // here for flow; can't realy happen
+        mismatches[bin.ref] = bin.count - mismatchCount;
+      }
+    }
+
+    let {barX1, barX2} = binPos(pos, bin.count);
+    ctx.pushObject(bin);
+    var countSoFar = 0;
+    _.chain(mismatches)
+      .map((count, base) => ({count, base}))  // pull base into the object
+      .filter(({count}) => count > MISMATCH_THRESHOLD)
+      .sortBy(({count}) => -count)  // the most common mismatch at the bottom
+      .each(({count, base}) => {
+        var misMatchObj = {position: 1 + pos, count, base};
+        ctx.pushObject(misMatchObj);  // for debugging and click-tracking
+
+        ctx.fillStyle = style.BASE_COLORS[base];
+        var y = yScale(countSoFar);
+        ctx.fillRect(barX1,
+                     y,
+                     Math.max(1, barX2 - barX1),  // min width of 1px
+                     yScale(countSoFar + count) - y);
+        countSoFar += count;
+
+        ctx.popObject();
+      });
+    ctx.popObject();
+  });
 }
 
-class CoverageTrack extends React.Component {
+type Props = {
+  width: number;
+  height: number;
+  range: GenomeRange;
+  source: AlignmentDataSource;
+  referenceSource: TwoBitSource;
+  options: {
+    vafColorThreshold: number
+  }
+};
+
+class PileupCoverageTrack extends React.Component {
   props: Props;
   state: void;
+  cache: CoverageCache;
+  tiles: CoverageTiledCanvas;
   static defaultOptions: Object;
 
   constructor(props: Props) {
@@ -137,11 +193,7 @@ class CoverageTrack extends React.Component {
   }
 
   render(): any {
-    var rangeLength = this.props.range.stop - this.props.range.start;
-    // Render coverage if base pairs is less than threshold
-    if (rangeLength <= GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
-      return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
-    } else return <div></div>;
+    return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
   }
 
   getScale(): Scale {
@@ -149,10 +201,14 @@ class CoverageTrack extends React.Component {
   }
 
   componentDidMount() {
+    this.cache = new CoverageCache(this.props.referenceSource);
+    this.tiles = new CoverageTiledCanvas(this.cache, this.props.height, this.props.options);
+
     this.props.source.on('newdata', range => {
-      var oldMax = this.props.source.maxCoverageForRef(range.contig);
-      this.props.source.getCoverageInRange(range);
-      var newMax = this.props.source.maxCoverageForRef(range.contig);
+      var oldMax = this.cache.maxCoverageForRef(range.contig);
+      this.props.source.getAlignmentsInRange(range)
+                       .forEach(read => this.cache.addAlignment(read));
+      var newMax = this.cache.maxCoverageForRef(range.contig);
 
       if (oldMax != newMax) {
         this.tiles.invalidateAll();
@@ -162,7 +218,8 @@ class CoverageTrack extends React.Component {
       this.visualizeCoverage();
     });
 
-    this.props.source.on('newdata', range => {
+    this.props.referenceSource.on('newdata', range => {
+      this.cache.updateMismatches(range);
       this.tiles.invalidateRange(range);
       this.visualizeCoverage();
     });
@@ -222,7 +279,7 @@ class CoverageTrack extends React.Component {
         range = ContigInterval.fromGenomeRange(this.props.range);
 
     // Hold off until height & width are known.
-    if (width === 0 || typeof canvas == 'undefined') return;
+    if (width === 0) return;
     d3utils.sizeCanvas(canvas, width, height);
 
     var ctx = dataCanvas.getDataContext(this.getContext());
@@ -246,23 +303,37 @@ class CoverageTrack extends React.Component {
     // No need to render the scene to determine what was clicked.
     var range = ContigInterval.fromGenomeRange(this.props.range),
         xScale = this.getScale(),
-        bins = this.props.source.getCoverageInRange(range.contig),
+        bins = this.cache.binsForRef(range.contig),
         pos = Math.floor(xScale.invert(x)) - 1,
         bin = bins[pos];
 
     var alert = window.alert || console.log;
     if (bin) {
+      var mmCount = bin.mismatches ? _.reduce(bin.mismatches, (a, b) => a + b) : 0;
+      var ref = bin.ref || this.props.referenceSource.getRangeAsString(
+          {contig: range.contig, start: pos, stop: pos});
+
       // Construct a JSON object to show the user.
       var messageObject = _.extend(
         {
           'position': range.contig + ':' + (1 + pos),
           'read depth': bin.count
-        });
+        },
+        bin.mismatches);
+      messageObject[ref] = bin.count - mmCount;
       alert(JSON.stringify(messageObject, null, '  '));
     }
   }
 }
 
-CoverageTrack.displayName = 'coverage';
+PileupCoverageTrack.displayName = 'coverage';
+PileupCoverageTrack.defaultOptions = {
+  // Color the reference base in the bar chart when the Variant Allele Fraction
+  // exceeds this amount. When there are >=2 agreeing mismatches, they are
+  // always rendered. But for mismatches below this threshold, the reference is
+  // not colored in the bar chart. This draws attention to high-VAF mismatches.
+  vafColorThreshold: 0.2
+};
 
-module.exports = CoverageTrack;
+
+module.exports = PileupCoverageTrack;
