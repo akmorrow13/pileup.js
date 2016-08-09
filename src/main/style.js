@@ -40,6 +40,7 @@ module.exports = {
   COVERAGE_FONT_STYLE: `bold 9px 'Helvetica Neue', Helvetica, Arial, sans-serif`,
   COVERAGE_FONT_COLOR: 'black',
   COVERAGE_TICK_LENGTH: 5,
+  COVERAGE_PADDING: 10,  // space between axis ticks and text
   COVERAGE_TEXT_PADDING: 3,  // space between axis ticks and text
   COVERAGE_TEXT_Y_OFFSET: 3,  // so that ticks and texts align better
   COVERAGE_BIN_COLOR: '#a0a0a0',

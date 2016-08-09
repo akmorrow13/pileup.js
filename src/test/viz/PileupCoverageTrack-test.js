@@ -6,6 +6,8 @@
  */
 'use strict';
 
+import type SamRead from '../../main/data/SamRead';
+
 import {expect} from 'chai';
 
 import pileup from '../../main/pileup';
@@ -15,7 +17,7 @@ import MappedRemoteFile from '../MappedRemoteFile';
 import dataCanvas from 'data-canvas';
 import {waitFor} from '../async';
 
-describe('CoverageTrack', function() {
+describe('PileupCoverageTrack', function() {
   var testDiv = document.getElementById('testdiv');
   var range = {contig: '17', start: 7500730, stop: 7500790};
   var p;
@@ -33,11 +35,12 @@ describe('CoverageTrack', function() {
           isReference: true
         },
         {
-          viz: pileup.viz.coverage(),
+          viz: pileup.viz.pileupcoverage(),
           data: pileup.formats.bam({
-            url: '/coverage',
+            url: '/test-data/synth3.normal.17.7500000-7515000.bam',
+            indexUrl: '/test-data/synth3.normal.17.7500000-7515000.bam.bai'
           }),
-          cssClass: 'test-coverage',
+          cssClass: 'tumor-coverage',
           name: 'Coverage'
         }
       ]
@@ -86,6 +89,18 @@ describe('CoverageTrack', function() {
     });
   });
 
+  it('should show mismatch information', function() {
+    return waitFor(hasCoverage, 2000).then(() => {
+      var visibleMismatches = findMismatchBins()
+          .filter(bin => bin.position >= range.start && bin.position <= range.stop);
+      expect(visibleMismatches).to.deep.equal(
+        [{position: 7500765, count: 23, base: 'C'},
+         {position: 7500765, count: 22, base: 'T'}]);
+      // TODO: IGV shows counts of 20 and 20 at this locus. Whither the five reads?
+      // `samtools view` reports the full 45 reads at 17:7500765
+    });
+  });
+
   it('should create correct labels for coverage', function() {
     return waitFor(hasCoverage, 2000).then(() => {
       // These are the objects being used to draw labels
@@ -93,7 +108,7 @@ describe('CoverageTrack', function() {
       expect(labelTexts[0].label).to.equal('0X');
       expect(labelTexts[labelTexts.length-1].label).to.equal('50X');
 
-      // Now let's test if they are actually being put on the screens
+      // Now let's test if they are actually being put on the screen
       var texts = callsOf(testDiv, '.coverage', 'fillText');
       expect(texts.map(t => t[1])).to.deep.equal(['0X', '25X', '50X']);
     });
