@@ -61,3 +61,12 @@ export type InflatedBlock = {
   compressedLength: number;
   buffer: ArrayBuffer;
 }
+
+/*
+ * Store a record of a (chromosome, chromosome length pair).
+ * Used to generate a full Sequence Dictionary of all available data.
+*/
+export type SequenceRecord = {
+  contig: string;
+  length: number;
+}

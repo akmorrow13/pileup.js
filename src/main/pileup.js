@@ -54,6 +54,7 @@ type PileupParams = {
     start: number,
     stop: number
   };
+  sequences: SequenceRecord[];
   tracks: Track[];
   filters?: ?string[];
 }
