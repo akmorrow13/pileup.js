@@ -1,0 +1,48 @@
+#menu {
+  background-color: #ccc;
+  margin-right: 320px;
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  padding: 20px;
+  width: 260px;
+  float: left;
+  z-index: 99999; 
+}
+h2.menu {
+  text-align: center;
+  color: #180E3A;
+  font-weight: 500;
+  width: 0;
+  margin-left: -10px;
+  margin-right: 0px;
+  margin-top: 0px;
+  border-radius: 0px;
+  float: center; }
+.menu-link{
+  margin-left: 85%;
+}
+h4{
+  font-size: 20px;
+}
+label[disabled] + label {
+  display: block;
+  font-weight: normal;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+input[type=checkbox]{
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  margin:0;
+  vertical-align: bottom;
+  position: relative;
+  top: -1px;
+  *overflow: hidden;
+}
+
+#submit{
+  float: right;
+}
