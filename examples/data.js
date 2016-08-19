@@ -66,5 +66,13 @@ var sources = [
 ];
 
 var filters = ["variants"];
+var sequences = [{
+                  contig: 'chr17',
+                  length: 1000000
+                },
+                {
+                  contig: 'chr1',
+                  length: 1000000
+                }];
 
 var range = {contig: 'chr17', start: 7512284, stop: 7512644};

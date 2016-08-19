@@ -5,7 +5,7 @@
 'use strict';
 
 import type {TwoBitSource} from './sources/TwoBitDataSource';
-import type {VisualizedTrack, VizWithOptions} from './types';
+import type {SequenceRecord, VisualizedTrack, VizWithOptions} from './types';
 
 import React from 'react';
 import Controls from './Controls';
@@ -20,6 +20,7 @@ type Props = {
   referenceSource: TwoBitSource;
   tracks: VisualizedTrack[];
   initialRange: GenomeRange;
+  sequences: SequenceRecord[];
   filters: string[];
 };
 
@@ -183,6 +184,7 @@ class Root extends React.Component {
         <script src="bigSlide.js"></script>
         <nav id="menu" class="panel" role="navigation">
           {filters}
+          {this.props.sequences}
         </nav>
       </div>
 

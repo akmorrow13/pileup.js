@@ -36,6 +36,9 @@ import VariantTrack from './viz/VariantTrack';
 import GenotypeTrack from './viz/GenotypeTrack';
 import Root from './Root';
 
+// Sidebar
+import type {SequenceRecord} from './types';
+
 type GenomeRange = {
   contig: string;
   start: number;
@@ -54,8 +57,8 @@ type PileupParams = {
     start: number,
     stop: number
   };
-  sequences: SequenceRecord[];
   tracks: Track[];
+  sequences?: ?SequenceRecord[];
   filters?: ?string[];
 }
 
@@ -86,6 +89,9 @@ function create(elOrId: string|Element, params: PileupParams): Pileup {
   if (params.filters)
     filters = params.filters;
 
+  var sequences = [];
+  if (params.sequences)
+    sequences = params.sequences;
 
   var referenceTrack = findReference(vizTracks);
   if (!referenceTrack) {
@@ -96,6 +102,7 @@ function create(elOrId: string|Element, params: PileupParams): Pileup {
       ReactDOM.render(<Root referenceSource={referenceTrack.source}
                             tracks={vizTracks}
                             initialRange={params.range}
+                            sequences={sequences}
                             filters={filters}/>, el);
   return {
     setRange(range: GenomeRange) {

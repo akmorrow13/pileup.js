@@ -28,6 +28,7 @@ if (colorByStrand) {
 var p = pileup.create(document.getElementById('pileup'), {
   range: range,
   tracks: sources,
+  sequences: sequences,
   filters: filters
 });
 

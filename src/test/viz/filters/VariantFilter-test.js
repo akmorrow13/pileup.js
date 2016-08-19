@@ -8,7 +8,6 @@ import filterUtils from '../../../main/viz/filters/filterUtils';
 import type {VcfFilter} from '../../../main/viz/filters/VariantFilter';
 import VariantFilter from '../../../main/viz/filters/VariantFilter';
 import pileup from '../../../main/pileup';
-import React from 'react';
 import {waitFor} from '../../async';
 
 describe('VariantFilter', function() {
@@ -25,9 +24,9 @@ describe('VariantFilter', function() {
     eventPhase: 0,
     isTrusted: true,
     nativeEvent: {},
-    isDefaultPrevented: () => {},
+    isDefaultPrevented: () => {return true;},
     stopPropagation: () => {},
-    isPropagationStopped: () => {},
+    isPropagationStopped: () => {return true;},
     target: {},
     timeStamp: 0
   };
@@ -87,33 +86,6 @@ describe('VariantFilter', function() {
     filter.handleFilterSubmit(event);
     expect(didChange).to.equal(true);
     done();
-  });
-
-  it('should render variant filter', function() {
-    this.timeout(5000);
-
-    var div = document.createElement('div');
-    div.setAttribute('style', 'width: 800px; height: 200px;');
-    testDiv.appendChild(div);
-
-    var p = pileup.create(div, {
-      range: {contig: 'chr17', start: 100, stop: 150},
-      tracks: tracks,
-      filters: ["variants"]
-    });
-
-    var {drawnObjects, drawnObjectsWith, callsOf} = dataCanvas.RecordingContext;
-
-    function hasCanvasAndObjects(div, selector) {
-      return div.querySelector(selector + ' canvas') && drawnObjects(div, selector).length > 0;
-    }
-
-    var ready = (() =>
-      hasCanvasAndObjects(div, '.reference') &&
-      hasCanvasAndObjects(div, '.variants') &&
-      hasCanvasAndObjects(div, '.vcfFilter') &&
-      hasCanvasAndObjects(div, '.pileup')
-    );
   });
 
 });
