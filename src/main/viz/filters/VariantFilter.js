@@ -61,12 +61,8 @@ class VariantFilter extends React.Component {
     var elems = [];
 
     var res = this.props.filters.transEffects.map((item, i)=>{
-    	return <input ref="transEff" class ="transEff" type="checkbox" id={item.key} onClick={this.transEffButtonClick.bind(i)}>{item.label}</input>;
+    	return <label><input ref="transEff" class="transEff" type="checkbox" id={item.key} onClick={this.transEffButtonClick.bind(i)}>{item.label}</input></label>;
     });
-    elems.push(<script src="bigSlide.js"></script>);
-    elems.push(<br><br><br><br><br>);
-    elems.push(<a href="#menu" class="menu-link">Menu Link </a>);
-    elems.push(<nav id="menu" class="panel" role="navigation">);
     elems.push(<div><h4>Transcript Effect</h4>{res}</div>);
     elems.push(<div><h4>Read Depth</h4><input type="number" class="form-control"  min ="0" max ="200" id="readDepth"
 				ref='readDepth' onChange={this.readDepthChange.bind(this)}></input></div>);
@@ -74,11 +70,8 @@ class VariantFilter extends React.Component {
     			ref='alleleCount'  onChange={this.alleleCountChange.bind(this)}></input></div>);
     elems.push(<div><h4>Allele Frequency</h4><input  type="number" class="form-control"  min ="0" max ="1000" step="100" id="alleleFreq"
           ref='alleleFreq'  onChange={this.alleleFreqChange.bind(this)}></input></div>);
-    elems.push(<button id = "submit" class="btn btn-primary btn-md"
+    elems.push(<button id="submit" class="btn btn-primary btn-md"
     			onClick={this.handleFilterSubmit.bind(this)}>Submit</button>);
-    elems.push(</nav>);
-    elems.push(<script>$(document).ready(function() {
-        $('.menu-link').bigSlide();}); </script>);
     return (
       <form className='vcfFilter' class="btn btn-primary" onSubmit={this.handleFilterSubmit.bind(this)}>
         {elems}

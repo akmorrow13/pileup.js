@@ -11,8 +11,8 @@
   top: 0;
 }
 
-.panel {
-  background-color: grey;
+#menu {
+  background-color: #ccc;
   margin-right: 320px;
   margin-left: 10px;
   margin-top: 10px;
@@ -21,8 +21,9 @@
   padding: 20px;
   width: 260px;
   float: left;
-  z-index: 99999; }
-h2.panel {
+  z-index: 99999; 
+}
+h2.menu {
   text-align: center;
   color: #180E3A;
   font-weight: 500;
@@ -32,3 +33,6 @@ h2.panel {
   margin-top: 0px;
   border-radius: 0px;
   float: center; }
+.menu-link{
+  margin-left: 85%;
+}

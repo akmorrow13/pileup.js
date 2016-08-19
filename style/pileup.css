@@ -261,7 +261,29 @@
   text-anchor: start;
   dominant-baseline: central;
 }
+h4{
+  font-size: 20px;
+}
+label[disabled] + label {
+  display: block;
+  font-weight: normal;
+  padding-left: 15px;
+  text-indent: -15px;
+}
+input[type=checkbox]{
+  width: 13px;
+  height: 13px;
+  padding: 0;
+  margin:0;
+  vertical-align: bottom;
+  position: relative;
+  top: -1px;
+  *overflow: hidden;
+}
 
+#submit{
+  float: right;
+}
 /* scale track */
 .pileup-root > .scale {
   flex: 0 0 20px;  /* fixed height */

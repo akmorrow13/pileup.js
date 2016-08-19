@@ -159,7 +159,6 @@ class Root extends React.Component {
   }
 
   render(): any {
-
     // push filters that were specified
     var filters = [];
     if (this.props.filters.filter(f => f == VariantTrack.displayName).length > 0)
@@ -178,11 +177,15 @@ class Root extends React.Component {
             <Controls contigList={this.state.contigList}
                       range={this.state.range}
                       onChange={this.handleRangeChange.bind(this)} />
-            {filters}
           </div>
         </div>
         {trackEls}
+        <script src="bigSlide.js"></script>
+        <nav id="menu" class="panel" role="navigation">
+          {filters}
+        </nav>
       </div>
+
     );
   }
 }
