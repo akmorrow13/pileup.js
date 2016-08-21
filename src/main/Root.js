@@ -183,8 +183,8 @@ class Root extends React.Component {
         {trackEls}
         <script src="bigSlide.js"></script>
         <nav id="menu" class="panel" role="navigation">
+          <div id="refVis"></div>
           {filters}
-          {this.props.sequences}
         </nav>
       </div>
 
