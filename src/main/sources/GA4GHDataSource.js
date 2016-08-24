@@ -9,6 +9,7 @@ import type {Alignment, AlignmentDataSource} from '../Alignment';
 
 import _ from 'underscore';
 import {Events} from 'backbone';
+import Q from 'q';
 
 import ContigInterval from '../ContigInterval';
 import GA4GHAlignment from '../GA4GHAlignment';

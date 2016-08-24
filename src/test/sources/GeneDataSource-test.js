@@ -16,7 +16,7 @@ describe('GeneDataSource', function() {
     return new RemoteFile('/test-data/genes-chrM-0-30000.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/genes/chrM?start=1&end=100000&key=test', [200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/genes/chrM?start=1&end=100000', [200, { "Content-Type": "application/json" }, response]);
     });
   });
 
@@ -26,8 +26,7 @@ describe('GeneDataSource', function() {
 
   function getTestSource() {
     var source = GeneDataSource.create({
-        url: '/genes',
-        key: 'test'
+        url: '/genes'
     });
     return source;
   }
@@ -43,8 +42,6 @@ describe('GeneDataSource', function() {
     // Fetching that one gene should cache its entire block.
     source.on('newdata', () => {
       var genes = source.getGenesInRange(range);
-      console.log(genes);
-
       expect(genes).to.have.length(9);
       done();
     });

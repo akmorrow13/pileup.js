@@ -105,16 +105,11 @@ function createFromGenotypeUrl(remoteSource: GenotypeEndpoint): GenotypeDataSour
   return o;
 }
 
-function create(data: {url?:string, key?:string}): GenotypeDataSource {
-  var {url, key} = data;
-  if (!url) {
+function create(data: {url?:string}): GenotypeDataSource {
+  if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  // verify key was correctly set
-  if (!key) {
-    throw new Error(`Missing key from track: ${JSON.stringify(data)}`);
-  }
-  var request = new RemoteRequest(url, key);
+  var request = new RemoteRequest(data.url);
   var endpoint = new GenotypeEndpoint(request);
   return createFromGenotypeUrl(endpoint);
 }

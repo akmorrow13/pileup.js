@@ -5,19 +5,14 @@
  */
 'use strict';
 
+import ContigInterval from '../ContigInterval';
 import Q from 'q';
 import type RemoteRequest from '../RemoteRequest';
 import type {Variant} from './vcf';
 
-
 export type Genotype = {
   sampleIds: string,
   variant: Variant
-}
-
-
-function extractGenotypes(genotypes: Object): Genotype[] {
-  return genotypes;
 }
 
 class GenotypeEndpoint {
@@ -34,8 +29,7 @@ class GenotypeEndpoint {
 
 
     return this.remoteRequest.get(contig, start, stop).then(object => {
-      var d = extractGenotypes(object);
-      return d;
+      return object;
     });
   }
 }

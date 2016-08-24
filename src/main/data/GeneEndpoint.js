@@ -5,7 +5,8 @@
  */
 'use strict';
 
-// import Q from 'q';
+import Q from 'q';
+import type {Gene} from '../sources/BigBedDataSource';
 import type RemoteRequest from '../RemoteRequest';
 import Interval from '../Interval';
 import ContigInterval from '../../main/ContigInterval';
