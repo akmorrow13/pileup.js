@@ -5,12 +5,10 @@
  */
 'use strict';
 
+import ContigInterval from '../ContigInterval';
 import Q from 'q';
 import type RemoteRequest from '../RemoteRequest';
-
-function extractVariants(variants: Object): Variant[] {
-  return variants;
-}
+import type {Variant} from './vcf';
 
 class VariantEndpoint {
   remoteRequest: RemoteRequest;
@@ -26,8 +24,8 @@ class VariantEndpoint {
 
 
     return this.remoteRequest.get(contig, start, stop).then(object => {
-      var d = extractVariants(object); // TODO: should parts to Variant[]
-      return d;
+      console.log("variant endpoint", object);
+      return object;
     });
   }
 }

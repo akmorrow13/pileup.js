@@ -1,38 +1,34 @@
 /**
- * RemoteRequest is used to for http requests on a remote server which can be
- * fetched in chunks, e.g. using a Range request.
+ * RemoteRequest is a generic endpoint for serving http requests. RemoteRequest
+ * handles json data, which is specified by genomic range (contig, start, stop)
+ *
  * @flow
  */
 'use strict';
 
 import Q from 'q';
-
-type Chunk = {
-  start: number;
-  stop: number;
-  buffer: Object; // TODO: generalize to Any
-}
+import ContigInterval from './ContigInterval';
 
 class RemoteRequest {
   url: string;
-  chunks: Array<Chunk>;  // regions of file that have already been loaded.
+  cache: Object;
   numNetworkRequests: number;  // track this for debugging/testing
 
-  constructor(url: string, key: string) {
+  constructor(url: string) {
+    this.cache = require('memory-cache');
     this.url = url;
-    this.chunks = [];
-    this.key = key;
     this.numNetworkRequests = 0;
   }
 
   get(contig: string, start: number, stop: number): Q.Promise<Object> {
     var length = stop - start;
     if (length <= 0) {
-      return Q.reject(`Requested <0 bytes (${length}) from ${this.url}`);
+      return Q.reject(`Requested <0 interval (${length}) from ${this.url}`);
     }
 
     // First check the cache.
-    var buf = this.getFromCache(start, stop);
+    var contigInterval = new ContigInterval(contig, start, stop);
+    var buf = this.cache.get(contigInterval);
     if (buf) {
       return Q.when(buf);
     }
@@ -41,42 +37,32 @@ class RemoteRequest {
     return this.getFromNetwork(contig, start, stop);
   }
 
-  getFromCache(start: number, stop: number): ?Object {
-    for (var i = 0; i < this.chunks.length; i++) {
-      var chunk = this.chunks[i];
-      if (chunk.start <= start && chunk.stop >= stop) {
-        return chunk.buffer.slice(start - chunk.start, stop - chunk.start + 1);
-      }
-    }
-    return null;
-  }
-
-    /**
-     * Request must be of form "url/contig?start=start&end=stop"
-    */
+  /**
+   * Request must be of form "url/contig?start=start&end=stop"
+  */
   getFromNetwork(contig: string, start: number, stop: number): Q.Promise<Object> {
     var length = stop - start;
-    if (length > 50000000) {
-      throw `Monster request: Won't fetch ${length} bytes from ${this.url}`;
+    if (length > 5000000) {
+      throw `Monster request: Won't fetch ${length} sized ranges from ${this.url}`;
     }
     var xhr = new XMLHttpRequest();
-    var endpoint = this.url + "/" + contig + "?start=" + start + "&end=" + stop + "&key=" + this.key;
+    var endpoint = this.getEndpointFromContig(contig, start, stop);
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');
 
     return this.promiseXHR(xhr).then(json => {
       // extract response from promise
-      var response = json[0]; // TODO: don't store in object
-
-      // var buffer = stringToBuffer(response);
-
-      // The actual length of the response may be less than requested if it's
-      // too short, e.g. if we request bytes 0-1000 of a 500-byte file.
-      var newChunk = { start, stop, response};
-      this.chunks.push(newChunk);
-      return response;
+      console.log("json", json);
+      var buffer = json[0];
+      var contigInterval = new ContigInterval(contig, start, stop);
+      this.cache.put(contigInterval, buffer);
+      return buffer;
     });
+  }
+
+  getEndpointFromContig(contig: string, start: number, stop: number): string {
+    return `${this.url}/${contig}?start=${start}&end=${stop}`;
   }
 
   // Wrapper to convert XHRs to Promises.
@@ -97,27 +83,6 @@ class RemoteRequest {
     this.numNetworkRequests++;
     xhr.send();
     return deferred.promise;
-  }
-
-  // Attempting to access Content-Range directly may raise security errors.
-  // This ensures the access is safe before making it.
-  _getLengthFromContentRange(xhr: XMLHttpRequest): ?number {
-    if (!/Content-Range/i.exec(xhr.getAllResponseHeaders())) {
-      return null;
-    }
-
-    var contentRange = xhr.getResponseHeader('Content-Range');
-    var m = /\/(\d+)$/.exec(contentRange);
-    if (m) {
-      return Number(m[1]);
-    }
-    console.warn(`Received improper Content-Range value for ` +
-                 `${this.url}: ${contentRange}`);
-    return null;
-  }
-
-  clearCache() {
-    this.chunks = [];
   }
 }
 
