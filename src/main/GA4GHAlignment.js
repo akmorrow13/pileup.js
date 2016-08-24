@@ -80,7 +80,7 @@ class GA4GHAlignment /* implements Alignment */ {
   }
 
   getMateProperties(): ?MateProperties {
-    var next = this.nextMatePosition;
+    var next = this.alignment.nextMatePosition;
     return next && {
       ref: next.referenceName,
       pos: next.position,

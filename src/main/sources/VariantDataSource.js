@@ -67,13 +67,15 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
     // "Cover" the range immediately to prevent duplicate fetches.
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
-    return remoteSource.getFeaturesInRange(interval).then(variants => {
-      variants.forEach(variant => addVariant(variant));
+    return remoteSource.getFeaturesInRange(interval).then(object => {
+      console.log(object, variants);
+      object.forEach(variant => addVariant(variant));
       o.trigger('newdata', interval);
     });
   }
 
   function getFeaturesInRange(range: ContigInterval<string>): Variant[] {
+    console.log("getFeaturesinRange", range);
     if (!range) return [];  // XXX why would this happen?
     return _.filter(variants, v => range.chrContainsLocus(v.contig, v.position));
   }
@@ -94,17 +96,11 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
   return o;
 }
 
-function create(data: {url:string, contigList: SequenceRecord[]}): VcfDataSource {
-  var url = data.url;
-  var contigList = data.contigList;
-  if (!url) {
+function create(data: {url?:string}): VcfDataSource {
+  if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  // verify contiglist was correctly set
-  if (!contigList) {
-    throw new Error(`Missing ContigList from track: ${JSON.stringify(data)}`);
-  }
-  var request = new RemoteRequest(url, contigList);
+  var request = new RemoteRequest(data.url);
   var endpoint = new VariantEndpoint(request);
   return createFromVariantUrl(endpoint);
 }

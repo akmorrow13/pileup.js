@@ -5,19 +5,16 @@
  */
 'use strict';
 
-// import Q from 'q';
+import Q from 'q';
+import ContigInterval from '../ContigInterval';
 import type RemoteRequest from '../RemoteRequest';
 
-type Feature = {
+export type Feature = {
   id: string;
   featureType: string;
   contig: string;
   start: number;
   stop: number;
-}
-
-function extractFeatures(features: Object): Feature[] {
-  return features;
 }
 
 class FeatureEndpoint {
@@ -33,8 +30,7 @@ class FeatureEndpoint {
      var stop = range.interval.stop;
 
     return this.remoteRequest.get(contig, start, stop).then(object => {
-      var d = extractFeatures(object);
-      return d;
+      return object;
     });
   }
 }
