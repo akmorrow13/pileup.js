@@ -42,7 +42,7 @@ type GA4GHSpec = {
 };
 
 function create(spec: GA4GHSpec): AlignmentDataSource {
-  var url = spec.endpoint ;
+  var url = spec.endpoint;
 
   var reads: {[key:string]: Alignment} = {};
 
@@ -95,7 +95,7 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
     }
     var xhr = new XMLHttpRequest();
 
-    var endpoint = url + "/" + range.contig + "?start=" + range.start() + "&end=" + range.stop()+"&key="+spec.readGroupId;
+    var endpoint = `${url}/${spec.readGroupId}/${range.contig}?start=${range.start()}&end=${range.stop()}`;
 
     xhr.open('GET', endpoint);
     xhr.responseType = 'json';
