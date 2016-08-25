@@ -68,14 +68,12 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval).then(object => {
-      console.log(object, variants);
       object.forEach(variant => addVariant(variant));
       o.trigger('newdata', interval);
     });
   }
 
   function getFeaturesInRange(range: ContigInterval<string>): Variant[] {
-    console.log("getFeaturesinRange", range);
     if (!range) return [];  // XXX why would this happen?
     return _.filter(variants, v => range.chrContainsLocus(v.contig, v.position));
   }
@@ -100,7 +98,7 @@ function create(data: {url?:string}): VcfDataSource {
   if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  var request = new RemoteRequest(data.url);
+  var request = new RemoteRequest(data.url, BASE_PAIRS_PER_FETCH);
   var endpoint = new VariantEndpoint(request);
   return createFromVariantUrl(endpoint);
 }

@@ -8,7 +8,7 @@ import sinon from 'sinon';
 import ContigInterval from '../../main/ContigInterval';
 import GA4GHDataSource from '../../main/sources/GA4GHDataSource';
 import RemoteFile from '../../main/RemoteFile';
-    
+
 describe('GA4GHDataSource', function() {
   var server: any = null, response;
 
@@ -24,12 +24,12 @@ describe('GA4GHDataSource', function() {
   });
 
   it('should fetch alignments from a server', function(done) {
-    server.respondWith('POST', '/v0.5.1/reads/search',
+    server.respondWith('POST', '/v0.5.1/reads/search/chr17?start=1&end=1000',
                        [200, { "Content-Type": "application/json" }, response]);
 
     var source = GA4GHDataSource.create({
-      endpoint: '/v0.5.1',
-      readGroupId: 'some-group-set:some-read-group',
+      endpoint: '/v0.5.1/reads',
+      readGroupId: 'search',
       killChr: false
     });
 

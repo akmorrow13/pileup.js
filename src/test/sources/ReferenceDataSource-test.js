@@ -63,13 +63,13 @@ it('should fetch base pairs', function(done) {
   var range = {contig: 'chrM', start: 0, stop: 3};
 
   // Before data has been fetched, all base pairs are null.
-   expect(source.getRange(range)).to.deep.equal({
-     'chrM:0': null,
-     'chrM:1': null,
-     'chrM:2': null,
-     'chrM:3': null
-   });
-   expect(source.getRangeAsString(range)).to.equal('....');
+  expect(source.getRange(range)).to.deep.equal({
+    'chrM:0': null,
+    'chrM:1': null,
+    'chrM:2': null,
+    'chrM:3': null
+  });
+  expect(source.getRangeAsString(range)).to.equal('....');
 
   source.on('newdata', () => {
     expect(source.getRange(range)).to.deep.equal({

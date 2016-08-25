@@ -23,12 +23,7 @@ class GenotypeEndpoint {
   }
 
   getFeaturesInRange(range: ContigInterval<string>): Q.Promise<Genotype[]> {
-     var contig = range.contig;
-     var start = range.interval.start;
-     var stop = range.interval.stop;
-
-
-    return this.remoteRequest.get(contig, start, stop).then(object => {
+    return this.remoteRequest.get(range).then(object => {
       return object;
     });
   }

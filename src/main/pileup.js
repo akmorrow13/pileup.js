@@ -150,7 +150,7 @@ var pileup = {
     genotypes: makeVizObject(GenotypeTrack),
     pileup:   makeVizObject(PileupTrack)
   },
-  version: '0.6.6'
+  version: '0.6.7'
 };
 
 module.exports = pileup;
