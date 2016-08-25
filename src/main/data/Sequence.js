@@ -6,6 +6,7 @@
 'use strict';
 
 import Q from 'q';
+import ContigInterval from '../ContigInterval';
 import type RemoteRequest from '../RemoteRequest';
 
 export type SequenceRecord = {
@@ -32,11 +33,13 @@ class Sequence {
    * The range is inclusive and zero-based.
    * Returns empty string if no data is available on this range.
    */
-  getFeaturesInRange(contig: string, start: number, stop: number): Q.Promise<string> {
+  getFeaturesInRange(range: ContigInterval<string>): Q.Promise<string> {
+    var start = range.start();
+    var stop = range.stop();
     if (start > stop) {
       throw `Requested a range with start > stop (${start}, ${stop})`;
     }
-    return this.remoteRequest.get(contig, start, stop).then(sequence => {
+    return this.remoteRequest.get(range).then(sequence => {
         var d = sequence.substring(start, (stop-start + 1));
         return d;
     });
