@@ -59,7 +59,7 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
     }
 
     // TODO remote Source
-    remoteSource.getFeaturesInRange(range.contig, range.start(), range.stop())
+    remoteSource.getFeaturesInRange(range)
       .then(letters => {
         if (!letters) return;
         if (letters.length < range.length()) {
