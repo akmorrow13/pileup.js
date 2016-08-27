@@ -8,7 +8,7 @@
   padding: 20px;
   width: 260px;
   float: left;
-  z-index: 99999; 
+  z-index: 99999;
 }
 h2.menu {
   text-align: center;
@@ -51,7 +51,7 @@ input[type=checkbox]{
   position: relative;
   width: 180px;
 }
-.refVistooltip { 
+.refVistooltip {
   background: #eee;
   box-shadow: 0 0 5px #999999;
   color: #333;
@@ -63,5 +63,5 @@ input[type=checkbox]{
   text-align: center;
   top: 60px;
   width: 80px;
-  z-index: 999999; 
+  z-index: 999999;
 }

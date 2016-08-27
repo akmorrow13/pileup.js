@@ -75,7 +75,7 @@ class VariantFilter extends React.Component {
         {elems}
       </form>
     );
-    
+
   }
 }
 

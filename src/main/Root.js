@@ -185,6 +185,7 @@ class Root extends React.Component {
         <nav id="menu" class="panel" role="navigation">
           <div id="refVis"></div>
           {filters}
+          {this.props.sequences}
         </nav>
       </div>
 
