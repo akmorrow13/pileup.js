@@ -36,8 +36,8 @@ class VariantFilter extends React.Component {
   * Functions handling change in filter values
   *******************************************/
 
-  transEffButtonClick(index: number) {
-    this.props.filters.transEffects[index].checked = true;
+  transEffButtonClick(e: SyntheticEvent) {
+    this.props.filters.transEffects[e].checked = true;
   }
 
   readDepthChange(e: SyntheticEvent) {
@@ -52,8 +52,6 @@ class VariantFilter extends React.Component {
 
   alleleFreqChange(e: SyntheticEvent) {
     e.preventDefault();
-    console.log(this.props.filters);
-    console.log(this.refs.alleleFreq.value);
     this.props.filters.alleleFreq = this.refs.alleleFreq.value;
   }
 
@@ -61,7 +59,7 @@ class VariantFilter extends React.Component {
     var elems = [];
 
     var res = this.props.filters.transEffects.map((item, i)=>{
-    	return <label><input ref="transEff" class="transEff" type="checkbox" id={item.key} onClick={this.transEffButtonClick.bind(i)}>{item.label}</input></label>;
+    	return <label><input ref={i} class="transEff" type="checkbox" id={item.key} onClick={this.transEffButtonClick.bind(this, i)}>{item.label}</input></label>;
     });
     elems.push(<div><h4>Transcript Effect</h4>{res}</div>);
     elems.push(<div><h4>Read Depth</h4><input type="number" class="form-control"  min ="0" max ="200" id="readDepth"
