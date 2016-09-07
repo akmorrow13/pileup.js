@@ -60,12 +60,10 @@ module.exports = {
   LOC_FONT_COLOR: 'black',
 
   // Variant Track
-  VARIANT_STROKE: 'blue',
-  VARIANT_FILL: 'blue',
   VARIANT_HEIGHT: 14,
 
   // Genotype Track
   GENOTYPE_SPACING: 1,
-  GENOTYPE_FILL: 'red',
+  GENOTYPE_FILL:  '#9494b8',
   GENOTYPE_HEIGHT: 10,
 };
