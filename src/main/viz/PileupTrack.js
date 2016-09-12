@@ -266,13 +266,23 @@ class PileupTrack extends React.Component {
       'height': '100%'
     };
 
+    var statusStyles = {
+      'position': 'relative',
+      'top': '30px'
+    };
+
+    var statusBodyStyle = {
+      'position': 'absolute',
+      'text-align':'center',
+    };
+
     var statusEl = null,
-        networkStatus = this.state.networkStatus;
+      networkStatus = this.state.networkStatus;
     if (networkStatus) {
       var message = this.formatStatus(networkStatus);
       statusEl = (
-        <div ref='status' className='network-status'>
-          <div className='network-status-message'>
+        <div ref='status' className='network-status' style={statusStyles}>
+          <div className='network-status-message' style={statusBodyStyle}>
             Loading alignments… ({message})
           </div>
         </div>
