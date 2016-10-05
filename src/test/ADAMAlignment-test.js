@@ -7,11 +7,11 @@ import GA4GHAlignment from '../main/GA4GHAlignment';
 import RemoteFile from '../main/RemoteFile';
 import Bam from '../main/data/bam';
 
-describe('GA4GHAlignment', function() {
+describe('ADAMAlignment', function() {
   var sampleAlignments = [];
 
   before(function() {
-    return new RemoteFile('/test-data/adam-alignments.json').getAllString().then(data => {
+    return new RemoteFile('/test-data/chr17.1-250.json').getAllString().then(data => {
       sampleAlignments = JSON.parse(data).alignments;
     });
   });
