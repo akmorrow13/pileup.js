@@ -1,0 +1,25 @@
+[{
+	"sampleIds": ["sample1", "sample2", "sample3"],
+	"variant": {
+		"contig": "17",
+		"position": 9386380,
+		"ref": "C",
+		"alt": "G"
+	}
+}, {
+	"sampleIds": ["sample1", "sample2", "sample3"],
+	"variant": {
+		"contig": "17",
+		"position": 9386390,
+		"ref": "G",
+		"alt": "T"
+	}
+}, {
+	"sampleIds": ["sample1", "sample2", "sample3"],
+	"variant": {
+		"contig": "17",
+		"position": 9386400,
+		"ref": "A",
+		"alt": "C"
+	}
+}]
