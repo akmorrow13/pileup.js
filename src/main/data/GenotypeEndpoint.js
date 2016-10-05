@@ -11,7 +11,7 @@ import type RemoteRequest from '../RemoteRequest';
 import type {Variant} from './vcf';
 
 export type Genotype = {
-  sampleIds: string,
+  sampleIds: string[],
   variant: Variant
 }
 

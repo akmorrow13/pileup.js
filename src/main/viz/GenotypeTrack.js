@@ -94,7 +94,8 @@ class GenotypeTrack extends React.Component {
 
     // This is a hack to adjust parent div for resize
     var el = d3utils.findParent(canvas, 'track-content');
-    if (el) el.style.height = newHeight;
+    console.log("el", el);
+    // if (el) el.style.height = newHeight;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.reset();
