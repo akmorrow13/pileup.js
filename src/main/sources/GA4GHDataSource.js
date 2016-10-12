@@ -72,11 +72,16 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
 
     interval = expandRange(interval);
 
-    // We "cover" the interval immediately (before the reads have arrived) to
-    // prevent duplicate network requests.
-    coveredRanges.push(interval);
-    coveredRanges = ContigInterval.coalesce(coveredRanges);
-    fetchAlignmentsForInterval(interval, null, 1 /* first request */);
+    // if range is too large, return immediately
+    if (interval.length() > MAX_BASE_PAIRS_TO_FETCH) {
+      return;
+    } else {
+      // We "cover" the interval immediately (before the reads have arrived) to
+      // prevent duplicate network requests.
+      coveredRanges.push(interval);
+      coveredRanges = ContigInterval.coalesce(coveredRanges);
+      fetchAlignmentsForInterval(interval, null, 1 /* first request */);
+    }
   }
 
   function notifyFailure(message: string) {
@@ -159,5 +164,6 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
 }
 
 module.exports = {
-  create
+  create,
+  MAX_BASE_PAIRS_TO_FETCH: MAX_BASE_PAIRS_TO_FETCH
 };
