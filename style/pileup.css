@@ -42,6 +42,7 @@
 }
 .track-content > div {
   position: absolute; /* Gets the child of the flex-item to fill height 100% */
+  width: 100%;
 }
 .track-content canvas {
   display: block;
@@ -280,4 +281,7 @@
   font-size: smaller;
   dominant-baseline: central;
   text-anchor: middle;
+}
+.center {
+  text-align: center;
 }

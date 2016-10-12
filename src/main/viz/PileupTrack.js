@@ -5,6 +5,7 @@
 'use strict';
 
 import type {Strand, Alignment, AlignmentDataSource} from '../Alignment';
+import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {BasePair} from './pileuputils';
 import type {VisualAlignment, VisualGroup, InsertStats} from './PileupCache';
@@ -279,14 +280,27 @@ class PileupTrack extends React.Component {
       );
     }
 
-    return (
-      <div>
-        {statusEl}
-        <div ref='container' style={containerStyles}>
-          <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    // If range is too large, do not render 'canvas'
+    if (rangeLength >  GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
+       return (
+        <div>
+            <div className='center'>
+              Zoom in to see alignments
+            </div>
+            <canvas onClick={this.handleClick.bind(this)} />
+          </div>
+          );
+    } else {
+      return (
+        <div>
+          {statusEl}
+          <div ref='container' style={containerStyles}>
+            <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   formatStatus(status: NetworkStatus): string {
@@ -362,8 +376,8 @@ class PileupTrack extends React.Component {
   // Load new reads into the visualization cache.
   updateReads(range: ContigInterval<string>) {
     var anyBefore = this.cache.anyGroupsOverlapping(range);
-    this.props.source.getAlignmentsInRange(range)
-                     .forEach(read => this.cache.addAlignment(read));
+    var r = this.props.source.getAlignmentsInRange(range);
+    r.forEach(read => this.cache.addAlignment(read));
 
     if (!anyBefore && this.cache.anyGroupsOverlapping(range)) {
       // If these are the first reads to be shown in the visible range,
@@ -378,14 +392,15 @@ class PileupTrack extends React.Component {
     var canvas = this.refs.canvas,
         width = this.props.width;
 
-    // Hold off until height & width are known.
-    if (width === 0) return;
+    // Hold off until canvas, height & width are known.
+    if (width === 0 || typeof canvas == 'undefined') return;
 
     // Height can only be computed after the pileup has been updated.
     var height = yForRow(this.cache.pileupHeightForRef(this.props.range.contig));
 
     d3utils.sizeCanvas(canvas, width, height);
 
+    // if range is too large, remove all reads
     var ctx = canvasUtils.getContext(canvas);
     var dtx = dataCanvas.getDataContext(ctx);
     this.renderScene(dtx);
@@ -458,7 +473,7 @@ class PileupTrack extends React.Component {
     var vRead = _.find(trackingCtx.hits[0], hit => hit.read);
     var alert = window.alert || console.log;
     if (vRead) {
-      alert(vRead.read.debugString());
+      alert(vRead.read.name);
     }
   }
 }

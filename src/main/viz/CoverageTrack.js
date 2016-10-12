@@ -6,6 +6,7 @@
 
 import type {Alignment, AlignmentDataSource} from '../Alignment';
 import type Interval from '../Interval';
+import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type {BinSummary} from './CoverageCache';
@@ -193,7 +194,11 @@ class CoverageTrack extends React.Component {
   }
 
   render(): any {
-    return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    // Render coverage if base pairs is less than threshold
+    if (rangeLength <= GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
+      return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
+    } else return <div></div>;
   }
 
   getScale(): Scale {
@@ -279,7 +284,7 @@ class CoverageTrack extends React.Component {
         range = ContigInterval.fromGenomeRange(this.props.range);
 
     // Hold off until height & width are known.
-    if (width === 0) return;
+    if (width === 0 || typeof canvas == 'undefined') return;
     d3utils.sizeCanvas(canvas, width, height);
 
     var ctx = dataCanvas.getDataContext(this.getContext());
