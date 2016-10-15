@@ -13,10 +13,10 @@ describe('CoverageDataSource', function() {
   var server: any = null, response;
 
   before(function () {
-    return new RemoteFile('/test-data/chrM-coverage.json').getAllString().then(data => {
+    return new RemoteFile('/test-data/chr17-coverage.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/coverage/chrM?start=1&end=1000&binning=1',[200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/coverage/17?start=1&end=1000&binning=1',[200, { "Content-Type": "application/json" }, response]);
     });
   });
 
@@ -30,7 +30,7 @@ describe('CoverageDataSource', function() {
       url: '/coverage'
     });
 
-    var requestInterval = new ContigInterval('chrM', 10, 30);
+    var requestInterval = new ContigInterval('17', 10, 30);
     expect(source.getCoverageInRange(requestInterval))
         .to.deep.equal([]);
 
@@ -40,7 +40,7 @@ describe('CoverageDataSource', function() {
       done();
     });
 
-    source.rangeChanged({contig: 'chrM', start: 10, stop: 30});
+    source.rangeChanged({contig: '17', start: 10, stop: 30});
     server.respond();
   });
 
@@ -50,7 +50,7 @@ describe('CoverageDataSource', function() {
       url: '/coverage'
     });
     var requestCount = 0;
-    var requestInterval = new ContigInterval('chrM', 10, 20);
+    var requestInterval = new ContigInterval('17', 10, 20);
     expect(source.getCoverageInRange(requestInterval))
         .to.deep.equal([]);
 
@@ -63,8 +63,8 @@ describe('CoverageDataSource', function() {
       done();
     });
 
-    source.rangeChanged({contig: 'chrM', start: 1, stop: 30});
-    source.rangeChanged({contig: 'chrM', start: 2, stop: 8});
+    source.rangeChanged({contig: '17', start: 1, stop: 30});
+    source.rangeChanged({contig: '17', start: 2, stop: 8});
 
     server.respond();
 
@@ -76,7 +76,7 @@ describe('CoverageDataSource', function() {
       url: '/coverage'
     });
     var requestCount = 0;
-    var requestInterval = new ContigInterval('chrM', 10, 20);
+    var requestInterval = new ContigInterval('17', 10, 20);
     expect(source.getCoverageInRange(requestInterval))
         .to.deep.equal([]);
 
@@ -89,8 +89,8 @@ describe('CoverageDataSource', function() {
       done();
     });
 
-    source.rangeChanged({contig: 'chrM', start: 1, stop: 30});
-    source.rangeChanged({contig: 'chrM', start: 2, stop: 8});
+    source.rangeChanged({contig: '17', start: 1, stop: 30});
+    source.rangeChanged({contig: '17', start: 2, stop: 8});
 
     server.respond();
 

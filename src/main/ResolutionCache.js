@@ -14,7 +14,8 @@ import ContigInterval from './ContigInterval';
 class ResolutionCache<T: Object> {
   coveredRanges: ResolutionCacheKey[];
   cache: {[key: string]: T};
-  filterFunction: Function; // should take form (range: ContigInterval<string>, T) => boolean;
+  // used to filter out elements in the cache based on resolution.
+  filterFunction: Function; // should take form (range: ContigInterval<string>, T, resolution: ?number) => boolean;
   keyFunction: Function;    // should take form (d: T) => string;
 
   constructor(filterFunction: Function, keyFunction: Function) {
@@ -25,13 +26,16 @@ class ResolutionCache<T: Object> {
   }
 
   // gets data from cache at the Resolution defined by the interval
-  get(range: ContigInterval<string>): T[] {
-    if (this.coversRange(range)) {
-      if (!range) return [];
-      return _.filter(this.cache, d => this.filterFunction(range, d));
-    } else {
-      return [];
+  get(range: ContigInterval<string>, resolution: ?number): T[] {
+    if (!range) return [];
+    var res = _.filter(this.cache, d => this.filterFunction(range, d, resolution));
+
+    // if range is not fully covered, give warning but still return available data
+    if (this.coversRange(range, resolution)) {
+      console.warn("Warning: Resolution Cache does not fully cover region. Returning available data...");
     }
+
+    return res;
   }
 
   // puts new ranges into list of ranges covered by cache
@@ -53,26 +57,17 @@ class ResolutionCache<T: Object> {
 
   // checks weather cache contains data for the
   // specified interval and its corresponding resolution
-  coversRange(range: ContigInterval<string>): boolean {
-    var resolution = ResolutionCache.getResolution(range.interval);
-    if (range.isCoveredBy(this.coveredRanges.map(r => r.contigInterval))) {
-      // if covered by the data, verify that the correct base pair density is
-      // available
-      var correctResolution = true;
-      for (var i = 0; i < this.coveredRanges.length; i++) {
-        var r: ContigInterval<string> = this.coveredRanges[i].contigInterval;
-        var thisRes = this.coveredRanges[i].resolution;
-        if (r.intersects(range)) {
-          if (thisRes > resolution) { // resolution not fine enough for query
-            correctResolution = false;
-            break;
-          }
-        }
-      }
-      return correctResolution;
-    } else {
-      return false;
+  coversRange(range: ContigInterval<string>,
+              resolution: ?number): boolean {
+    if (!resolution) {
+      resolution = ResolutionCache.getResolution(range.interval);
     }
+
+    // filter ranges by correct resolution
+    var resolutionRanges = _.filter(this.coveredRanges, r => r.resolution == resolution);
+    if (range.isCoveredBy(resolutionRanges.map(r => r.contigInterval))) {
+      return true;
+    } else return false;
   }
 
   // clears out all content in cache
@@ -136,8 +131,8 @@ class ResolutionCacheKey {
       }
 
       var lastR: ResolutionCacheKey = rs[rs.length - 1];
-      if (r.contigInterval.intersects(lastR.contigInterval) ||
-          r.contigInterval.isAdjacentTo(lastR.contigInterval) &&
+      if ((r.contigInterval.intersects(lastR.contigInterval) ||
+          r.contigInterval.isAdjacentTo(lastR.contigInterval)) &&
           r.resolution == lastR.resolution) {
         lastR = rs[rs.length - 1] = lastR.clone();
         lastR.contigInterval.interval.stop =

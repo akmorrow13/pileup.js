@@ -7,9 +7,11 @@
 import type {TwoBitSource} from './sources/TwoBitDataSource';
 import type {VisualizedTrack, VizWithOptions} from './types';
 
+import _ from 'underscore';
 import React from 'react';
 import Controls from './Controls';
 import Menu from './Menu';
+import type {SequenceRecord} from './data/Sequence';
 import VisualizationWrapper from './VisualizationWrapper';
 
 type Props = {
@@ -21,7 +23,8 @@ type Props = {
 class Root extends React.Component {
   props: Props;
   state: {
-    contigList: string[];
+    contigList: SequenceRecord[];
+    contigNames: string[];
     range: ?GenomeRange;
     settingsMenuKey: ?string;
   };
@@ -30,6 +33,7 @@ class Root extends React.Component {
     super(props);
     this.state = {
       contigList: this.props.referenceSource.contigList(),
+      contigNames: _.map(this.props.referenceSource.contigList(), contig => contig.name),
       range: null,
       settingsMenuKey: null
     };
@@ -54,6 +58,13 @@ class Root extends React.Component {
     if (newRange.start < 0) {
       newRange.start = 0;
     }
+    var record = _.find(this.state.contigList, contig => contig.name == newRange.contig);
+    if (record) {
+      if (newRange.stop > record.length) {
+        newRange.stop = record.length;
+      }
+    }
+
     this.props.referenceSource.normalizeRange(newRange).then(range => {
       this.setState({range: range});
 
@@ -153,7 +164,7 @@ class Root extends React.Component {
             &nbsp;
           </div>
           <div className='track-content'>
-            <Controls contigList={this.state.contigList}
+            <Controls contigList={this.state.contigNames}
                       range={this.state.range}
                       onChange={this.handleRangeChange.bind(this)} />
           </div>

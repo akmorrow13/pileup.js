@@ -6,6 +6,8 @@
 
 import type {Alignment, CigarOp, MateProperties, Strand} from '../main/Alignment';
 import type ContigInterval from '../main/ContigInterval';
+import type {SequenceRecord} from '../main/data/Sequence';
+
 
 var numAlignments = 1;
 class FakeAlignment /* implements Alignment */ {
@@ -63,7 +65,7 @@ var fakeSource = {
   rangeChanged: dieFn,
   getRange: function(): any { return {}; },
   getRangeAsString: function(): string { return ''; },
-  contigList: function(): string[] { return []; },
+  contigList: function(): SequenceRecord[] { return []; },
   normalizeRange: function() { },
   on: dieFn,
   off: dieFn,

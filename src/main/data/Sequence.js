@@ -24,8 +24,13 @@ class Sequence {
   }
 
     // Returns a list of contig names.
-    getContigList(): string[] {
+    getContigNames(): string[] {
       return this.contigList.map(seq => seq.name);
+    }
+
+    // Returns a list of contig names.
+    getContigs(): SequenceRecord[] {
+      return this.contigList;
     }
 
   /**

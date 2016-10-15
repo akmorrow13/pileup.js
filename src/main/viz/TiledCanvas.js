@@ -10,6 +10,7 @@ import _ from 'underscore';
 
 import scale from '../scale';
 import ContigInterval from '../ContigInterval';
+import {ResolutionCache} from '../ResolutionCache';
 import Interval from '../Interval';
 import canvasUtils from './canvas-utils';
 import dataCanvas from 'data-canvas';
@@ -19,6 +20,7 @@ import d3utils from './d3utils';
 type Tile = {
   pixelsPerBase: number;
   range: ContigInterval<string>;
+  originalRange: ContigInterval<string>;
   buffer: HTMLCanvasElement;
 };
 
@@ -47,7 +49,10 @@ class TiledCanvas {
     var sc = scale.linear().domain([range.start(), range.stop() + 1]).range([0, width]);
     var ctx = canvasUtils.getContext(tile.buffer);
     var dtx = dataCanvas.getDataContext(ctx);
-    this.render(dtx, sc, range);
+
+
+    var resolution  = ResolutionCache.getResolution(tile.originalRange.interval);
+    this.render(dtx, sc, range, resolution);
   }
 
   // Create (and render) new tiles to fill the gaps.
@@ -60,6 +65,7 @@ class TiledCanvas {
     var newTiles = newIntervals.map(iv => ({
       pixelsPerBase,
       range: new ContigInterval(range.contig, iv.start, iv.stop),
+      originalRange: range,
       buffer: document.createElement('canvas')
     }));
 
@@ -123,7 +129,8 @@ class TiledCanvas {
 
   render(dtx: DataCanvasRenderingContext2D,
          scale: (x: number)=>number,
-         range: ContigInterval<string>): void {
+         range: ContigInterval<string>,
+         resolution: ?number): void {
     throw 'Not implemented';
   }
 

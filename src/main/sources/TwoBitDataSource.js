@@ -23,6 +23,7 @@ import ContigInterval from '../ContigInterval';
 import TwoBit from '../data/TwoBit';
 import RemoteFile from '../RemoteFile';
 import SequenceStore from '../SequenceStore';
+import type {SequenceRecord} from '../data/Sequence';
 import utils from '../utils';
 
 
@@ -39,7 +40,7 @@ export type TwoBitSource = {
   rangeChanged: (newRange: GenomeRange) => void;
   getRange: (range: GenomeRange) => {[key:string]: ?string};
   getRangeAsString: (range: GenomeRange) => string;
-  contigList: () => string[];
+  contigList: () => SequenceRecord[];
   normalizeRange: (range: GenomeRange) => Q.Promise<GenomeRange>;
   on: (event: string, handler: Function) => void;
   once: (event: string, handler: Function) => void;
@@ -94,11 +95,13 @@ var createFromTwoBitFile = function(remoteSource: TwoBit): TwoBitSource {
 
   // This either adds or removes a 'chr' as needed.
   function normalizeRangeSync(range: GenomeRange): GenomeRange {
-    if (contigList.indexOf(range.contig) >= 0) {
+    var contigIdx = _.map(contigList, contig => contig.name).indexOf(range.contig);
+    if (contigIdx >= 0) {
       return range;
     }
     var altContig = utils.altContigName(range.contig);
-    if (contigList.indexOf(altContig) >= 0) {
+    var altIdx = _.map(contigList, contig => contig.name).indexOf(altContig);
+    if (altIdx >= 0) {
       return {
         contig: altContig,
         start: range.start,
