@@ -9,8 +9,8 @@ import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type {Scale} from './d3utils';
-import CoverageDataSource from '../sources/CoverageDataSource';
-import PositionCount from '../sources/CoverageDataSource';
+import type {CoverageDataSource} from '../sources/CoverageDataSource';
+import type {PositionCount} from '../sources/CoverageDataSource';
 
 import React from 'react';
 import scale from '../scale';
@@ -58,8 +58,8 @@ class CoverageTiledCanvas extends TiledCanvas {
     this.options = options;
   }
 
-  yScaleForRef(ref: string): (y: number) => number {
-    var maxCoverage = this.source.maxCoverage();
+  yScaleForRef(range: ContigInterval<string>, resolution: ?number): (y: number) => number {
+    var maxCoverage = this.source.maxCoverage(range, resolution);
 
     return scale.linear()
       .domain([maxCoverage, 0])
@@ -67,24 +67,28 @@ class CoverageTiledCanvas extends TiledCanvas {
       .nice();
   }
 
+  // This is alled by TiledCanvas over all tiles in a range
   render(ctx: DataCanvasRenderingContext2D,
          xScale: (x: number)=>number,
-         range: ContigInterval<string>) {
-    var bins = this.source.getFeaturesInRange(range);
-    var yScale = this.yScaleForRef(range.contig);
+         range: ContigInterval<string>,
+         resolution: ?number) {
     var relaxedRange = new ContigInterval(
-        range.contig, range.start() - 1, range.stop() + 1);
-    renderBars(ctx, xScale, yScale, relaxedRange, bins, this.options);
+       range.contig, Math.max(1, range.start() - 1), range.stop() + 1);
+    var bins = this.source.getCoverageInRange(relaxedRange, resolution);
+    var yScale = this.yScaleForRef(range, resolution);
+
+    renderBars(ctx, xScale, yScale, relaxedRange, bins, resolution, this.options);
   }
 }
 
 
-// Draw coverage bins & mismatches
+// Draw coverage bins
 function renderBars(ctx: DataCanvasRenderingContext2D,
                     xScale: (num: number) => number,
                     yScale: (num: number) => number,
                     range: ContigInterval<string>,
                     bins: PositionCount[],
+                    resolution: ?number,
                     options: Object) {
   if (_.isEmpty(bins)) return;
 
@@ -95,7 +99,7 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
   var binPos = function(pos: number, count: number) {
     // Round to integer coordinates for crisp lines, without aliasing.
     var barX1 = Math.round(xScale(1 + pos)),
-        barX2 = Math.round(xScale(2 + pos)) - padding,
+        barX2 = Math.round(xScale(1 + resolution + pos)) - padding,
         barY = Math.round(yScale(count));
     return {barX1, barX2, barY};
   };
@@ -103,15 +107,16 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
   var vBasePosY = yScale(0);  // the very bottom of the canvas
   var start = range.start(),
       stop = range.stop();
-  let {barX1} = binPos(start, (start in bins) ? bins[start].count : 0);
+  var first = bins.filter(bin => bin.position == start);
+  // find first bin in dataset and move to that position.
+  let {barX1} = binPos(start, (!_.isEmpty(first)) ? first[0].count : 0);
   ctx.fillStyle = style.COVERAGE_BIN_COLOR;
   ctx.beginPath();
   ctx.moveTo(barX1, vBasePosY);
-  for (var pos = start; pos < stop; pos++) {
-    var bin = bins[pos];
-    if (!bin) continue;
+
+  bins.forEach(bin => {
     ctx.pushObject(bin);
-    let {barX1, barX2, barY} = binPos(pos, bin.count);
+    let {barX1, barX2, barY} = binPos(bin.position, bin.count);
     ctx.lineTo(barX1, barY);
     ctx.lineTo(barX2, barY);
     if (showPadding) {
@@ -120,7 +125,7 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
     }
 
     ctx.popObject();
-  }
+  });
   let {barX2} = binPos(stop, (stop in bins) ? bins[stop].count : 0);
   ctx.lineTo(barX2, vBasePosY);  // right edge of the right bar.
   ctx.closePath();
@@ -131,17 +136,14 @@ class CoverageTrack extends React.Component {
   props: Props;
   state: void;
   static defaultOptions: Object;
+  tiles: CoverageTiledCanvas;
 
   constructor(props: Props) {
     super(props);
   }
 
   render(): any {
-    var rangeLength = this.props.range.stop - this.props.range.start;
-    // Render coverage if base pairs is less than threshold
-    if (rangeLength <= GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
-      return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
-    } else return <div></div>;
+    return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
   }
 
   getScale(): Scale {
@@ -149,10 +151,12 @@ class CoverageTrack extends React.Component {
   }
 
   componentDidMount() {
+    this.tiles = new CoverageTiledCanvas(this.props.source, this.props.height, this.props.options);
+
     this.props.source.on('newdata', range => {
-      var oldMax = this.props.source.maxCoverageForRef(range.contig);
+      var oldMax = this.props.source.maxCoverage(range);
       this.props.source.getCoverageInRange(range);
-      var newMax = this.props.source.maxCoverageForRef(range.contig);
+      var newMax = this.props.source.maxCoverage(range);
 
       if (oldMax != newMax) {
         this.tiles.invalidateAll();
@@ -193,25 +197,28 @@ class CoverageTrack extends React.Component {
     [0, Math.round(axisMax / 2), axisMax].forEach(tick => {
       // Draw a line indicating the tick
       ctx.pushObject({value: tick, type: 'tick'});
-      var tickPosY = Math.round(yScale(tick));
+      var tickPosY = Math.round(yScale(tick))+10; // add 9 for offset compared to printed tiles
       ctx.strokeStyle = style.COVERAGE_FONT_COLOR;
       canvasUtils.drawLine(ctx, 0, tickPosY, style.COVERAGE_TICK_LENGTH, tickPosY);
       ctx.popObject();
 
-      var tickLabel = tick + 'X';
-      ctx.pushObject({value: tick, label: tickLabel, type: 'label'});
-      // Now print the coverage information
-      ctx.font = style.COVERAGE_FONT_STYLE;
-      var textPosX = style.COVERAGE_TICK_LENGTH + style.COVERAGE_TEXT_PADDING,
-          textPosY = tickPosY + style.COVERAGE_TEXT_Y_OFFSET;
-      // The stroke creates a border around the text to make it legible over the bars.
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 2;
-      ctx.strokeText(tickLabel, textPosX, textPosY);
-      ctx.lineWidth = 1;
-      ctx.fillStyle = style.COVERAGE_FONT_COLOR;
-      ctx.fillText(tickLabel, textPosX, textPosY);
-      ctx.popObject();
+      if (tick > 0) {
+          var tickLabel = tick + 'X';
+          ctx.pushObject({value: tick, label: tickLabel, type: 'label'});
+          // Now print the coverage information
+          ctx.font = style.COVERAGE_FONT_STYLE;
+          var textPosX = style.COVERAGE_TICK_LENGTH + style.COVERAGE_TEXT_PADDING,
+              textPosY = tickPosY + style.COVERAGE_TEXT_Y_OFFSET;
+          // The stroke creates a border around the text to make it legible over the bars.
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 2;
+          ctx.strokeText(tickLabel, textPosX, textPosY);
+          ctx.lineWidth = 1;
+          ctx.fillStyle = style.COVERAGE_FONT_COLOR;
+          ctx.fillText(tickLabel, textPosX, textPosY);
+          ctx.popObject();
+      }
+
     });
   }
 
@@ -230,7 +237,8 @@ class CoverageTrack extends React.Component {
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    var yScale = this.tiles.yScaleForRef(range.contig);
+    var yScale = this.tiles.yScaleForRef(range);
+    var thisS = this.getScale();
 
     this.tiles.renderToScreen(ctx, range, this.getScale());
     this.renderTicks(ctx, yScale);
@@ -246,7 +254,7 @@ class CoverageTrack extends React.Component {
     // No need to render the scene to determine what was clicked.
     var range = ContigInterval.fromGenomeRange(this.props.range),
         xScale = this.getScale(),
-        bins = this.props.source.getCoverageInRange(range.contig),
+        bins = this.props.source.getCoverageInRange(range),
         pos = Math.floor(xScale.invert(x)) - 1,
         bin = bins[pos];
 

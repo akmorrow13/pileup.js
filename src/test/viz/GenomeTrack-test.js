@@ -54,7 +54,7 @@ describe('GenomeTrack', function() {
 
   it('should tolerate non-chr ranges', function() {
     var p = pileup.create(testDiv, {
-      range: {contig: '17', start: 7500730, stop: 7500790},
+      range: {contig: 'chr17', start: 7500730, stop: 7500790},
       tracks: [
         {
           data: referenceSource,
@@ -95,7 +95,7 @@ describe('GenomeTrack', function() {
   it('should zoom from huge zoom out', function() {
     
     var p = pileup.create(testDiv, {
-      range: { contig: '17', start: 0, stop: 114529884 },
+      range: { contig: 'chr17', start: 0, stop: 114529884 },
       tracks: [{
         data: referenceSource,
         viz: pileup.viz.genome(),
@@ -116,7 +116,7 @@ describe('GenomeTrack', function() {
     return waitFor(referenceTrackLoaded, 2000).then(() => {
       //in global view we shouldn't see reference track
       expect(hasReference()).to.be.false;
-      p.setRange({contig: '17', start: 7500725, stop: 7500775});
+      p.setRange({contig: 'chr17', start: 7500725, stop: 7500775});
     }).delay(300).then(() => {
       //after zoom in we should see reference track
       expect(hasReference()).to.be.true;
@@ -127,7 +127,7 @@ describe('GenomeTrack', function() {
 
   it('should zoom in and out', function() {
     var p = pileup.create(testDiv, {
-      range: {contig: '17', start: 7500725, stop: 7500775},
+      range: {contig: 'chr17', start: 7500725, stop: 7500775},
       tracks: [
         {
           data: referenceSource,
@@ -170,7 +170,7 @@ describe('GenomeTrack', function() {
 
   it('should accept user-entered locations', function() {
     var p = pileup.create(testDiv, {
-      range: {contig: '17', start: 7500725, stop: 7500775},
+      range: {contig: 'chr17', start: 7500725, stop: 7500775},
       tracks: [
         {
           data: referenceSource,

@@ -38,16 +38,18 @@ function keyFunction(p: PositionCount): string {
   return `${p.contig}:${p.position}`;
 }
 
-function filterFunction(range: ContigInterval<string>, p: PositionCount): boolean {
-  return range.chrContainsLocus(p.contig, p.position);
+function filterFunction(range: ContigInterval<string>, p: PositionCount, resolution: ?number): boolean {
+  // if resolution is specified, select results based on resolution and position start site
+  if (resolution) return (range.chrContainsLocus(p.contig, p.position) && p.position % resolution == 0);
+  else return range.chrContainsLocus(p.contig, p.position);
 }
 
 function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource {
   var cache: ResolutionCache<PositionCount> =
     new ResolutionCache(filterFunction, keyFunction);
 
-  function maxCoverage(range: ContigInterval<string>): number {
-    var positions: number[] = cache.get(range).map(r => r.count);
+  function maxCoverage(range: ContigInterval<string>, resolution: ?number): number {
+    var positions: number[] = cache.get(range, resolution).map(r => r.count);
     var maxCoverage = Math.max.apply(Math, positions);
     return maxCoverage;
   }
@@ -67,16 +69,22 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
 
     // Cover the range immediately to prevent duplicate fetches.
     cache.coverRange(interval);
-    coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval, endpointModifier).then(positions => {
-      positions.forEach(p => cache.put(p));
+      positions.forEach(p => cache.put({
+                                       	"contig": range.contig,
+                                       	"position": p.position,
+                                       	"count": p.count
+                                       }));
       o.trigger('newdata', interval);
     });
   }
 
-  function getCoverageInRange(range: ContigInterval<string>): PositionCount[] {
+  function getCoverageInRange(range: ContigInterval<string>,
+            resolution: ?number): PositionCount[] {
     if (!range) return [];
-    return cache.get(range);
+    var data = cache.get(range, resolution);
+    var sorted = data.sort((a, b) => a.position - b.position);
+    return sorted;
   }
 
   var o = {

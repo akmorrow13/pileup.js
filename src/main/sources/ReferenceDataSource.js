@@ -46,7 +46,7 @@ function expandRange(range) {
 
 var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
   // Local cache of genomic data.
-  var contigList = remoteSource.getContigList();
+  var contigList = remoteSource.getContigs();
   var store = new SequenceStore();
 
   // Ranges for which we have complete information -- no need to hit network.
@@ -76,11 +76,13 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
 
   // This either adds or removes a 'chr' as needed.
   function normalizeRange(range: GenomeRange): Q.Promise<GenomeRange> {
-    if (contigList.indexOf(range.contig) >= 0) {
+    var contigIdx = _.map(contigList, contig => contig.name).indexOf(range.contig);
+    if (contigIdx >= 0) {
       return Q.Promise.resolve(range);
     }
     var altContig = utils.altContigName(range.contig);
-    if (contigList.indexOf(altContig) >= 0) {
+    var altIdx = _.map(contigList, contig => contig.name).indexOf(altContig);
+    if (altIdx >= 0) {
       return Q.Promise.resolve({
         contig: altContig,
         start: range.start,

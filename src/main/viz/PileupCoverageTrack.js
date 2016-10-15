@@ -6,6 +6,7 @@
 
 import type {Alignment, AlignmentDataSource} from '../Alignment';
 import type Interval from '../Interval';
+import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type {BinSummary} from './CoverageCache';
@@ -193,7 +194,11 @@ class PileupCoverageTrack extends React.Component {
   }
 
   render(): any {
-    return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    // Render coverage if base pairs is less than threshold
+    if (rangeLength <= GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
+      return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
+    } else return <div></div>;
   }
 
   getScale(): Scale {
@@ -250,25 +255,27 @@ class PileupCoverageTrack extends React.Component {
     [0, Math.round(axisMax / 2), axisMax].forEach(tick => {
       // Draw a line indicating the tick
       ctx.pushObject({value: tick, type: 'tick'});
-      var tickPosY = Math.round(yScale(tick));
+      var tickPosY = Math.round(yScale(tick))+10;
       ctx.strokeStyle = style.COVERAGE_FONT_COLOR;
       canvasUtils.drawLine(ctx, 0, tickPosY, style.COVERAGE_TICK_LENGTH, tickPosY);
       ctx.popObject();
 
-      var tickLabel = tick + 'X';
-      ctx.pushObject({value: tick, label: tickLabel, type: 'label'});
-      // Now print the coverage information
-      ctx.font = style.COVERAGE_FONT_STYLE;
-      var textPosX = style.COVERAGE_TICK_LENGTH + style.COVERAGE_TEXT_PADDING,
-          textPosY = tickPosY + style.COVERAGE_TEXT_Y_OFFSET;
-      // The stroke creates a border around the text to make it legible over the bars.
-      ctx.strokeStyle = 'white';
-      ctx.lineWidth = 2;
-      ctx.strokeText(tickLabel, textPosX, textPosY);
-      ctx.lineWidth = 1;
-      ctx.fillStyle = style.COVERAGE_FONT_COLOR;
-      ctx.fillText(tickLabel, textPosX, textPosY);
-      ctx.popObject();
+      if (tick > 0) {
+        var tickLabel = tick + 'X';
+        ctx.pushObject({value: tick, label: tickLabel, type: 'label'});
+        // Now print the coverage information
+        ctx.font = style.COVERAGE_FONT_STYLE;
+        var textPosX = style.COVERAGE_TICK_LENGTH + style.COVERAGE_TEXT_PADDING,
+            textPosY = tickPosY + style.COVERAGE_TEXT_Y_OFFSET;
+        // The stroke creates a border around the text to make it legible over the bars.
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.strokeText(tickLabel, textPosX, textPosY);
+        ctx.lineWidth = 1;
+        ctx.fillStyle = style.COVERAGE_FONT_COLOR;
+        ctx.fillText(tickLabel, textPosX, textPosY);
+        ctx.popObject();
+      }
     });
   }
 
@@ -279,7 +286,7 @@ class PileupCoverageTrack extends React.Component {
         range = ContigInterval.fromGenomeRange(this.props.range);
 
     // Hold off until height & width are known.
-    if (width === 0) return;
+    if (width === 0 || typeof canvas == 'undefined') return;
     d3utils.sizeCanvas(canvas, width, height);
 
     var ctx = dataCanvas.getDataContext(this.getContext());

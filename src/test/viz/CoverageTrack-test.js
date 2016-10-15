@@ -8,6 +8,9 @@
 
 import {expect} from 'chai';
 
+import sinon from 'sinon';
+
+import RemoteFile from '../../main/RemoteFile';
 import pileup from '../../main/pileup';
 import TwoBit from '../../main/data/TwoBit';
 import TwoBitDataSource from '../../main/sources/TwoBitDataSource';
@@ -17,8 +20,23 @@ import {waitFor} from '../async';
 
 describe('CoverageTrack', function() {
   var testDiv = document.getElementById('testdiv');
-  var range = {contig: '17', start: 7500730, stop: 7500790};
+  var range = {contig: '17', start: 0, stop: 100};
   var p;
+
+  var server: any = null, response;
+
+  before(function () {
+    return new RemoteFile('/test-data/chr17-coverage.json').getAllString().then(data => {
+      response = data;
+      server = sinon.fakeServer.create();
+      server.respondWith('GET', '/coverage/17?start=1&end=1000&binning=1',[200, { "Content-Type": "application/json" }, response]);
+    });
+  });
+
+  after(function () {
+    server.restore();
+  });
+
 
   beforeEach(() => {
     dataCanvas.RecordingContext.recordAll();
@@ -34,10 +52,10 @@ describe('CoverageTrack', function() {
         },
         {
           viz: pileup.viz.coverage(),
-          data: pileup.formats.bam({
+          data: pileup.formats.coverage({
             url: '/coverage',
           }),
-          cssClass: 'test-coverage',
+          cssClass: 'coverage',
           name: 'Coverage'
         }
       ]
@@ -63,10 +81,6 @@ describe('CoverageTrack', function() {
     return drawnObjectsWith(testDiv, '.coverage', b => b.count);
   };
 
-  var findMismatchBins = ():Array<any> => {
-    return drawnObjectsWith(testDiv, '.coverage', b => b.base);
-  };
-
   var findCoverageLabels = () => {
     return drawnObjectsWith(testDiv, '.coverage', l => l.type == 'label');
   };
@@ -75,7 +89,6 @@ describe('CoverageTrack', function() {
     // Check whether the coverage bins are loaded yet
     return testDiv.querySelector('canvas') &&
         findCoverageBins().length > 1 &&
-        findMismatchBins().length > 0 &&
         findCoverageLabels().length > 1;
   };
 
