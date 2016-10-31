@@ -17,6 +17,7 @@ export type Variant = {
   ref: string;
   alt: string;
   vcfLine: string;
+  end: number;
 }
 
 // This is a minimally-parsed line for facilitating binary search.
@@ -41,13 +42,17 @@ function extractLocusLine(vcfLine: string): LocusLine {
 
 function extractVariant(vcfLine: string): Variant {
   var parts = vcfLine.split('\t');
-
+  var end = Number(parts[1]) + parts[3].length;
+  if (5 >= parts.length) {
+    end = parts[5]
+  }
   return {
     contig: parts[0],
     position: Number(parts[1]),
     ref: parts[3],
     alt: parts[4],
-    vcfLine
+    vcfLine: vcfLine,
+    end: end
   };
 }
 
