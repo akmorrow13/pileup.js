@@ -52,7 +52,7 @@ class TiledCanvas {
 
 
     var resolution  = ResolutionCache.getResolution(tile.originalRange.interval);
-    this.render(dtx, sc, range, resolution);
+    this.render(dtx, sc, range, tile.originalRange, resolution);
   }
 
   // Create (and render) new tiles to fill the gaps.
@@ -130,6 +130,7 @@ class TiledCanvas {
   render(dtx: DataCanvasRenderingContext2D,
          scale: (x: number)=>number,
          range: ContigInterval<string>,
+         originalRange: ?ContigInterval<string>,
          resolution: ?number): void {
     throw 'Not implemented';
   }

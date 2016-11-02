@@ -7,7 +7,7 @@
 
 import Q from 'q';
 import ContigInterval from '../ContigInterval';
-import type RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 
 export type SequenceRecord = {
   name: string;
@@ -44,7 +44,8 @@ class Sequence {
     if (start > stop) {
       throw `Requested a range with start > stop (${start}, ${stop})`;
     }
-    return this.remoteRequest.get(range).then(sequence => {
+    return this.remoteRequest.get(range).then(e => {
+        var sequence = e.response;
         var d = sequence.substring(start, (stop-start + 1));
         return d;
     });

@@ -10,7 +10,7 @@ import {Events} from 'backbone';
 import ContigInterval from '../ContigInterval';
 import Interval from '../Interval';
 import type { BigBedSource, Gene } from './BigBedDataSource';
-import RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import GeneEndpoint from '../data/GeneEndpoint';
 
 var BASE_PAIRS_PER_FETCH = 5000;

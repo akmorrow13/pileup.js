@@ -69,7 +69,6 @@ describe('ReferenceDataSource', function() {
       'chrM:3': null
     });
     var str = source.getRangeAsString(range);
-    console.log(str);
     expect(str).to.equal('....');
 
     source.on('newdata', () => {

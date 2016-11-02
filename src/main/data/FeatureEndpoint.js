@@ -7,7 +7,7 @@
 
 import Q from 'q';
 import ContigInterval from '../ContigInterval';
-import type RemoteRequest from '../RemoteRequest';
+import type {RemoteRequest} from '../RemoteRequest';
 
 export type Feature = {
   id: string;

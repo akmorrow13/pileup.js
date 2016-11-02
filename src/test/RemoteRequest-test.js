@@ -5,7 +5,7 @@ import {expect} from 'chai';
 
 import sinon from 'sinon';
 
-import RemoteRequest from '../main/RemoteRequest';
+import {RemoteRequest} from '../main/RemoteRequest';
 import RemoteFile from '../main/RemoteFile';
 import ContigInterval from '../main/ContigInterval';
 

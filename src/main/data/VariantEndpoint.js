@@ -7,7 +7,7 @@
 
 import ContigInterval from '../ContigInterval';
 import Q from 'q';
-import type RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import type {Variant} from './vcf';
 
 class VariantEndpoint {

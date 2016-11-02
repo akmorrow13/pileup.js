@@ -7,7 +7,7 @@
 
 import Q from 'q';
 import type {Gene} from '../sources/BigBedDataSource';
-import type RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import Interval from '../Interval';
 import ContigInterval from '../../main/ContigInterval';
 
@@ -49,8 +49,9 @@ class GeneEndpoint {
   }
 
   getGenesInRange(range: ContigInterval<string>): Q.Promise<Gene[]> {
-    return this.remoteRequest.get(range).then(object => {
-      var d = extractGenes(object);
+    return this.remoteRequest.get(range).then(e => {
+      var genes = e.response;
+      var d = extractGenes(genes);
       return d;
     });
   }

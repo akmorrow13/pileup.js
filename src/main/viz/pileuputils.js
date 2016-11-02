@@ -206,9 +206,26 @@ function getOpInfo(read: Alignment, referenceSource: Object): OpInfo {
   };
 }
 
+// State information. Used in viz
+export type NetworkStatus = {numRequests?: number, status?: string};
+export type State = {
+  networkStatus: ?NetworkStatus;
+};
+
+function formatStatus(status: NetworkStatus): string {
+  if (status.numRequests) {
+    var pluralS = status.numRequests > 1 ? 's' : '';
+    return `issued ${status.numRequests} request${pluralS}`;
+  } else if (status.status) {
+    return status.status;
+  }
+  throw 'invalid';
+}
+
 module.exports = {
   pileup,
   addToPileup,
   getOpInfo,
+  formatStatus,
   CigarOp
 };

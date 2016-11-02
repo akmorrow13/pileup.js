@@ -22,7 +22,7 @@ import _ from 'underscore';
 import {Events} from 'backbone';
 
 import ContigInterval from '../ContigInterval';
-import RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import GenotypeEndpoint from '../data/GenotypeEndpoint';
 
 export type GenotypeDataSource = {

@@ -7,7 +7,6 @@
 import type {Strand, Alignment, AlignmentDataSource} from '../Alignment';
 import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
-import type {BasePair} from './pileuputils';
 import type {VisualAlignment, VisualGroup, InsertStats} from './PileupCache';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type Interval from '../Interval';
@@ -20,7 +19,8 @@ import _ from 'underscore';
 
 import scale from '../scale';
 import d3utils from './d3utils';
-import {CigarOp} from './pileuputils';
+import type {BasePair, State, NetworkStatus} from './pileuputils';
+import {CigarOp, formatStatus} from './pileuputils';
 import ContigInterval from '../ContigInterval';
 import DisplayMode from './DisplayMode';
 import PileupCache from './PileupCache';
@@ -236,12 +236,6 @@ function opacityForQuality(quality: number): number {
   return Math.min(1.0, alpha);
 }
 
-type NetworkStatus = {numRequests?: number, status?: string};
-type State = {
-  networkStatus: ?NetworkStatus;
-};
-
-
 class PileupTrack extends React.Component {
   props: VizProps & { source: AlignmentDataSource };
   state: State;
@@ -270,7 +264,7 @@ class PileupTrack extends React.Component {
     var statusEl = null,
         networkStatus = this.state.networkStatus;
     if (networkStatus) {
-      var message = this.formatStatus(networkStatus);
+      var message = formatStatus(networkStatus);
       statusEl = (
         <div ref='status' className='network-status'>
           <div className='network-status-message'>
@@ -303,15 +297,6 @@ class PileupTrack extends React.Component {
     }
   }
 
-  formatStatus(status: NetworkStatus): string {
-    if (status.numRequests) {
-      var pluralS = status.numRequests > 1 ? 's' : '';
-      return `issued ${status.numRequests} request${pluralS}`;
-    } else if (status.status) {
-      return status.status;
-    }
-    throw 'invalid';
-  }
 
   componentDidMount() {
     this.cache = new PileupCache(this.props.referenceSource, this.props.options.viewAsPairs);

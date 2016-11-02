@@ -24,7 +24,7 @@ import Sequence from '../data/Sequence';
 import type {SequenceRecord} from '../data/Sequence';
 import SequenceStore from '../SequenceStore';
 import type {TwoBitSource} from './TwoBitDataSource';
-import RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import utils from '../utils';
 
 
