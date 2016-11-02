@@ -5,11 +5,12 @@
 'use strict';
 
 import type Interval from '../Interval';
-import GA4GHDataSource from '../sources/GA4GHDataSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type {Scale} from './d3utils';
 import type {CoverageDataSource} from '../sources/CoverageDataSource';
+import type {VizProps} from '../VisualizationWrapper';
+import RemoteRequest from '../RemoteRequest';
 import type {PositionCount} from '../sources/CoverageDataSource';
 
 import React from 'react';
@@ -22,17 +23,8 @@ import canvasUtils from './canvas-utils';
 import style from '../style';
 import ContigInterval from '../ContigInterval';
 import TiledCanvas from './TiledCanvas';
-
-
-type Props = {
-  width: number;
-  height: number;
-  range: GenomeRange;
-  source: CoverageDataSource;
-  options: {
-    vafColorThreshold: number
-  }
-};
+import type {State, NetworkStatus} from './pileuputils';
+import {formatStatus} from './pileuputils';
 
 
 class CoverageTiledCanvas extends TiledCanvas {
@@ -42,7 +34,6 @@ class CoverageTiledCanvas extends TiledCanvas {
 
   constructor(source: CoverageDataSource, height: number, options: Object) {
     super();
-
     this.source = source;
     this.height = Math.max(1, height);
     this.options = options;
@@ -71,12 +62,18 @@ class CoverageTiledCanvas extends TiledCanvas {
   render(ctx: DataCanvasRenderingContext2D,
          xScale: (x: number)=>number,
          range: ContigInterval<string>,
+         originalRange: ?ContigInterval<string>,
          resolution: ?number) {
     var relaxedRange = new ContigInterval(
        range.contig, Math.max(1, range.start() - 1), range.stop() + 1);
     var bins = this.source.getCoverageInRange(relaxedRange, resolution);
-    var yScale = this.yScaleForRef(range, resolution);
 
+    // if original range is not set, use tiled range which is a subset of originalRange
+    if (!originalRange) {
+      originalRange = range;
+    }
+
+    var yScale = this.yScaleForRef(originalRange, resolution);
     renderBars(ctx, xScale, yScale, relaxedRange, bins, resolution, this.options);
   }
 }
@@ -92,58 +89,98 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
                     options: Object) {
   if (_.isEmpty(bins)) return;
 
+  // make sure bins are sorted by position
+  bins = _.sortBy(bins, x => x.start);
+
   var barWidth = xScale(1) - xScale(0);
   var showPadding = (barWidth > style.COVERAGE_MIN_BAR_WIDTH_FOR_GAP);
   var padding = showPadding ? 1 : 0;
 
-  var binPos = function(pos: number, count: number) {
+  var binPos = function(ps: PositionCount) {
     // Round to integer coordinates for crisp lines, without aliasing.
-    var barX1 = Math.round(xScale(1 + pos)),
-        barX2 = Math.round(xScale(1 + resolution + pos)) - padding,
-        barY = Math.round(yScale(count));
+    var barX1 = Math.round(xScale(ps.start)),
+        barX2 = Math.max(barX1 + 2, Math.round(xScale(ps.end)) - padding),  // make sure bar is >= 1px
+        barY = Math.round(yScale(ps.count));
     return {barX1, barX2, barY};
   };
 
   var vBasePosY = yScale(0);  // the very bottom of the canvas
   var start = range.start(),
       stop = range.stop();
-  var first = bins.filter(bin => bin.position == start);
-  // find first bin in dataset and move to that position.
-  let {barX1} = binPos(start, (!_.isEmpty(first)) ? first[0].count : 0);
+
+  // go to the first bin in dataset (specified by the smallest start position)
   ctx.fillStyle = style.COVERAGE_BIN_COLOR;
   ctx.beginPath();
-  ctx.moveTo(barX1, vBasePosY);
 
   bins.forEach(bin => {
     ctx.pushObject(bin);
-    let {barX1, barX2, barY} = binPos(bin.position, bin.count);
-    ctx.lineTo(barX1, barY);
-    ctx.lineTo(barX2, barY);
-    if (showPadding) {
-      ctx.lineTo(barX2, vBasePosY);
-      ctx.lineTo(barX2 + 1, vBasePosY);
-    }
+    let {barX1, barX2, barY} = binPos(bin);
+    ctx.moveTo(barX1, vBasePosY);  // start at bottom left of bar
+    ctx.lineTo(barX1, barY);       // left edge of bar
+    ctx.lineTo(barX2, barY);       // top of bar
+    ctx.lineTo(barX2, vBasePosY);  // right edge of the right bar.
 
     ctx.popObject();
   });
-  let {barX2} = binPos(stop, (stop in bins) ? bins[stop].count : 0);
-  ctx.lineTo(barX2, vBasePosY);  // right edge of the right bar.
   ctx.closePath();
   ctx.fill();
 }
 
 class CoverageTrack extends React.Component {
-  props: Props;
-  state: void;
+  props: VizProps & { source: CoverageDataSource };
+  state: State;
   static defaultOptions: Object;
   tiles: CoverageTiledCanvas;
 
-  constructor(props: Props) {
+  constructor(props: VizProps) {
     super(props);
+    this.state = {
+      networkStatus: null
+    };
   }
 
   render(): any {
-    return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
+    // These styles allow vertical scrolling to see the full pileup.
+    // Adding a vertical scrollbar shrinks the visible area, but we have to act
+    // as though it doesn't, since adjusting the scale would put it out of sync
+    // with other tracks.
+    var containerStyles = {
+      'height': '100%'
+    };
+    var statusEl = null,
+        networkStatus = this.state.networkStatus;
+    if (networkStatus) {
+      var message = formatStatus(networkStatus);
+      statusEl = (
+        <div ref='status' className='network-status'>
+          <div className='network-status-message'>
+            Loading coverage… ({message})
+          </div>
+        </div>
+      );
+    }
+
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    // If range is too large, do not render 'canvas'
+    if (rangeLength > RemoteRequest.MONSTER_REQUEST) {
+       return (
+        <div>
+            <div className='center'>
+              Zoom in to see coverage
+            </div>
+            <canvas onClick={this.handleClick.bind(this)} />
+          </div>
+          );
+    } else {
+      return (
+        <div>
+          {statusEl}
+          <div ref='container' style={containerStyles}>
+            <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+          </div>
+        </div>
+      );
+    }
   }
 
   getScale(): Scale {
@@ -165,10 +202,15 @@ class CoverageTrack extends React.Component {
       }
       this.visualizeCoverage();
     });
-
     this.props.source.on('newdata', range => {
       this.tiles.invalidateRange(range);
       this.visualizeCoverage();
+    });
+    this.props.source.on('networkprogress', e => {
+      this.setState({networkStatus: e});
+    });
+    this.props.source.on('networkdone', e => {
+      this.setState({networkStatus: null});
     });
   }
 
@@ -197,7 +239,7 @@ class CoverageTrack extends React.Component {
     [0, Math.round(axisMax / 2), axisMax].forEach(tick => {
       // Draw a line indicating the tick
       ctx.pushObject({value: tick, type: 'tick'});
-      var tickPosY = Math.round(yScale(tick))+10; // add 9 for offset compared to printed tiles
+      var tickPosY = Math.round(yScale(tick));
       ctx.strokeStyle = style.COVERAGE_FONT_COLOR;
       canvasUtils.drawLine(ctx, 0, tickPosY, style.COVERAGE_TICK_LENGTH, tickPosY);
       ctx.popObject();

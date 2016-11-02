@@ -20,7 +20,7 @@ import _ from 'underscore';
 import {Events} from 'backbone';
 
 import ContigInterval from '../ContigInterval';
-import RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import FeatureEndpoint from '../data/FeatureEndpoint';
 import type {Feature} from '../data/FeatureEndpoint';
 
@@ -78,7 +78,8 @@ function createFromFeatureUrl(remoteSource: FeatureEndpoint): FeatureDataSource 
     // "Cover" the range immediately to prevent duplicate fetches.
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
-    return remoteSource.getFeaturesInRange(interval).then(features => {
+    return remoteSource.getFeaturesInRange(interval).then(e => {
+      var features = e.response;
       features.forEach(feature => addFeature(feature));
       o.trigger('newdata', interval);
     });

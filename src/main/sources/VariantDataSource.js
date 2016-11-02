@@ -23,7 +23,7 @@ import {Events} from 'backbone';
 
 import ContigInterval from '../ContigInterval';
 import type {VcfDataSource} from './VcfDataSource';
-import RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import VariantEndpoint from '../data/VariantEndpoint';
 
 var BASE_PAIRS_PER_FETCH = 1000;
@@ -67,8 +67,9 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
     // "Cover" the range immediately to prevent duplicate fetches.
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
-    return remoteSource.getFeaturesInRange(interval).then(object => {
-      object.forEach(variant => addVariant(variant));
+    return remoteSource.getFeaturesInRange(interval).then(e => {
+      var variants = e.response;
+      variants.forEach(variant => addVariant(variant));
       o.trigger('newdata', interval);
     });
   }

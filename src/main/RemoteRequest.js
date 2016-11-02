@@ -10,6 +10,7 @@ import Q from 'q';
 import ContigInterval from './ContigInterval';
 
 var BASE_PAIRS_PER_FETCH = 1000;
+var MONSTER_REQUEST = 5000000;
 
 class RemoteRequest {
   url: string;
@@ -43,7 +44,7 @@ class RemoteRequest {
     var length = range.stop() - range.start();
     if (length <= 0) {
       return Q.reject(`Requested <0 interval (${length}) from ${this.url}`);
-    } else if (length > 5000000) {
+    } else if (length > MONSTER_REQUEST) {
       throw `Monster request: Won't fetch ${length} sized ranges from ${this.url}`;
     }
     // get endpoint
@@ -61,9 +62,9 @@ class RemoteRequest {
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');
 
-    return this.promiseXHR(xhr).then(json => {
-      // extract response from promise
-      return json[0];
+    return this.promiseXHR(xhr).then(e => {
+      // send back response and status
+      return e[0];
     });
   }
 
@@ -76,14 +77,14 @@ class RemoteRequest {
 
   // Wrapper to convert XHRs to Promises.
   // The promised values are the response (e.g. an ArrayBuffer) and the Event.
-  promiseXHR(xhr: XMLHttpRequest): Q.Promise<[any, Event]> {
+  promiseXHR(xhr: XMLHttpRequest): Q.Promise<[any]> {
     var url = this.url;
     var deferred = Q.defer();
     xhr.addEventListener('load', function(e) {
       if (this.status >= 400) {
         deferred.reject(`Request for ${url} failed with status: ${this.status} ${this.statusText}`);
       } else {
-        deferred.resolve([this.response, e]);
+        deferred.resolve([this]);
       }
     });
     xhr.addEventListener('error', function(e) {
@@ -95,4 +96,9 @@ class RemoteRequest {
   }
 }
 
-module.exports = RemoteRequest;
+module.exports = {
+  RemoteRequest,
+  MONSTER_REQUEST: MONSTER_REQUEST
+};
+
+//module.exports = RemoteRequest;

@@ -11,11 +11,16 @@ import _ from 'underscore';
 import Interval from './Interval';
 import ContigInterval from './ContigInterval';
 
+type ResolutionObject<T: Object> = {
+  resolution: number;
+  object: T;
+}
+
 class ResolutionCache<T: Object> {
   coveredRanges: ResolutionCacheKey[];
-  cache: {[key: string]: T};
+  cache: {[key: string]: ResolutionObject<T>};
   // used to filter out elements in the cache based on resolution.
-  filterFunction: Function; // should take form (range: ContigInterval<string>, T, resolution: ?number) => boolean;
+  filterFunction: Function; // should take form (range: ContigInterval<string>, T) => boolean;
   keyFunction: Function;    // should take form (d: T) => string;
 
   constructor(filterFunction: Function, keyFunction: Function) {
@@ -28,11 +33,13 @@ class ResolutionCache<T: Object> {
   // gets data from cache at the Resolution defined by the interval
   get(range: ContigInterval<string>, resolution: ?number): T[] {
     if (!range) return [];
-    var res = _.filter(this.cache, d => this.filterFunction(range, d, resolution));
-
-    // if range is not fully covered, give warning but still return available data
-    if (this.coversRange(range, resolution)) {
-      console.warn("Warning: Resolution Cache does not fully cover region. Returning available data...");
+    var res = {};
+    if (!resolution) {
+        res = _.map(_.filter(this.cache, d => this.filterFunction(range, d.object)),
+          obj => obj.object);
+    } else {
+        res = _.map(_.filter(this.cache, d => this.filterFunction(range, d.object) && d.resolution == resolution),
+          obj => obj.object);
     }
 
     return res;
@@ -48,10 +55,17 @@ class ResolutionCache<T: Object> {
   }
 
   // puts data in cache
-  put(value: T) {
+  put(value: T, resolution: ?number) {
+    if (!resolution) {
+      resolution = 1;
+    }
+    var resObject = {
+      resolution: resolution,
+      object: value
+    };
     var key = this.keyFunction(value);
     if (!this.cache[key]) {
-      this.cache[key] = value;
+      this.cache[key] = resObject;
     }
   }
 

@@ -7,7 +7,7 @@
 
 import ContigInterval from '../ContigInterval';
 import Q from 'q';
-import type RemoteRequest from '../RemoteRequest';
+import {RemoteRequest} from '../RemoteRequest';
 import type {Variant} from './vcf';
 
 export type Genotype = {
@@ -23,8 +23,8 @@ class GenotypeEndpoint {
   }
 
   getFeaturesInRange(range: ContigInterval<string>): Q.Promise<Genotype[]> {
-    return this.remoteRequest.get(range).then(object => {
-      return object;
+    return this.remoteRequest.get(range).then(e => {
+      return e.response;
     });
   }
 }
