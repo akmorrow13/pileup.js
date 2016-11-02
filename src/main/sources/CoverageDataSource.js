@@ -30,18 +30,17 @@ var BASE_PAIRS_PER_FETCH = 1000;
 
 export type PositionCount = {
   contig: string;
-  position: number;
+  start: number;
+  end: number;
   count: number;
 }
 
 function keyFunction(p: PositionCount): string {
-  return `${p.contig}:${p.position}`;
+  return `${p.contig}:${p.start}-${p.end}`;
 }
 
-function filterFunction(range: ContigInterval<string>, p: PositionCount, resolution: ?number): boolean {
-  // if resolution is specified, select results based on resolution and position start site
-  if (resolution) return (range.chrContainsLocus(p.contig, p.position) && p.position % resolution == 0);
-  else return range.chrContainsLocus(p.contig, p.position);
+function filterFunction(range: ContigInterval<string>, p: PositionCount): boolean {
+  return range.chrContainsLocus(p.contig, p.start);
 }
 
 function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource {
@@ -64,17 +63,18 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
     }
 
     // modify endpoint to calculate coverage using binning
-    var basePairsPerBin = ResolutionCache.getResolution(interval.interval);
-    var endpointModifier = `binning=${basePairsPerBin}`;
+    var resolution = ResolutionCache.getResolution(interval.interval);
+    var endpointModifier = `binning=${resolution}`;
 
     // Cover the range immediately to prevent duplicate fetches.
     cache.coverRange(interval);
     return remoteSource.getFeaturesInRange(interval, endpointModifier).then(positions => {
       positions.forEach(p => cache.put({
                                        	"contig": range.contig,
-                                       	"position": p.position,
+                                       	"start": p.start,
+                                       	"end": p.end,
                                        	"count": p.count
-                                       }));
+                                       }, resolution));
       o.trigger('newdata', interval);
     });
   }
@@ -83,7 +83,7 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
             resolution: ?number): PositionCount[] {
     if (!range) return [];
     var data = cache.get(range, resolution);
-    var sorted = data.sort((a, b) => a.position - b.position);
+    var sorted = data.sort((a, b) => a.start - b.start);
     return sorted;
   }
 
