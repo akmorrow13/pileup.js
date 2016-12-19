@@ -61,9 +61,10 @@ function createFromGeneUrl(remoteSource: GeneEndpoint): BigBedSource {
     coveredRanges = ContigInterval.coalesce(coveredRanges);
 
     return remoteSource.getGenesInRange(interval).then(genes => {
+      if (genes != null)
         genes.forEach(gene => addGene(gene));
-        //we have new data from our internal block range
-        o.trigger('newdata', interval);
+      //we have new data from our internal block range
+      o.trigger('newdata', interval);
     });
   }
 
