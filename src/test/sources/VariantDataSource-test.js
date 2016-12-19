@@ -18,6 +18,7 @@ describe('VariantDataSource', function() {
       response = data;
       server = sinon.fakeServer.create();
       server.respondWith('GET', '/variants/chrM?start=1&end=1000',[200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/variants/chrM?start=1000&end=2000',[200, { "Content-Type": "application/json" }, '']);
     });
   });
 
@@ -45,6 +46,23 @@ describe('VariantDataSource', function() {
       expect(variants[1].position).to.equal(20);
       expect(variants[1].ref).to.equal('G');
       expect(variants[1].alt).to.equal('T');
+      done();
+    });
+    source.rangeChanged({
+      contig: range.contig,
+      start: range.start(),
+      stop: range.stop()
+    });
+    server.respond();
+  });
+
+  it('should not fail when no variants are availble', function(done) {
+    var source = getTestSource();
+    var range = new ContigInterval('chrM', 1050, 1150);
+
+    source.on('newdata', () => {
+      var variants = source.getFeaturesInRange(range);
+      expect(variants).to.deep.equal([]);
       done();
     });
     source.rangeChanged({

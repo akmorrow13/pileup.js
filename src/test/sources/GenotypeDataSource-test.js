@@ -18,6 +18,7 @@ describe('GenotypeDataSource', function() {
       response = data;
       server = sinon.fakeServer.create();
       server.respondWith('GET', '/genotypes/chrM?start=1&end=1000',[200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/genotypes/chrM?start=1000&end=2000',[200, { "Content-Type": "application/json" }, response]);
     });
   });
 
@@ -31,10 +32,11 @@ describe('GenotypeDataSource', function() {
     });
     return source;
   }
+
   it('should extract features in a range', function(done) {
     var source = getTestSource();
     var range = new ContigInterval('chrM', 0, 25);
-    // No variants are cached yet.
+    // No genotypes are cached yet.
     var genotypes = source.getFeaturesInRange(range);
     expect(genotypes).to.deep.equal([]);
 
@@ -46,6 +48,23 @@ describe('GenotypeDataSource', function() {
       expect(genotypes[1].variant.position).to.equal(20);
       expect(genotypes[1].variant.ref).to.equal('G');
       expect(genotypes[1].variant.alt).to.equal('T');
+      done();
+    });
+    source.rangeChanged({
+      contig: range.contig,
+      start: range.start(),
+      stop: range.stop()
+    });
+    server.respond();
+  });
+
+  it('should not fail when no genotypes are available', function(done) {
+    var source = getTestSource();
+    var range = new ContigInterval('chrM', 1000, 1025);
+
+    source.on('newdata', () => {
+      var genotypes = source.getFeaturesInRange(range);
+      expect(genotypes).to.have.length(0);
       done();
     });
     source.rangeChanged({

@@ -80,7 +80,8 @@ function createFromFeatureUrl(remoteSource: FeatureEndpoint): FeatureDataSource 
     coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval).then(e => {
       var features = e.response;
-      features.forEach(feature => addFeature(feature));
+      if (features != null)
+        features.forEach(feature => addFeature(feature));
       o.trigger('newdata', interval);
     });
   }
