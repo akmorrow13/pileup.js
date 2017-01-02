@@ -52,7 +52,7 @@ function extractVariant(vcfLine: string): Variant {
     ref: parts[3],
     alt: parts[4],
     vcfLine: vcfLine,
-    end: end
+    end: Number(end)
   };
 }
 
