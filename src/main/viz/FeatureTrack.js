@@ -13,6 +13,7 @@ import type {Scale} from './d3utils';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import shallowEquals from 'shallow-equals';
+import _ from 'underscore';
 
 import d3utils from './d3utils';
 import scale from '../scale';
@@ -86,8 +87,9 @@ class FeatureTrack extends React.Component {
       if (!position.chrIntersects(range)) return;
       ctx.pushObject(feature);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = style.GENE_COLOR;
-      ctx.fillStyle = style.GENE_COLOR;
+      ctx.strokeStyle = 'black';
+      var opacity = feature.score/1000;
+      ctx.fillStyle = `rgba(0,0,0,${opacity})`;
 
       var x = Math.round(sc(feature.start));
       var width = Math.round(sc(feature.stop) - sc(feature.start));

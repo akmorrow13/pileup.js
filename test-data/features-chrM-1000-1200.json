@@ -3,11 +3,13 @@
 	"featureType": "peak",
 	"contig": "chrM",
 	"start": 1107,
-	"end": 1200
+	"end": 1200,
+	"score": 1000
 }, {
 	"id": "e105ce29-a840-4fc6-819f-a9aac5166163",
 	"featureType": "peak",
 	"contig": "chrM",
 	"start": 1011,
-	"end": 1012
+	"end": 1012,
+	"score": 10
 }]

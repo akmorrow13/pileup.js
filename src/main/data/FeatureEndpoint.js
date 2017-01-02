@@ -15,6 +15,7 @@ export type Feature = {
   contig: string;
   start: number;
   stop: number;
+  score: number;
 }
 
 class FeatureEndpoint {
