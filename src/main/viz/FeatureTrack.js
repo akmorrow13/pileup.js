@@ -21,29 +21,58 @@ import ContigInterval from '../ContigInterval';
 import canvasUtils from './canvas-utils';
 import dataCanvas from 'data-canvas';
 import style from '../style';
-
+import type {State, NetworkStatus} from './pileuputils';
 
 class FeatureTrack extends React.Component {
   props: VizProps & { source: FeatureDataSource };
-  state: {features: Feature[]};
+  state: State;
+  cache: {features: Feature[]};
 
   constructor(props: VizProps) {
     super(props);
     this.state = {
+      networkStatus: null
+    };
+    this.cache = {
       features: []
     };
   }
 
   render(): any {
-    return <canvas />;
+    var statusEl = null,
+        networkStatus = this.state.networkStatus;
+    if (networkStatus) {
+      statusEl = (
+        <div ref='status' className='network-status-small'>
+          <div className='network-status-message-small'>
+            Loading features…
+          </div>
+        </div>
+      );
+    }
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    return (
+      <div>
+        {statusEl}
+        <div ref='container'>
+          <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+        </div>
+      </div>
+    );
   }
 
   componentDidMount() {
     // Visualize new reference data as it comes in from the network.
     this.props.source.on('newdata', (range) => {
-      this.setState({
+      this.cache = {
         features: this.props.source.getFeaturesInRange(range)
-      });
+      };
+    });
+    this.props.source.on('networkprogress', e => {
+      this.setState({networkStatus: e});
+    });
+    this.props.source.on('networkdone', e => {
+      this.setState({networkStatus: null});
     });
 
     this.updateVisualization();
@@ -61,7 +90,7 @@ class FeatureTrack extends React.Component {
   }
 
   updateVisualization() {
-    var canvas = ReactDOM.findDOMNode(this),
+    var canvas = (this.refs.canvas : HTMLCanvasElement),
         {width, height} = this.props,
         genomeRange = this.props.range;
 
@@ -82,7 +111,7 @@ class FeatureTrack extends React.Component {
     // TODO: don't pull in features via state.
     ctx.font = `${style.GENE_FONT_SIZE}px ${style.GENE_FONT}`;
     ctx.textAlign = 'center';
-    this.state.features.forEach(feature => {
+    this.cache.features.forEach(feature => {
       var position = new ContigInterval(feature.contig, feature.start, feature.stop);
       if (!position.chrIntersects(range)) return;
       ctx.pushObject(feature);
@@ -97,6 +126,35 @@ class FeatureTrack extends React.Component {
       ctx.strokeRect(x - 0.5, y - 0.5, width, style.VARIANT_HEIGHT);
       ctx.popObject();
     });
+  }
+
+  handleClick(reactEvent: any) {
+    var ev = reactEvent.nativeEvent,
+        x = ev.offsetX,
+        y = ev.offsetY;
+    var ctx = canvasUtils.getContext(this.refs.canvas);
+    var trackingCtx = new dataCanvas.ClickTrackingContext(ctx, x, y);
+    console.log("handle click");
+
+    var genomeRange = this.props.range,
+        range = new ContigInterval(genomeRange.contig, genomeRange.start, genomeRange.stop),
+        scale = this.getScale(),
+        pos = Math.floor(scale.invert(x)),
+        // If click-tracking gets slow, this range could be narrowed to one
+        // closer to the click coordinate, rather than the whole visible range.
+        vFeatures = this.props.source.getFeaturesInRange(range);
+    var feature = _.find(this.cache.features, f => f.start <= pos && f.stop >= pos);
+    var alert = window.alert || console.log;
+    if (feature) {
+      // Construct a JSON object to show the user.
+      var messageObject = _.extend(
+        {
+          'id': feature.id,
+          'range': `${feature.contig}:${feature.start}-${feature.stop}`,
+          'score': feature.score
+        });
+      alert(JSON.stringify(messageObject, null, '  '));
+    }
   }
 }
 
