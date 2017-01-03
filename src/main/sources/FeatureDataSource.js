@@ -41,7 +41,7 @@ var BASE_PAIRS_PER_FETCH = 1000;
 
 function expandRange(range: ContigInterval<string>) {
   var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
-  var newStart = Math.max(1, roundDown(range.start())),
+  var newStart = Math.max(0, roundDown(range.start())),
       newStop = roundDown(range.stop() + BASE_PAIRS_PER_FETCH - 1);
 
   return new ContigInterval(range.contig, newStart, newStop);
