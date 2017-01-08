@@ -46,8 +46,10 @@ describe('CoverageTrack', function() {
       range: range,
       tracks: [
         {
-          data: referenceSource,
           viz: pileup.viz.genome(),
+          data: pileup.formats.twoBit({
+            url: '/test-data/test.2bit'
+          }),
           isReference: true
         },
         {
@@ -69,11 +71,6 @@ describe('CoverageTrack', function() {
     testDiv.innerHTML = '';
     testDiv.style.width = '';
   });
-
-  var twoBitFile = new MappedRemoteFile(
-      '/test-data/hg19.2bit.mapped',
-      [[0, 16383], [691179834, 691183928], [694008946, 694011447]]);
-  var referenceSource = TwoBitDataSource.createFromTwoBitFile(new TwoBit(twoBitFile));
 
   var {drawnObjectsWith, callsOf} = dataCanvas.RecordingContext;
 

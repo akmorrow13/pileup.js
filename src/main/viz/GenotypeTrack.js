@@ -57,7 +57,7 @@ class GenotypeTrack extends React.Component {
 
   updateVisualization() {
     var canvas = ReactDOM.findDOMNode(this),
-        {width, height} = this.props;
+        width = this.props.width;
 
     // Hold off until height & width are known.
     if (width === 0) return;
@@ -89,7 +89,7 @@ class GenotypeTrack extends React.Component {
     // Height can only be computed after the genotypes has been updated.
     var newHeight = yForRow(sampleIds.length);
     var canvas = ReactDOM.findDOMNode(this),
-        {width, height} = this.props;
+        width = this.props.width;
     d3utils.sizeCanvas(canvas, width, newHeight);
 
     // This is a hack to adjust parent div for resize

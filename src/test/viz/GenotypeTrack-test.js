@@ -39,7 +39,7 @@ describe('GenotypeTrack', function() {
     // avoid pollution between tests.
     testDiv.innerHTML = '';
   });
-  var {drawnObjects, callsOf} = dataCanvas.RecordingContext;
+  var drawnObjects = dataCanvas.RecordingContext.drawnObjects;
 
   function ready() {
     return testDiv.querySelector('canvas') &&
