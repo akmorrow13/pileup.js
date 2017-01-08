@@ -79,7 +79,7 @@ function createFromGenotypeUrl(remoteSource: GenotypeEndpoint): GenotypeDataSour
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval).then(genotypes => {
-      if (genotypes != null)
+      if (genotypes !== null)
         genotypes.forEach(genotype => addGenotype(genotype));
       o.trigger('newdata', interval);
     });

@@ -37,9 +37,9 @@ export type FeatureDataSource = {
 // Requests for 2bit ranges are expanded to begin & end at multiples of this
 // constant. Doing this means that panning typically won't require
 // additional network requests.
-var BASE_PAIRS_PER_FETCH = 1000;
+var BASE_PAIRS_PER_FETCH = 10000;
 
-function expandRange(range: ContigInterval<string>) {
+function expandRange(range: ContigInterval<string>): ContigInterval<string> {
   var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
   var newStart = Math.max(0, roundDown(range.start())),
       newStop = roundDown(range.stop() + BASE_PAIRS_PER_FETCH - 1);
@@ -74,16 +74,21 @@ function createFromFeatureUrl(remoteSource: FeatureEndpoint): FeatureDataSource 
     }
 
     interval = expandRange(interval);
-
-    // "Cover" the range immediately to prevent duplicate fetches.
+    var newRanges = interval.complementIntervals(coveredRanges);
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
-    return remoteSource.getFeaturesInRange(interval).then(e => {
-      var features = e.response;
-      if (features != null)
-        features.forEach(feature => addFeature(feature));
-      o.trigger('newdata', interval);
-    });
+
+    o.trigger('networkprogress', 1);
+    return Q.all(newRanges.map(range =>
+        remoteSource.getFeaturesInRange(range)
+          .then(e => {
+            var features = e.response;
+            if (features !== null) {
+              features.forEach(feature => addFeature(feature));
+            }
+            o.trigger('networkdone');
+            o.trigger('newdata', range);
+      })));
   }
 
   function getFeaturesInRange(range: ContigInterval<string>): Feature[] {

@@ -13,6 +13,7 @@
 .pileup-root > .track {
   display: flex;
   flex-direction: row;
+  margin-bottom: 5px;
 }
 .pileup-root text, .track-label {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

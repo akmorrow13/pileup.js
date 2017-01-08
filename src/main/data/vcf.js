@@ -44,7 +44,7 @@ function extractVariant(vcfLine: string): Variant {
   var parts = vcfLine.split('\t');
   var end = Number(parts[1]) + parts[3].length;
   if (5 >= parts.length) {
-    end = parts[5]
+    end = parts[5];
   }
   return {
     contig: parts[0],
