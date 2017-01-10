@@ -16,7 +16,7 @@ describe('FeatureDataSource', function() {
     return new RemoteFile('/test-data/features-chrM-1000-1200.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/features/chrM?start=1000&end=2000', [200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/features/chrM?start=0&end=10000', [200, { "Content-Type": "application/json" }, response]);
       server.respondWith('GET', '/features/chrM?start=1&end=1000', [200, { "Content-Type": "application/json" }, '']);
     });
   });

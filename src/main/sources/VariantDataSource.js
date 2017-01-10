@@ -69,7 +69,7 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
     coveredRanges = ContigInterval.coalesce(coveredRanges);
     return remoteSource.getFeaturesInRange(interval).then(e => {
       var variants = e.response;
-      if (variants != null)
+      if (variants !== null)
         variants.forEach(variant => addVariant(variant));
       o.trigger('newdata', interval);
     });

@@ -6,35 +6,85 @@
 
 import type {FeatureDataSource} from '../sources/FeatureDataSource';
 import type {Feature} from '../data/FeatureEndpoint';
+import type {DataCanvasRenderingContext2D} from 'data-canvas';
 
 import type {VizProps} from '../VisualizationWrapper';
 import type {Scale} from './d3utils';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import shallowEquals from 'shallow-equals';
 import _ from 'underscore';
 
 import d3utils from './d3utils';
-import scale from '../scale';
 import ContigInterval from '../ContigInterval';
 import canvasUtils from './canvas-utils';
+import TiledCanvas from './TiledCanvas';
 import dataCanvas from 'data-canvas';
 import style from '../style';
+import utils from '../utils';
 import type {State, NetworkStatus} from './pileuputils';
+
+class FeatureTiledCanvas extends TiledCanvas {
+  options: Object;
+  source: FeatureDataSource;
+
+  constructor(source: FeatureDataSource, options: Object) {
+    super();
+    this.source = source;
+    this.options = options;
+  }
+
+  update(newOptions: Object) {
+    this.options = newOptions;
+  }
+
+  // TODO: can update to handle overlapping features
+  heightForRef(ref: string): number {
+    return style.VARIANT_HEIGHT;
+  }
+
+  render(ctx: DataCanvasRenderingContext2D,
+         scale: (x: number)=>number,
+         range: ContigInterval<string>) {
+    var relaxedRange =
+        new ContigInterval(range.contig, range.start() - 1, range.stop() + 1);
+    var vFeatures = this.source.getFeaturesInRange(relaxedRange);
+    renderFeatures(ctx, scale, relaxedRange, vFeatures);
+  }
+}
+
+// Draw features
+function renderFeatures(ctx: DataCanvasRenderingContext2D,
+                    scale: (num: number) => number,
+                    range: ContigInterval<string>,
+                    features: Feature[]) {
+
+    ctx.font = `${style.GENE_FONT_SIZE}px ${style.GENE_FONT}`;
+    ctx.textAlign = 'center';
+
+    features.forEach(feature => {
+      var position = new ContigInterval(feature.contig, feature.start, feature.stop);
+      if (!position.chrIntersects(range)) return;
+      ctx.pushObject(feature);
+      ctx.lineWidth = 1;
+      ctx.fillStyle = 'black';
+
+      var x = Math.round(scale(feature.start));
+      var width = Math.ceil(scale(feature.stop) - scale(feature.start));
+      ctx.fillRect(x - 0.5, 0, width, style.VARIANT_HEIGHT);
+      ctx.popObject();
+    });
+}
 
 class FeatureTrack extends React.Component {
   props: VizProps & { source: FeatureDataSource };
   state: State;
-  cache: {features: Feature[]};
+  tiles: FeatureTiledCanvas;
 
   constructor(props: VizProps) {
     super(props);
     this.state = {
       networkStatus: null
-    };
-    this.cache = {
-      features: []
     };
   }
 
@@ -50,7 +100,6 @@ class FeatureTrack extends React.Component {
         </div>
       );
     }
-    var rangeLength = this.props.range.stop - this.props.range.start;
     return (
       <div>
         {statusEl}
@@ -62,11 +111,12 @@ class FeatureTrack extends React.Component {
   }
 
   componentDidMount() {
+    this.tiles = new FeatureTiledCanvas(this.props.source, this.props.options);
+
     // Visualize new reference data as it comes in from the network.
     this.props.source.on('newdata', (range) => {
-      this.cache = {
-        features: this.props.source.getFeaturesInRange(range)
-      };
+      this.tiles.invalidateRange(range);
+      this.updateVisualization();
     });
     this.props.source.on('networkprogress', e => {
       this.setState({networkStatus: e});
@@ -95,55 +145,35 @@ class FeatureTrack extends React.Component {
         genomeRange = this.props.range;
 
     var range = new ContigInterval(genomeRange.contig, genomeRange.start, genomeRange.stop);
-    var y = height - style.VARIANT_HEIGHT - 1;
 
     // Hold off until height & width are known.
-    if (width === 0) return;
-
-    var sc = this.getScale();
-
+    if (width === 0 || typeof canvas == 'undefined') return;
     d3utils.sizeCanvas(canvas, width, height);
 
     var ctx = dataCanvas.getDataContext(canvasUtils.getContext(canvas));
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    // TODO: don't pull in features via state.
-    ctx.font = `${style.GENE_FONT_SIZE}px ${style.GENE_FONT}`;
-    ctx.textAlign = 'center';
-    this.cache.features.forEach(feature => {
-      var position = new ContigInterval(feature.contig, feature.start, feature.stop);
-      if (!position.chrIntersects(range)) return;
-      ctx.pushObject(feature);
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = 'black';
-      var opacity = feature.score/1000;
-      ctx.fillStyle = `rgba(0,0,0,${opacity})`;
+    this.tiles.renderToScreen(ctx, range, this.getScale());
+    ctx.restore();
 
-      var x = Math.round(sc(feature.start));
-      var width = Math.round(sc(feature.stop) - sc(feature.start));
-      ctx.fillRect(x - 0.5, y - 0.5, width, style.VARIANT_HEIGHT);
-      ctx.strokeRect(x - 0.5, y - 0.5, width, style.VARIANT_HEIGHT);
-      ctx.popObject();
-    });
   }
 
   handleClick(reactEvent: any) {
     var ev = reactEvent.nativeEvent,
-        x = ev.offsetX,
-        y = ev.offsetY;
-    var ctx = canvasUtils.getContext(this.refs.canvas);
-    var trackingCtx = new dataCanvas.ClickTrackingContext(ctx, x, y);
-    console.log("handle click");
+        x = ev.offsetX;
 
     var genomeRange = this.props.range,
-        range = new ContigInterval(genomeRange.contig, genomeRange.start, genomeRange.stop),
+        // allow some buffering so click isn't so sensitive
+        range = new ContigInterval(genomeRange.contig, genomeRange.start-1, genomeRange.stop+1),
         scale = this.getScale(),
-        pos = Math.floor(scale.invert(x)),
+        // leave padding of 2px to reduce click specificity
+        clickStart = Math.floor(scale.invert(x)) - 2,
+        clickEnd = clickStart + 2,
         // If click-tracking gets slow, this range could be narrowed to one
         // closer to the click coordinate, rather than the whole visible range.
         vFeatures = this.props.source.getFeaturesInRange(range);
-    var feature = _.find(this.cache.features, f => f.start <= pos && f.stop >= pos);
+    var feature = _.find(vFeatures, f => utils.tupleRangeOverlaps([[f.start], [f.stop]], [[clickStart], [clickEnd]]));
     var alert = window.alert || console.log;
     if (feature) {
       // Construct a JSON object to show the user.

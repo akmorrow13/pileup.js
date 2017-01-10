@@ -105,8 +105,6 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
   };
 
   var vBasePosY = yScale(0);  // the very bottom of the canvas
-  var start = range.start(),
-      stop = range.stop();
 
   // go to the first bin in dataset (specified by the smallest start position)
   ctx.fillStyle = style.COVERAGE_BIN_COLOR;
@@ -280,7 +278,6 @@ class CoverageTrack extends React.Component {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var yScale = this.tiles.yScaleForRef(range);
-    var thisS = this.getScale();
 
     this.tiles.renderToScreen(ctx, range, this.getScale());
     this.renderTicks(ctx, yScale);
