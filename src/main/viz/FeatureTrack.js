@@ -16,6 +16,7 @@ import shallowEquals from 'shallow-equals';
 import _ from 'underscore';
 
 import d3utils from './d3utils';
+import RemoteRequest from '../RemoteRequest';
 import ContigInterval from '../ContigInterval';
 import canvasUtils from './canvas-utils';
 import TiledCanvas from './TiledCanvas';
@@ -100,14 +101,27 @@ class FeatureTrack extends React.Component {
         </div>
       );
     }
-    return (
-      <div>
-        {statusEl}
-        <div ref='container'>
-          <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+    var rangeLength = this.props.range.stop - this.props.range.start;
+    // If range is too large, do not render 'canvas'
+    if (rangeLength > RemoteRequest.MONSTER_REQUEST) {
+       return (
+        <div>
+            <div className='center'>
+              Zoom in to see features
+            </div>
+            <canvas onClick={this.handleClick.bind(this)} />
+          </div>
+          );
+    } else {
+      return (
+        <div>
+          {statusEl}
+          <div ref='container'>
+            <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   componentDidMount() {
@@ -133,8 +147,10 @@ class FeatureTrack extends React.Component {
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {
-    if (!shallowEquals(prevProps, this.props) ||
-        !shallowEquals(prevState, this.state)) {
+    if (!shallowEquals(this.props, prevProps) ||
+        !shallowEquals(this.state, prevState)) {
+        this.tiles.update(this.props.height, this.props.options);
+        this.tiles.invalidateAll();
       this.updateVisualization();
     }
   }
