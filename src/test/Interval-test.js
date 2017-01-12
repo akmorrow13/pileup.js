@@ -88,6 +88,11 @@ describe('Interval', function() {
     ])).to.be.true;
 
     expect(iv.isCoveredBy([
+      new Interval(0, 5),
+      new Interval(9, 21)
+    ])).to.be.true;
+
+    expect(iv.isCoveredBy([
       new Interval(0, 10),
       new Interval(5, 15),
       new Interval(16, 30)
@@ -162,5 +167,6 @@ describe('Interval', function() {
       '[20, 29]',
       '[50, 79]'
     ]);
+
   });
 });
