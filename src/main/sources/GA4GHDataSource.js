@@ -108,7 +108,7 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
 
     xhr.addEventListener('load', function(e) {
       var response = this.response;
-      if (this.status >= 400) {
+      if (this.status != 200) {
         notifyFailure(this.status + ' ' + this.statusText + ' ' + JSON.stringify(response));
       } else {
         if (response.errorCode) {
