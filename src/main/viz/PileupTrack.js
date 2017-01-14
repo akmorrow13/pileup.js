@@ -32,6 +32,12 @@ import style from '../style';
 
 var READ_HEIGHT = 13;
 var READ_SPACING = 2;  // vertical pixels between reads
+var MAX_ROWS = 1000; // max rows to print pileup
+
+function pileupHeight(rows: number): number {
+  var modified_rows = Math.min(MAX_ROWS, rows);
+  return modified_rows * (READ_HEIGHT + READ_SPACING);
+}
 
 var READ_STRAND_ARROW_WIDTH = 5;
 
@@ -55,8 +61,7 @@ class PileupTiledCanvas extends TiledCanvas {
   }
 
   heightForRef(ref: string): number {
-    return this.cache.pileupHeightForRef(ref) *
-                    (READ_HEIGHT + READ_SPACING);
+    return pileupHeight(this.cache.pileupHeightForRef(ref));
   }
 
   render(ctx: DataCanvasRenderingContext2D,
@@ -180,17 +185,19 @@ function renderPileup(ctx: DataCanvasRenderingContext2D,
     } else {
       ctx.fillStyle = style.ALIGNMENT_COLOR;
     }
-    var y = yForRow(vGroup.row);
-    ctx.pushObject(vGroup);
-    if (vGroup.insert) {
-      var span = vGroup.insert,
-          x1 = scale(span.start + 1),
-          x2 = scale(span.stop + 1);
-      ctx.fillRect(x1, y + READ_HEIGHT / 2 - 0.5, x2 - x1, 1);
+    if (vGroup.row <= MAX_ROWS) {
+      var y = yForRow(vGroup.row);
+      ctx.pushObject(vGroup);
+      if (vGroup.insert) {
+        var span = vGroup.insert,
+            x1 = scale(span.start + 1),
+            x2 = scale(span.stop + 1);
+        ctx.fillRect(x1, y + READ_HEIGHT / 2 - 0.5, x2 - x1, 1);
+      }
+      vGroup.alignments.forEach(vRead => drawAlignment(vRead, y));
+      ctx.popObject();
+      ctx.restore();
     }
-    vGroup.alignments.forEach(vRead => drawAlignment(vRead, y));
-    ctx.popObject();
-    ctx.restore();
   }
 
   function renderMismatch(bp: BasePair, y: number) {
@@ -381,7 +388,7 @@ class PileupTrack extends React.Component {
     if (width === 0 || typeof canvas == 'undefined') return;
 
     // Height can only be computed after the pileup has been updated.
-    var height = yForRow(this.cache.pileupHeightForRef(this.props.range.contig));
+    var height = yForRow(this.tiles.heightForRef(this.props.range.contig));
 
     d3utils.sizeCanvas(canvas, width, height);
 
