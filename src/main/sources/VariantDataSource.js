@@ -26,7 +26,7 @@ import type {VcfDataSource} from './VcfDataSource';
 import {RemoteRequest} from '../RemoteRequest';
 import VariantEndpoint from '../data/VariantEndpoint';
 
-var BASE_PAIRS_PER_FETCH = 1000;
+var BASE_PAIRS_PER_FETCH = 10000;
 
 function expandRange(range: ContigInterval<string>) {
   var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
@@ -67,10 +67,13 @@ function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
     // "Cover" the range immediately to prevent duplicate fetches.
     coveredRanges.push(interval);
     coveredRanges = ContigInterval.coalesce(coveredRanges);
+
+    o.trigger('networkprogress', 1);
     return remoteSource.getFeaturesInRange(interval).then(e => {
       var variants = e.response;
       if (variants !== null)
         variants.forEach(variant => addVariant(variant));
+      o.trigger('networkdone');
       o.trigger('newdata', interval);
     });
   }

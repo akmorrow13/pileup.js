@@ -151,7 +151,7 @@ class FeatureTrack extends React.Component {
         !shallowEquals(this.state, prevState)) {
         this.tiles.update(this.props.height, this.props.options);
         this.tiles.invalidateAll();
-      this.updateVisualization();
+        this.updateVisualization();
     }
   }
 
