@@ -20,6 +20,7 @@ import type {Variant} from '../data/vcf';
 import Q from 'q';
 import _ from 'underscore';
 import {Events} from 'backbone';
+import {ResolutionCache} from '../ResolutionCache';
 
 import ContigInterval from '../ContigInterval';
 import type {VcfDataSource} from './VcfDataSource';
@@ -36,51 +37,55 @@ function expandRange(range: ContigInterval<string>) {
   return new ContigInterval(range.contig, newStart, newStop);
 }
 
-function variantKey(v: Variant): string {
+function keyFunction(v: Variant): string {
   return `${v.contig}:${v.position}`;
 }
 
+function filterFunction(range: ContigInterval<string>, v: Variant): boolean {
+  return range.chrContainsLocus(v.contig, v.position);
+}
 
-function createFromVariantUrl(remoteSource: VariantEndpoint): VcfDataSource {
-  var variants: {[key: string]: Variant} = {};
-
-  // Ranges for which we have complete information -- no need to hit network.
-  var coveredRanges: ContigInterval<string>[] = [];
-
-  function addVariant(v: Variant) {
-    var key = variantKey(v);
-    if (!variants[key]) {
-      variants[key] = v;
-    }
-  }
+function createFromVariantUrl(remoteSource: RemoteRequest): VcfDataSource {
+  var cache: ResolutionCache<Variant> =
+    new ResolutionCache(filterFunction, keyFunction);
 
   function fetch(range: GenomeRange) {
     var interval = new ContigInterval(range.contig, range.start, range.stop);
 
     // Check if this interval is already in the cache.
-    if (interval.isCoveredBy(coveredRanges)) {
+    if (cache.coversRange(interval)) {
       return Q.when();
     }
 
+    // modify endpoint to calculate coverage using binning
+    var resolution = ResolutionCache.getResolution(interval.interval);
+    var endpointModifier = `binning=${resolution}`;
+
+
     interval = expandRange(interval);
 
-    // "Cover" the range immediately to prevent duplicate fetches.
-    coveredRanges.push(interval);
-    coveredRanges = ContigInterval.coalesce(coveredRanges);
+    // get all smaller intervals not yet covered in cache
+    var newRanges = cache.complementInterval(interval, resolution);
 
-    o.trigger('networkprogress', 1);
-    return remoteSource.getFeaturesInRange(interval).then(e => {
+    // "Cover" the range immediately to prevent duplicate fetches.
+    // Because interval is expanded, make sure to use original resolution
+    cache.coverRange(interval, resolution);
+    o.trigger('networkprogress', newRanges.length);
+    return Q.all(newRanges.map(range =>
+      remoteSource.getFeaturesInRange(range, endpointModifier).then(e => {
       var variants = e.response;
       if (variants !== null)
-        variants.forEach(variant => addVariant(variant));
+        variants.forEach(v => cache.put(v, resolution));
       o.trigger('networkdone');
       o.trigger('newdata', interval);
-    });
+    })));
   }
 
-  function getFeaturesInRange(range: ContigInterval<string>): Variant[] {
+  function getFeaturesInRange(range: ContigInterval<string>, resolution: ?number): Variant[] {
     if (!range) return [];  // XXX why would this happen?
-    return _.filter(variants, v => range.chrContainsLocus(v.contig, v.position));
+    var data = cache.get(range, resolution);
+    var sorted = data.sort((a, b) => a.position - b.position);
+    return sorted;
   }
 
   var o = {
@@ -103,8 +108,7 @@ function create(data: {url?:string}): VcfDataSource {
   if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  var request = new RemoteRequest(data.url, BASE_PAIRS_PER_FETCH);
-  var endpoint = new VariantEndpoint(request);
+  var endpoint = new RemoteRequest(data.url, BASE_PAIRS_PER_FETCH);
   return createFromVariantUrl(endpoint);
 }
 

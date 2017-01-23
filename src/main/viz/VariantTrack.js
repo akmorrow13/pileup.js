@@ -25,6 +25,8 @@ import style from '../style';
 import utils from '../utils';
 import type {State, NetworkStatus} from './pileuputils';
 
+var MONSTER_REQUEST = 500000;
+
 class VariantTiledCanvas extends TiledCanvas {
   options: Object;
   source: VcfDataSource;
@@ -46,10 +48,15 @@ class VariantTiledCanvas extends TiledCanvas {
 
   render(ctx: DataCanvasRenderingContext2D,
          scale: (x: number)=>number,
-         range: ContigInterval<string>) {
+         range: ContigInterval<string>,
+         originalRange: ?ContigInterval<string>,
+         resolution: ?number) {
     var relaxedRange =
         new ContigInterval(range.contig, range.start() - 1, range.stop() + 1);
-    var vVariants = this.source.getFeaturesInRange(relaxedRange);
+
+    // relaxed range is just for this tile. make sure to get resolution for whole
+    // viewing area
+    var vVariants = this.source.getFeaturesInRange(relaxedRange, resolution);
     renderVariants(ctx, scale, relaxedRange, vVariants);
   }
 }
@@ -102,7 +109,7 @@ class VariantTrack extends React.Component {
     }
     var rangeLength = this.props.range.stop - this.props.range.start;
     // If range is too large, do not render 'canvas'
-    if (rangeLength > RemoteRequest.MONSTER_REQUEST) {
+    if (rangeLength > MONSTER_REQUEST) {
        return (
         <div>
             <div className='center'>
@@ -176,6 +183,7 @@ class VariantTrack extends React.Component {
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     this.tiles.renderToScreen(ctx, interval, scale);
+    ctx.restore();
   }
 
   handleClick(reactEvent: any) {

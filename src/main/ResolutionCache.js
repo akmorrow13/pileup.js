@@ -45,9 +45,33 @@ class ResolutionCache<T: Object> {
     return res;
   }
 
+  /**
+   * Find the disjoint subintervals not covered by any interval in the list with the same resolution.
+   *
+   * If comp = interval.complementIntervals(ranges), then this guarantees that:
+   * - comp union ranges = interval
+   * - a int b = 0 forall a \in comp, b in ranges
+   *
+   * (The input ranges need not be disjoint.)
+   */
+  complementInterval(range: ContigInterval<string>, resolution: ?number): ContigInterval<string>[] {
+    if (!resolution) {
+      resolution = ResolutionCache.getResolution(range.interval);
+    }
+
+    // filter ranges by correct resolution
+    var resolutionIntervals = _.filter(this.coveredRanges, r => r.resolution == resolution)
+                                .map(r => r.contigInterval);
+
+    return range.complementIntervals(resolutionIntervals);
+
+  }
+
   // puts new ranges into list of ranges covered by cache
-  coverRange(range: ContigInterval<string>) {
-    var resolution = ResolutionCache.getResolution(range.interval);
+  coverRange(range: ContigInterval<string>, resolution: ?number) {
+    if (!resolution) {
+      resolution = ResolutionCache.getResolution(range.interval);
+    }
     var resolvedRange = new ResolutionCacheKey(range, resolution);
     this.coveredRanges.push(resolvedRange);
     // coalesce new contigIntervals
