@@ -18,11 +18,19 @@
 import Q from 'q';
 import _ from 'underscore';
 import {Events} from 'backbone';
+import {ResolutionCache} from '../ResolutionCache';
 
 import ContigInterval from '../ContigInterval';
 import {RemoteRequest} from '../RemoteRequest';
-import FeatureEndpoint from '../data/FeatureEndpoint';
-import type {Feature} from '../data/FeatureEndpoint';
+
+export type Feature = {
+  id: string;
+  featureType: string;
+  contig: string;
+  start: number;
+  stop: number;
+  score: number;
+}
 
 // Flow type for export.
 export type FeatureDataSource = {
@@ -47,54 +55,56 @@ function expandRange(range: ContigInterval<string>): ContigInterval<string> {
   return new ContigInterval(range.contig, newStart, newStop);
 }
 
-function featureKey(f: Feature): string {
+function keyFunction(f: Feature): string {
   return `${f.contig}:${f.start}`;
 }
 
+function filterFunction(range: ContigInterval<string>, f: Feature): boolean {
+  return range.chrIntersects(new ContigInterval(f.contig, f.start, f.stop));
+}
 
-function createFromFeatureUrl(remoteSource: FeatureEndpoint): FeatureDataSource {
-  var features: {[key: string]: Feature} = {};
 
-  // Ranges for which we have complete information -- no need to hit network.
-  var coveredRanges: ContigInterval<string>[] = [];
-
-  function addFeature(f: Feature) {
-    var key = featureKey(f);
-    if (!features[key]) {
-      features[key] = f;
-    }
-  }
+function createFromFeatureUrl(remoteSource: RemoteRequest): FeatureDataSource {
+  var cache: ResolutionCache<Feature> =
+    new ResolutionCache(filterFunction, keyFunction);
 
   function fetch(range: GenomeRange) {
     var interval = new ContigInterval(range.contig, range.start, range.stop);
 
     // Check if this interval is already in the cache.
-    if (interval.isCoveredBy(coveredRanges)) {
+    if (cache.coversRange(interval)) {
       return Q.when();
     }
 
-    interval = expandRange(interval);
-    var newRanges = interval.complementIntervals(coveredRanges);
-    coveredRanges.push(interval);
-    coveredRanges = ContigInterval.coalesce(coveredRanges);
+    // modify endpoint to calculate coverage using binning
+    var resolution = ResolutionCache.getResolution(interval.interval);
+    var endpointModifier = `binning=${resolution}`;
 
-    o.trigger('networkprogress', 1);
+    interval = expandRange(interval);
+    var newRanges = cache.complementInterval(interval, resolution);
+
+    // "Cover" the range immediately to prevent duplicate fetches.
+    // Because interval is expanded, make sure to use original resolution
+    cache.coverRange(interval, resolution);
+
+    o.trigger('networkprogress', newRanges.length);
     return Q.all(newRanges.map(range =>
-        remoteSource.getFeaturesInRange(range)
+        remoteSource.getFeaturesInRange(range, endpointModifier)
           .then(e => {
             var features = e.response;
             if (features !== null) {
-              features.forEach(feature => addFeature(feature));
+              features.forEach(feature => cache.put(feature, resolution));
             }
             o.trigger('networkdone');
             o.trigger('newdata', range);
       })));
   }
 
-  function getFeaturesInRange(range: ContigInterval<string>): Feature[] {
+  function getFeaturesInRange(range: ContigInterval<string>, resolution: ?number): Feature[] {
     if (!range) return [];  // XXX why would this happen?
-    var x = _.filter(features, f => range.chrContainsLocus(f.contig, f.start));
-    return x;
+    var data = cache.get(range, resolution);
+    var sorted = data.sort((a, b) => a.start - b.start);
+    return sorted;
   }
 
   var o = {
@@ -117,8 +127,7 @@ function create(data: {url?:string}): FeatureDataSource {
   if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
-  var request = new RemoteRequest(data.url);
-  var endpoint = new FeatureEndpoint(request);
+  var endpoint = new RemoteRequest(data.url);
   return createFromFeatureUrl(endpoint);
 }
 

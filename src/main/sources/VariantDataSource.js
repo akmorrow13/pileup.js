@@ -62,7 +62,6 @@ function createFromVariantUrl(remoteSource: RemoteRequest,
     var resolution = ResolutionCache.getResolution(interval.interval);
     var endpointModifier = `binning=${resolution}`;
 
-
     interval = expandRange(interval);
 
     // get all smaller intervals not yet covered in cache
