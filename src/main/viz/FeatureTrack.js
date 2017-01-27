@@ -46,10 +46,12 @@ class FeatureTiledCanvas extends TiledCanvas {
 
   render(ctx: DataCanvasRenderingContext2D,
          scale: (x: number)=>number,
-         range: ContigInterval<string>) {
+         range: ContigInterval<string>,
+         originalRange: ?ContigInterval<string>,
+         resolution: ?number) {
     var relaxedRange =
         new ContigInterval(range.contig, range.start() - 1, range.stop() + 1);
-    var vFeatures = this.source.getFeaturesInRange(relaxedRange);
+    var vFeatures = this.source.getFeaturesInRange(relaxedRange, resolution);
     renderFeatures(ctx, scale, relaxedRange, vFeatures);
   }
 }
