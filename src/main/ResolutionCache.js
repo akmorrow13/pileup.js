@@ -11,14 +11,10 @@ import _ from 'underscore';
 import Interval from './Interval';
 import ContigInterval from './ContigInterval';
 
-type ResolutionObject<T: Object> = {
-  resolution: number;
-  object: T;
-}
 
 class ResolutionCache<T: Object> {
   coveredRanges: ResolutionCacheKey[];
-  cache: {[key: string]: ResolutionObject<T>};
+  cache: {[resolution: number]: {[key: string]: T}};
   // used to filter out elements in the cache based on resolution.
   filterFunction: Function; // should take form (range: ContigInterval<string>, T) => boolean;
   keyFunction: Function;    // should take form (d: T) => string;
@@ -35,19 +31,41 @@ class ResolutionCache<T: Object> {
     if (!range) return [];
     var res = {};
     if (!resolution) {
-        res = _.map(_.filter(this.cache, d => this.filterFunction(range, d.object)),
-          obj => obj.object);
+        res = _.filter(this.cache[1], d => this.filterFunction(range, d));
     } else {
-        res = _.map(_.filter(this.cache, d => this.filterFunction(range, d.object) && d.resolution == resolution),
-          obj => obj.object);
+        res = _.filter(this.cache[resolution], d => this.filterFunction(range, d));
     }
 
     return res;
   }
 
+  /**
+   * Find the disjoint subintervals not covered by any interval in the list with the same resolution.
+   *
+   * If comp = interval.complementIntervals(ranges), then this guarantees that:
+   * - comp union ranges = interval
+   * - a int b = 0 forall a \in comp, b in ranges
+   *
+   * (The input ranges need not be disjoint.)
+   */
+  complementInterval(range: ContigInterval<string>, resolution: ?number): ContigInterval<string>[] {
+    if (!resolution) {
+      resolution = ResolutionCache.getResolution(range.interval);
+    }
+
+    // filter ranges by correct resolution
+    var resolutionIntervals = _.filter(this.coveredRanges, r => r.resolution == resolution)
+                                .map(r => r.contigInterval);
+
+    return range.complementIntervals(resolutionIntervals);
+
+  }
+
   // puts new ranges into list of ranges covered by cache
-  coverRange(range: ContigInterval<string>) {
-    var resolution = ResolutionCache.getResolution(range.interval);
+  coverRange(range: ContigInterval<string>, resolution: ?number) {
+    if (!resolution) {
+      resolution = ResolutionCache.getResolution(range.interval);
+    }
     var resolvedRange = new ResolutionCacheKey(range, resolution);
     this.coveredRanges.push(resolvedRange);
     // coalesce new contigIntervals
@@ -59,13 +77,13 @@ class ResolutionCache<T: Object> {
     if (!resolution) {
       resolution = 1;
     }
-    var resObject = {
-      resolution: resolution,
-      object: value
-    };
     var key = this.keyFunction(value);
-    if (!this.cache[key]) {
-      this.cache[key] = resObject;
+
+    // initialize cache resolution, if not already initialized
+    if (!this.cache[resolution]) this.cache[resolution] = {};
+
+    if (!this.cache[resolution][key]) {
+      this.cache[resolution][key] = value;
     }
   }
 
@@ -101,11 +119,13 @@ class ResolutionCache<T: Object> {
    * - For regions >= 1,000,000, bin 1000 bp into 1 (return 1000)
    */
   static getResolution(range: Interval): number {
-    if (range.length() < 10000)
+    // subtract one because length() adds one
+    var rangeLength = range.length() - 1;
+    if (rangeLength < 10000)
       return 1;
-    else if (range.length() >= 10000 && range.length() < 100000 )
+    else if (rangeLength >= 10000 && rangeLength < 100000 )
       return 10;
-    else if (range.length() >= 100000 && range.length() < 1000000 )
+    else if (rangeLength >= 100000 && rangeLength < 1000000 )
       return 100;
     else
       return 1000;

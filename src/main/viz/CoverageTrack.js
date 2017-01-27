@@ -58,7 +58,7 @@ class CoverageTiledCanvas extends TiledCanvas {
       .nice();
   }
 
-  // This is alled by TiledCanvas over all tiles in a range
+  // This is called by TiledCanvas over all tiles in a range
   render(ctx: DataCanvasRenderingContext2D,
          xScale: (x: number)=>number,
          range: ContigInterval<string>,

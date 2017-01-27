@@ -1,16 +1,23 @@
 [{
-	"contig": "chrM",
-	"position": 10,
-	"ref": "C",
-	"alt": "G"
+	"variant" : {
+		"contig": "chrM",
+		"position": 10,
+		"ref": "C",
+		"alt": "G"
+	}, "sampleIds": \["sample1", "sample2", "sample3"\]
 }, {
-	"contig": "chrM",
-	"position": 20,
-	"ref": "G",
-	"alt": "T"
+	"variant" : {
+		"contig": "chrM",
+		"position": 20,
+		"ref": "G",
+		"alt": "T"
+	}, "sampleIds": ["sample1", "sample3"]
 }, {
-	"contig": "chrM",
-	"position": 23,
-	"ref": "A",
-	"alt": "C"
+	"variant" : {
+		"contig": "chrM",
+		"position": 23,
+		"ref": "A",
+		"alt": "C"
+	}, "sampleIds": ["sample1"]
 }]
+["{\"variant\":{\"contig\":\"chrM\",\"position\":10,\"end\":11,\"ref\":\"C\",\"alt\":\"G\"},\"sampleIds\":[\"s1\",\"s2\",\"s3\"]}","{\"variant\":{\"contig\":\"chrM\",\"position\":20,\"end\":21,\"ref\":\"G\",\"alt\":\"T\"},\"sampleIds\":[\"s1\",\"s3\"]}","{\"variant\":{\"contig\":\"chrM\",\"position\":23,\"end\":24,\"ref\":\"A\",\"alt\":\"C\"},\"sampleIds\":[\"s1\",\"s3\"]}"]

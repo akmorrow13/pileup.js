@@ -16,7 +16,6 @@ import ReferenceDataSource from './sources/ReferenceDataSource';
 import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
-import GenotypeDataSource from './sources/GenotypeDataSource';
 import BamDataSource from './sources/BamDataSource';
 import GA4GHDataSource from './sources/GA4GHDataSource';
 import CoverageDataSource from './sources/CoverageDataSource';
@@ -132,7 +131,6 @@ var pileup = {
     ga4gh: GA4GHDataSource.create,
     vcf: VcfDataSource.create,
     variants: VariantDataSource.create,
-    genotypes: GenotypeDataSource.create,
     features: FeatureDataSource.create,
     twoBit: TwoBitDataSource.create,
     reference: ReferenceDataSource.create,

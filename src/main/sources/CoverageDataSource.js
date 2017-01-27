@@ -72,30 +72,33 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
     var resolution = ResolutionCache.getResolution(interval.interval);
     var endpointModifier = `binning=${resolution}`;
 
+    // get all smaller intervals not yet covered in cache
+    var newRanges = cache.complementInterval(interval, resolution);
+
     // Cover the range immediately to prevent duplicate fetches.
     cache.coverRange(interval);
-    var numRequests = 1;
-    o.trigger('networkprogress', {numRequests});
-    return remoteSource.getFeaturesInRange(interval, endpointModifier).then(json => {
-      var response = json.response;
-      if (json.status >= 400) {
-        notifyFailure(json.status + ' ' + json.statusText + ' ' + JSON.stringify(response));
-      } else {
-        if (response.errorCode) {
-          notifyFailure('Error from CoverageDataSource: ' + JSON.stringify(response));
+    o.trigger('networkprogress', newRanges.length);
+    return Q.all(newRanges.map(range =>
+      remoteSource.getFeaturesInRange(range, endpointModifier).then(json => {
+        var response = json.response;
+        if (json.status >= 400) {
+          notifyFailure(json.status + ' ' + json.statusText + ' ' + JSON.stringify(response));
         } else {
-          // add new data to cache
-          response.forEach(p => cache.put({
-                                            "contig": range.contig,
-                                            "start": p.start,
-                                            "end": p.end,
-                                            "count": p.count
-                                           }, resolution));
-          o.trigger('newdata', interval);
+          if (response.errorCode) {
+            notifyFailure('Error from CoverageDataSource: ' + JSON.stringify(response));
+          } else {
+            // add new data to cache
+            response.forEach(p => cache.put({
+                                              "contig": range.contig,
+                                              "start": p.start,
+                                              "end": p.end,
+                                              "count": p.count
+                                             }, resolution));
+            o.trigger('newdata', interval);
+          }
         }
-      }
-      o.trigger('networkdone');
-    });
+        o.trigger('networkdone');
+    })));
   }
 
   function getCoverageInRange(range: ContigInterval<string>,

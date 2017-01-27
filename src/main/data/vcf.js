@@ -20,6 +20,12 @@ export type Variant = {
   end: number;
 }
 
+// holds variant and genotype sample ids
+export type VariantContext = {
+  variant: Variant,
+  sampleIds: string[]
+}
+
 // This is a minimally-parsed line for facilitating binary search.
 type LocusLine = {
   contig: string;

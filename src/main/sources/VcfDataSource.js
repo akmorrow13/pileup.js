@@ -5,7 +5,7 @@
  */
 'use strict';
 
-import type {Variant} from '../data/vcf';
+import type {Variant, VariantContext} from '../data/vcf';
 
 import Events from 'backbone';
 import _ from 'underscore';
@@ -18,7 +18,9 @@ import VcfFile from '../data/vcf';
 
 export type VcfDataSource = {
   rangeChanged: (newRange: GenomeRange) => void;
-  getFeaturesInRange: (range: ContigInterval<string>) => Variant[];
+  getVariantsInRange: (range: ContigInterval<string>) => Variant[];
+  getGenotypesInRange: (range: ContigInterval<string>) => VariantContext[];
+  getSamples: () => string[];
   on: (event: string, handler: Function) => void;
   off: (event: string) => void;
   trigger: (event: string, ...args:any) => void;
@@ -71,16 +73,26 @@ function createFromVcfFile(remoteSource: VcfFile): VcfDataSource {
     });
   }
 
-  function getFeaturesInRange(range: ContigInterval<string>): Variant[] {
+  function getVariantsInRange(range: ContigInterval<string>): Variant[] {
     if (!range) return [];  // XXX why would this happen?
     return _.filter(variants, v => range.chrContainsLocus(v.contig, v.position));
+  }
+
+  function getGenotypesInRange(range: ContigInterval<string>): VariantContext[] {
+    throw new Error(`Function getGenotypesInRange not implemented`);
+  }
+
+  function getSamples(): string[] {
+    throw new Error(`Function getSamples not implemented`);
   }
 
   var o = {
     rangeChanged: function(newRange: GenomeRange) {
       fetch(newRange).done();
     },
-    getFeaturesInRange,
+    getVariantsInRange,
+    getGenotypesInRange,
+    getSamples,
 
     // These are here to make Flow happy.
     on: () => {},
