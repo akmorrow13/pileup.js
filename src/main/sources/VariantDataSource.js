@@ -15,7 +15,7 @@
  */
 'use strict';
 
-import type {Variant} from '../data/vcf';
+import type {Variant, VariantContext} from '../data/vcf';
 
 import Q from 'q';
 import _ from 'underscore';
@@ -25,7 +25,6 @@ import {ResolutionCache} from '../ResolutionCache';
 import ContigInterval from '../ContigInterval';
 import type {VcfDataSource} from './VcfDataSource';
 import {RemoteRequest} from '../RemoteRequest';
-import VariantEndpoint from '../data/VariantEndpoint';
 
 var BASE_PAIRS_PER_FETCH = 10000;
 
@@ -37,16 +36,18 @@ function expandRange(range: ContigInterval<string>) {
   return new ContigInterval(range.contig, newStart, newStop);
 }
 
-function keyFunction(v: Variant): string {
-  return `${v.contig}:${v.position}`;
+function keyFunction(vc: VariantContext): string {
+  return `${vc.variant.contig}:${vc.variant.position}`;
 }
 
-function filterFunction(range: ContigInterval<string>, v: Variant): boolean {
-  return range.chrContainsLocus(v.contig, v.position);
+function filterFunction(range: ContigInterval<string>, vc: VariantContext): boolean {
+  return range.chrContainsLocus(vc.variant.contig, vc.variant.position);
 }
 
-function createFromVariantUrl(remoteSource: RemoteRequest): VcfDataSource {
-  var cache: ResolutionCache<Variant> =
+function createFromVariantUrl(remoteSource: RemoteRequest,
+  samples?: string[]): VcfDataSource {
+
+  var cache: ResolutionCache<VariantContext> =
     new ResolutionCache(filterFunction, keyFunction);
 
   function fetch(range: GenomeRange) {
@@ -73,26 +74,46 @@ function createFromVariantUrl(remoteSource: RemoteRequest): VcfDataSource {
     o.trigger('networkprogress', newRanges.length);
     return Q.all(newRanges.map(range =>
       remoteSource.getFeaturesInRange(range, endpointModifier).then(e => {
-      var variants = e.response;
-      if (variants !== null)
+      var response = e.response;
+      if (response !== null) {
+        // parse VariantContexts
+        var variants = _.map(response, v => JSON.parse(v));
         variants.forEach(v => cache.put(v, resolution));
+      }
       o.trigger('networkdone');
       o.trigger('newdata', interval);
     })));
   }
 
-  function getFeaturesInRange(range: ContigInterval<string>, resolution: ?number): Variant[] {
+  function getVariantsInRange(range: ContigInterval<string>, resolution: ?number): Variant[] {
     if (!range) return [];  // XXX why would this happen?
     var data = cache.get(range, resolution);
-    var sorted = data.sort((a, b) => a.position - b.position);
+    var sorted = data.sort((a, b) => a.variant.position - b.variant.position);
+    return _.map(sorted, s => s.variant);
+  }
+
+  function getGenotypesInRange(range: ContigInterval<string>, resolution: ?number): VariantContext[] {
+    if (!range || !samples) return [];  // if no samples are specified
+    var data = cache.get(range, resolution);
+    var sorted = data.sort((a, b) => a.variant.position - b.variant.position);
     return sorted;
+  }
+
+  function getSamples(): string[] {
+    if (!samples) {
+      throw new Error("No samples for genotypes");
+    } else {
+      return samples;
+    }
   }
 
   var o = {
     rangeChanged: function(newRange: GenomeRange) {
       fetch(newRange).done();
     },
-    getFeaturesInRange,
+    getVariantsInRange,
+    getGenotypesInRange,
+    getSamples,
 
     // These are here to make Flow happy.
     on: () => {},
@@ -104,12 +125,15 @@ function createFromVariantUrl(remoteSource: RemoteRequest): VcfDataSource {
   return o;
 }
 
-function create(data: {url?:string}): VcfDataSource {
+function create(data: {url?:string, samples?:string[]}): VcfDataSource {
   if (!data.url) {
     throw new Error(`Missing URL from track: ${JSON.stringify(data)}`);
   }
+  if (!data.samples) {
+    console.log("no genotype samples provided");
+  }
   var endpoint = new RemoteRequest(data.url, BASE_PAIRS_PER_FETCH);
-  return createFromVariantUrl(endpoint);
+  return createFromVariantUrl(endpoint, data.samples);
 }
 
 

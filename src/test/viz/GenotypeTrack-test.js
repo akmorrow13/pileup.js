@@ -59,7 +59,7 @@ describe('GenotypeTrack', function() {
           isReference: true
         },
         {
-          data: pileup.formats.genotypes({
+          data: pileup.formats.variants({
             url: '/test-data/genotypes-17.json'
           }),
           viz: pileup.viz.genotypes(),
@@ -74,8 +74,6 @@ describe('GenotypeTrack', function() {
         expect(genotypes).to.have.length(3);
         expect(genotypes.map(g => g.variant.position)).to.deep.equal(
             [10, 20, 30]);
-        expect(genotypes.map(g => g.sampleIds)).to.deep.equal(
-            [sampleIds, sampleIds, sampleIds]);
 
         p.destroy();
       });

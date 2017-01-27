@@ -77,7 +77,6 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
 
     // Cover the range immediately to prevent duplicate fetches.
     cache.coverRange(interval);
-    var numRequests = 1;
     o.trigger('networkprogress', newRanges.length);
     return Q.all(newRanges.map(range =>
       remoteSource.getFeaturesInRange(range, endpointModifier).then(json => {
