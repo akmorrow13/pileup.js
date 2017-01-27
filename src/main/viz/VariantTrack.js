@@ -11,11 +11,9 @@ import type {VizProps} from '../VisualizationWrapper';
 import type {Scale} from './d3utils';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'underscore';
 
 import d3utils from './d3utils';
-import RemoteRequest from '../RemoteRequest';
 import shallowEquals from 'shallow-equals';
 import ContigInterval from '../ContigInterval';
 import canvasUtils from './canvas-utils';
@@ -56,7 +54,7 @@ class VariantTiledCanvas extends TiledCanvas {
 
     // relaxed range is just for this tile. make sure to get resolution for whole
     // viewing area
-    var vVariants = this.source.getFeaturesInRange(relaxedRange, resolution);
+    var vVariants = this.source.getVariantsInRange(relaxedRange, resolution);
     renderVariants(ctx, scale, relaxedRange, vVariants);
   }
 }
@@ -133,7 +131,7 @@ class VariantTrack extends React.Component {
   componentDidMount() {
     this.tiles = new VariantTiledCanvas(this.props.source, this.props.options);
 
-    // Visualize ne data as it comes in from the network.
+    // Visualize new data as it comes in from the network.
     this.props.source.on('newdata', (range) => {
       this.tiles.invalidateRange(range);
       this.updateVisualization();
@@ -155,7 +153,7 @@ class VariantTrack extends React.Component {
   componentDidUpdate(prevProps: any, prevState: any) {
     if (!shallowEquals(prevProps, this.props) ||
         !shallowEquals(prevState, this.state)) {
-          this.tiles.update(this.props.height, this.props.options);
+          this.tiles.update(this.props.options);
           this.tiles.invalidateAll();
           this.updateVisualization();
     }
@@ -166,7 +164,7 @@ class VariantTrack extends React.Component {
         {width, height} = this.props;
 
     // Hold off until height & width are known.
-    if (width === 0) return;
+    if (width === 0|| typeof canvas == 'undefined') return;
     d3utils.sizeCanvas(canvas, width, height);
 
     var ctx = dataCanvas.getDataContext(canvasUtils.getContext(canvas));
@@ -177,8 +175,6 @@ class VariantTrack extends React.Component {
     var range = this.props.range,
         interval = new ContigInterval(range.contig, range.start, range.stop),
         scale = this.getScale();
-        // height = this.props.height,
-        // y = height - style.VARIANT_HEIGHT - 1;
 
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -199,7 +195,7 @@ class VariantTrack extends React.Component {
         clickEnd = clickStart + 2,
         // If click-tracking gets slow, this range could be narrowed to one
         // closer to the click coordinate, rather than the whole visible range.
-        vVariants = this.props.source.getFeaturesInRange(range);
+        vVariants = this.props.source.getVariantsInRange(range);
 
     var variant = _.find(vVariants, f => utils.tupleRangeOverlaps([[f.position], [f.end]], [[clickStart], [clickEnd]]));
     var alert = window.alert || console.log;

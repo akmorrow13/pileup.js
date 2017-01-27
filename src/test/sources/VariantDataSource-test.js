@@ -17,7 +17,7 @@ describe('VariantDataSource', function() {
     return new RemoteFile('/test-data/variants-chrM-0-100.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/variants/chrM?start=1&end=1000',[200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/variants/chrM?start=1&end=10000&binning=1',[200, { "Content-Type": "application/json" }, response]);
       server.respondWith('GET', '/variants/chrM?start=1000&end=2000',[200, { "Content-Type": "application/json" }, '']);
     });
   });
@@ -28,7 +28,8 @@ describe('VariantDataSource', function() {
 
   function getTestSource() {
     var source = VariantDataSource.create({
-      url: '/variants'
+      url: '/variants',
+      samples: ["sample1", "sample2", "sample3"]
     });
     return source;
   }
@@ -36,11 +37,11 @@ describe('VariantDataSource', function() {
     var source = getTestSource();
     var range = new ContigInterval('chrM', 0, 50);
     // No variants are cached yet.
-    var variants = source.getFeaturesInRange(range);
+    var variants = source.getVariantsInRange(range);
     expect(variants).to.deep.equal([]);
 
     source.on('newdata', () => {
-      var variants = source.getFeaturesInRange(range);
+      var variants = source.getVariantsInRange(range);
       expect(variants).to.have.length(3);
       expect(variants[1].contig).to.equal('chrM');
       expect(variants[1].position).to.equal(20);
@@ -61,7 +62,7 @@ describe('VariantDataSource', function() {
     var range = new ContigInterval('chrM', 1050, 1150);
 
     source.on('newdata', () => {
-      var variants = source.getFeaturesInRange(range);
+      var variants = source.getVariantsInRange(range);
       expect(variants).to.deep.equal([]);
       done();
     });
