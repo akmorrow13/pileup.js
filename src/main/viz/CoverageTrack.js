@@ -148,11 +148,10 @@ class CoverageTrack extends React.Component {
     var statusEl = null,
         networkStatus = this.state.networkStatus;
     if (networkStatus) {
-      var message = formatStatus(networkStatus);
       statusEl = (
         <div ref='status' className='network-status'>
           <div className='network-status-message'>
-            Loading coverage… ({message})
+            Loading coverage…
           </div>
         </div>
       );

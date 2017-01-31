@@ -4,8 +4,7 @@
  */
 'use strict';
 
-import type {FeatureDataSource} from '../sources/FeatureDataSource';
-import type {Feature} from '../data/FeatureEndpoint';
+import type {Feature, FeatureDataSource} from '../sources/FeatureDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 
 import type {VizProps} from '../VisualizationWrapper';
