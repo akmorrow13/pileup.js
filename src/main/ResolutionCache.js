@@ -7,6 +7,7 @@
  */
 'use strict';
 
+/* exported Interval, ContigInterval */
 import _ from 'underscore';
 import Interval from './Interval';
 import ContigInterval from './ContigInterval';

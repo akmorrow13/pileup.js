@@ -5,6 +5,7 @@
  */
 'use strict';
 
+/* exported Q, ContigInterval, RemoteRequest */
 import Q from 'q';
 import ContigInterval from '../ContigInterval';
 import {RemoteRequest} from '../RemoteRequest';

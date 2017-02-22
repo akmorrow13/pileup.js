@@ -70,7 +70,6 @@ describe('GenotypeTrack', function() {
     return waitFor(ready, 2000)
       .then(() => {
         var genotypes = drawnObjects(testDiv, '.genotypes');
-        var sampleIds = ["sample1", "sample2", "sample3"];
         expect(genotypes).to.have.length(3);
         expect(genotypes.map(g => g.variant.position)).to.deep.equal(
             [10, 20, 30]);

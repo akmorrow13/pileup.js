@@ -16,7 +16,7 @@ describe('FeatureDataSource', function() {
     return new RemoteFile('/test-data/features-chrM-1000-1200.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/features/chrM?start=0&end=10000', [200, { "Content-Type": "application/json" }, response]);
+      server.respondWith('GET', '/features/chrM?start=1&end=10000&binning=1', [200, { "Content-Type": "application/json" }, response]);
       server.respondWith('GET', '/features/chrM?start=1&end=1000', [200, { "Content-Type": "application/json" }, '']);
     });
   });
@@ -42,11 +42,13 @@ describe('FeatureDataSource', function() {
 
     // Fetching that one gene should cache its entire block.
     source.on('newdata', () => {
-      var features = source.getFeaturesInRange(range);
+      var features = source.getFeaturesInRange(range).sort((a, b) => {
+        return a.start - b.start;
+      });
       expect(features).to.have.length(2);
 
       var feature = features[0];
-      expect(feature.start).to.equal(1107);
+      expect(feature.start).to.equal(1011);
       expect(feature.contig).to.equal('chrM');
       done();
     });

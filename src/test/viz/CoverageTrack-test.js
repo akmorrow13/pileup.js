@@ -12,9 +12,6 @@ import sinon from 'sinon';
 
 import RemoteFile from '../../main/RemoteFile';
 import pileup from '../../main/pileup';
-import TwoBit from '../../main/data/TwoBit';
-import TwoBitDataSource from '../../main/sources/TwoBitDataSource';
-import MappedRemoteFile from '../MappedRemoteFile';
 import dataCanvas from 'data-canvas';
 import {waitFor} from '../async';
 
