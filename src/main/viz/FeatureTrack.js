@@ -69,7 +69,10 @@ function renderFeatures(ctx: DataCanvasRenderingContext2D,
       if (!position.chrIntersects(range)) return;
       ctx.pushObject(feature);
       ctx.lineWidth = 1;
-      ctx.fillStyle = 'black';
+
+      // Create transparency value based on score. Score of <= 200 is the same transparency.
+      var alphaScore = Math.max(feature.score / 1000.0, 0.2);
+      ctx.fillStyle = 'rgba(0, 0, 0, ' + alphaScore + ')';
 
       var x = Math.round(scale(feature.start));
       var width = Math.ceil(scale(feature.stop) - scale(feature.start));
