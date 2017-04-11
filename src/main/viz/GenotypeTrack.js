@@ -173,6 +173,34 @@ class GenotypeTrack extends React.Component {
           this.setState({networkStatus: null});
         });
 
+        let height = yForRow(this.sampleIds.length);
+
+         // This is very un-react-y, but we are doing this to avoid making prop changes on multiple classes.
+        var searchNode = this;
+        while (searchNode) {
+
+          // Cycle the next parent node
+          searchNode = ReactDOM.findDOMNode(searchNode).parentNode;
+
+          // If the current node has a class name with greater than or equal to 1 classes, it might be the GenotypeTrack
+          if (searchNode && searchNode.className && searchNode.className.split(' ') && searchNode.className.split(' ')[1]) {
+            
+            let name = searchNode.className.split(' ')[1];
+
+            // If the class name matches the GenotypeTrack, we can make changes
+            if (name == GenotypeTrack.displayName) {
+              let searchNodeHeight = $(searchNode).context.clientHeight;
+
+              // If the height of the GenotypeTrack is less than the current height, we make the change
+              if (height < searchNodeHeight) {
+                $(searchNode).css('flex', '0 0 ' + height + 'px');
+              }
+
+              break;
+            }
+          }
+        }
+
         this.updateVisualization();
   }
 
