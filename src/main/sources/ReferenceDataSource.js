@@ -53,8 +53,10 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
   var coveredRanges = ([]: ContigInterval<string>[]);
 
   function fetch(range: ContigInterval) {
+    var startTimeMilliseconds = new Date().getTime();
     var span = range.length();
     if (span > MAX_BASE_PAIRS_TO_FETCH) {
+      console.info(`Time to get reference from cache:", ${new Date().getTime() - startTimeMilliseconds}`);
       return Q.when();  // empty promise
     }
 
@@ -70,6 +72,7 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
         }
         store.setRange(range, letters);
       }).then(() => {
+        console.info(`Fetched reference from server:", ${new Date().getTime() - startTimeMilliseconds}`);
         o.trigger('newdata', range);
       }).done();
   }

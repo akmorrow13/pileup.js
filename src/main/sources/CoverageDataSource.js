@@ -26,7 +26,7 @@ export type CoverageDataSource = {
   trigger: (event: string, ...args:any) => void;
 };
 
-var BASE_PAIRS_PER_FETCH = 1000;
+var BASE_PAIRS_PER_FETCH = 5000;
 
 export type PositionCount = {
   contig: string;
@@ -60,12 +60,13 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
   }
 
   function fetch(range: GenomeRange) {
+    var startTimeMilliseconds = new Date().getTime();
     var interval = new ContigInterval(range.contig, range.start, range.stop);
 
     // Check if this interval is already in the cache.
     if (cache.coversRange(interval)) {
+      console.info(`Time to get coverage from cache:", ${new Date().getTime() - startTimeMilliseconds}`);
       return Q.when();
-
     }
 
     // modify endpoint to calculate coverage using binning
@@ -97,6 +98,7 @@ function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource 
             o.trigger('newdata', interval);
           }
         }
+        console.info(`Fetched coverage from server:", ${new Date().getTime() - startTimeMilliseconds}`);
         o.trigger('networkdone');
     })));
   }

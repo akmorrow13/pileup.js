@@ -99,9 +99,11 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
   function fetchAlignmentsForInterval(range: ContigInterval<string>,
                                       pageToken: ?string,
                                       numRequests: number) {
+    var startTimeMilliseconds = new Date().getTime();
 
     var span = range.length();
     if (span > MAX_BASE_PAIRS_TO_FETCH) {
+      console.info(`Time to get alignments from cache:", ${new Date().getTime() - startTimeMilliseconds}`);
       return Q.when();  // empty promise
     }
     var xhr = new XMLHttpRequest();
@@ -125,6 +127,7 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
           if (response.nextPageToken) {
             fetchAlignmentsForInterval(range, response.nextPageToken, numRequests + 1);
           } else {
+            console.info(`Fetched alignments from server:", ${new Date().getTime() - startTimeMilliseconds}`);
             o.trigger('networkdone');
           }
         }

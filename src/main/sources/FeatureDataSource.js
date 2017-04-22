@@ -69,10 +69,12 @@ function createFromFeatureUrl(remoteSource: RemoteRequest): FeatureDataSource {
     new ResolutionCache(filterFunction, keyFunction);
 
   function fetch(range: GenomeRange) {
+    var startTimeMilliseconds = new Date().getTime();
     var interval = new ContigInterval(range.contig, range.start, range.stop);
 
     // Check if this interval is already in the cache.
     if (cache.coversRange(interval)) {
+      console.info(`Time to get features from cache:", ${new Date().getTime() - startTimeMilliseconds}`);
       return Q.when();
     }
 
@@ -95,6 +97,7 @@ function createFromFeatureUrl(remoteSource: RemoteRequest): FeatureDataSource {
             if (features !== null) {
               features.forEach(feature => cache.put(feature, resolution));
             }
+            console.info(`Fetched features from server:", ${new Date().getTime() - startTimeMilliseconds}`);
             o.trigger('networkdone');
             o.trigger('newdata', range);
       })));
