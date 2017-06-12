@@ -79,6 +79,14 @@ function createFromVariantUrl(remoteSource: RemoteRequest,
       if (response !== null) {
         // parse VariantContexts
         var variants = _.map(response, v => JSON.parse(v));
+
+        // GA4GH schemas are 0-based, so we adjust the variant position 
+        // by 1 to display correctly
+        variants = _.map(variants, v => {
+          v.variant.position += 1;
+          v.variant.end += 1;
+          return v;
+        });
         variants.forEach(v => cache.put(v, resolution));
       }
       console.info(`Fetched variants from server:", ${new Date().getTime() - startTimeMilliseconds}`);
