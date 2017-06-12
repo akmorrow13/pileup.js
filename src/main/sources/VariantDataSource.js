@@ -41,7 +41,7 @@ function keyFunction(vc: VariantContext): string {
 }
 
 function filterFunction(range: ContigInterval<string>, vc: VariantContext): boolean {
-  return range.chrContainsLocus(vc.variant.contig, vc.variant.position);
+  return range.chrIntersects(new ContigInterval(vc.variant.contig, vc.variant.position, vc.variant.end));
 }
 
 function createFromVariantUrl(remoteSource: RemoteRequest,
@@ -79,6 +79,14 @@ function createFromVariantUrl(remoteSource: RemoteRequest,
       if (response !== null) {
         // parse VariantContexts
         var variants = _.map(response, v => JSON.parse(v));
+
+        // GA4GH schemas are 0-based, so we adjust the variant position 
+        // by 1 to display correctly
+        variants = _.map(variants, v => {
+          v.variant.position += 1;
+          v.variant.end += 1;
+          return v;
+        });
         variants.forEach(v => cache.put(v, resolution));
       }
       console.info(`Fetched variants from server:", ${new Date().getTime() - startTimeMilliseconds}`);
