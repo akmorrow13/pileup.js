@@ -41,7 +41,7 @@ function keyFunction(vc: VariantContext): string {
 }
 
 function filterFunction(range: ContigInterval<string>, vc: VariantContext): boolean {
-  return range.chrContainsLocus(vc.variant.contig, vc.variant.position);
+  return range.chrIntersects(new ContigInterval(vc.variant.contig, vc.variant.position, vc.variant.end));
 }
 
 function createFromVariantUrl(remoteSource: RemoteRequest,
