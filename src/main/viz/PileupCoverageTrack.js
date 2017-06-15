@@ -55,13 +55,11 @@ class CoverageTiledCanvas extends TiledCanvas {
     this.options = options;
   }
 
-  yScaleForRef(ref: string): (y: number) => number {
+  yScaleForRef(ref: string, bottomPadding: number, topPadding:number): (y: number) => number {
     var maxCoverage = this.cache.maxCoverageForRef(ref);
-
-    var padding = 10;  // TODO: move into style
     return scale.linear()
       .domain([maxCoverage, 0])
-      .range([padding, this.height - padding])
+      .range([bottomPadding, this.height - topPadding])
       .nice();
   }
 
@@ -69,7 +67,7 @@ class CoverageTiledCanvas extends TiledCanvas {
          xScale: (x: number)=>number,
          range: ContigInterval<string>) {
     var bins = this.cache.binsForRef(range.contig);
-    var yScale = this.yScaleForRef(range.contig);
+    var yScale = this.yScaleForRef(range.contig, 0, 20);
     var relaxedRange = new ContigInterval(
         range.contig, range.start() - 1, range.stop() + 1);
     renderBars(ctx, xScale, yScale, relaxedRange, bins, this.options);
@@ -151,7 +149,7 @@ function renderBars(ctx: DataCanvasRenderingContext2D,
     var countSoFar = 0;
     _.chain(mismatches)
       .map((count, base) => ({count, base}))  // pull base into the object
-      .filter(({count}) => count > MISMATCH_THRESHOLD)
+      .filter(({count}) => count >= MISMATCH_THRESHOLD)
       .sortBy(({count}) => -count)  // the most common mismatch at the bottom
       .each(({count, base}) => {
         var misMatchObj = {position: 1 + pos, count, base};
@@ -255,7 +253,7 @@ class PileupCoverageTrack extends React.Component {
     [0, Math.round(axisMax / 2), axisMax].forEach(tick => {
       // Draw a line indicating the tick
       ctx.pushObject({value: tick, type: 'tick'});
-      var tickPosY = Math.round(yScale(tick))+10;
+      var tickPosY = Math.round(yScale(tick));
       ctx.strokeStyle = style.COVERAGE_FONT_COLOR;
       canvasUtils.drawLine(ctx, 0, tickPosY, style.COVERAGE_TICK_LENGTH, tickPosY);
       ctx.popObject();
@@ -294,7 +292,7 @@ class PileupCoverageTrack extends React.Component {
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-    var yScale = this.tiles.yScaleForRef(range.contig);
+    var yScale = this.tiles.yScaleForRef(range.contig, 10, 10);
 
     this.tiles.renderToScreen(ctx, range, this.getScale());
     this.renderTicks(ctx, yScale);
