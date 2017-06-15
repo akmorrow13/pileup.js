@@ -181,8 +181,11 @@
 }
 
 /* pileup track */
-.pileup-root > .pileup, .pileup-root > .genotypes {
+.pileup-root > .pileup {
   flex: 1;  /* stretch to fill remaining space */
+}
+.pileup-root > .genotypes {
+  flex: 0 0 60px; /* fixed height */
 }
 .pileup .alignment .match {
   fill: #c8c8c8;  /* matches IGV */
