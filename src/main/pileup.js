@@ -5,6 +5,7 @@
 'use strict';
 
 import type {Track, VisualizedTrack, VizWithOptions} from './types';
+import {AllelFrequencyStrategy} from './types';
 
 import _ from 'underscore';
 import React from 'react';
@@ -17,10 +18,19 @@ import BigBedDataSource from './sources/BigBedDataSource';
 import VcfDataSource from './sources/VcfDataSource';
 import VariantDataSource from './sources/VariantDataSource';
 import BamDataSource from './sources/BamDataSource';
-import GA4GHDataSource from './sources/GA4GHDataSource';
 import CoverageDataSource from './sources/CoverageDataSource';
 import EmptySource from './sources/EmptySource';
 import FeatureDataSource from './sources/FeatureDataSource';
+
+// Data sources from json
+import GA4GHAlignmentJson from './json/GA4GHAlignmentJson';
+import GA4GHVariantJson from './json/GA4GHVariantJson';
+import GA4GHFeatureJson from './json/GA4GHFeatureJson';
+
+// GA4GH sources
+import GA4GHAlignmentSource from './sources/GA4GHAlignmentSource';
+import GA4GHVariantSource from './sources/GA4GHVariantSource';
+import GA4GHFeatureSource from './sources/GA4GHFeatureSource';
 
 // Visualizations
 import PileupCoverageTrack from './viz/PileupCoverageTrack';
@@ -87,6 +97,41 @@ function create(elOrId: string|Element, params: PileupParams): Pileup {
       ReactDOM.render(<Root referenceSource={referenceTrack.source}
                             tracks={vizTracks}
                             initialRange={params.range} />, el);
+
+  //if the element doesn't belong to document DOM observe DOM to detect
+  //when it's attached
+  var observer = null;
+
+  if (!document.body.contains(el)) {
+    observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.type === 'childList') {
+          var added= false;
+          for (var i=0; i<mutation.addedNodes.length;i++) {
+            //when added element is element where we visualize pileup
+            //or it contains element where we visualize pileup
+            //then we will have to update component
+            if (mutation.addedNodes[i]===el || mutation.addedNodes[i].contains(el)) {
+              added = true;
+            }
+          }
+          if (added) {
+            if (reactElement) {
+              reactElement.setState({updateSize:true});
+            } else {
+              throw 'ReactElement was not initialized properly';
+            }
+          }
+        }
+      });
+    });
+    // configuration of the observer:
+    var config = {attributes: true, childList: true, characterData: true, subtree: true};
+
+    // start observing document
+    observer.observe(document, config);
+  }
+
   return {
     setRange(range: GenomeRange) {
       if (reactElement === null) {
@@ -111,6 +156,11 @@ function create(elOrId: string|Element, params: PileupParams): Pileup {
       reactElement = null;
       referenceTrack = null;
       vizTracks = null;
+
+      // disconnect observer if it was created
+      if (observer !== null && observer !== undefined) {
+        observer.disconnect();
+      }
     }
   };
 }
@@ -128,14 +178,21 @@ var pileup = {
   create: create,
   formats: {
     bam: BamDataSource.create,
-    ga4gh: GA4GHDataSource.create,
+    alignmentJson: GA4GHAlignmentJson.create,
+    variantJson: GA4GHVariantJson.create,
+    featureJson: GA4GHFeatureJson.create,
     vcf: VcfDataSource.create,
+    // Start new
     variants: VariantDataSource.create,
     features: FeatureDataSource.create,
+    // End new
     twoBit: TwoBitDataSource.create,
     reference: ReferenceDataSource.create,
     bigBed: BigBedDataSource.create,
     coverage: CoverageDataSource.create,
+    GAReadAlignment: GA4GHAlignmentSource.create,
+    GAVariant: GA4GHVariantSource.create,
+    GAFeature: GA4GHFeatureSource.create,
     empty: EmptySource.create
   },
   viz: {
@@ -149,6 +206,11 @@ var pileup = {
     variants: makeVizObject(VariantTrack),
     genotypes: makeVizObject(GenotypeTrack),
     pileup:   makeVizObject(PileupTrack)
+  },
+  enum: {
+    variants: {
+      allelFrequencyStrategy: AllelFrequencyStrategy,
+    },
   },
   version: '0.6.8'
 };

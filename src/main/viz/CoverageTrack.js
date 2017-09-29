@@ -276,7 +276,6 @@ class CoverageTrack extends React.Component {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     var yScale = this.tiles.yScaleForRef(range);
-
     this.tiles.renderToScreen(ctx, range, this.getScale());
     this.renderTicks(ctx, yScale);
 

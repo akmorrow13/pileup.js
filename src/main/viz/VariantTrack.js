@@ -179,6 +179,7 @@ class VariantTrack extends React.Component {
     ctx.reset();
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     this.tiles.renderToScreen(ctx, interval, scale);
+    ctx.save();
     ctx.restore();
   }
 

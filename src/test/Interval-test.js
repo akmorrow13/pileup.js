@@ -174,4 +174,14 @@ describe('Interval', function() {
     ]);
 
   });
+
+  it('should round interval', function() {
+    var interval = new Interval(1, 20);
+    var rounded = interval.round(40, true);
+    expect(rounded.start).to.equal(0);
+    expect(rounded.stop).to.equal(40);
+
+    rounded = interval.round(40, false);
+    expect(rounded.start).to.equal(1);
+  });
 });

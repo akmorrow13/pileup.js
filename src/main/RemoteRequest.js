@@ -100,5 +100,3 @@ module.exports = {
   RemoteRequest,
   MONSTER_REQUEST: MONSTER_REQUEST
 };
-
-//module.exports = RemoteRequest;

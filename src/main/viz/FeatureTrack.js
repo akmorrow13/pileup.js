@@ -4,7 +4,9 @@
  */
 'use strict';
 
-import type {Feature, FeatureDataSource} from '../sources/FeatureDataSource';
+import type {FeatureDataSource} from '../sources/BigBedDataSource';
+import type Feature from '../data/feature';
+
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 
 import type {VizProps} from '../VisualizationWrapper';
@@ -22,7 +24,7 @@ import TiledCanvas from './TiledCanvas';
 import dataCanvas from 'data-canvas';
 import style from '../style';
 import utils from '../utils';
-import type {State, NetworkStatus} from './pileuputils';
+import type {State, NetworkStatus} from '../types';
 
 class FeatureTiledCanvas extends TiledCanvas {
   options: Object;
@@ -66,7 +68,7 @@ function renderFeatures(ctx: DataCanvasRenderingContext2D,
 
     features.forEach(feature => {
       var position = new ContigInterval(feature.contig, feature.start, feature.stop);
-      if (!position.chrIntersects(range)) return;
+      if (!position.intersects(range)) return;
       ctx.pushObject(feature);
       ctx.lineWidth = 1;
 

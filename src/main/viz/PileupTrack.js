@@ -5,7 +5,7 @@
 'use strict';
 
 import type {Strand, Alignment, AlignmentDataSource} from '../Alignment';
-import GA4GHDataSource from '../sources/GA4GHDataSource';
+import GA4GHAlignmentSource from '../sources/GA4GHAlignmentSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {VisualAlignment, VisualGroup, InsertStats} from './PileupCache';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
@@ -283,7 +283,7 @@ class PileupTrack extends React.Component {
 
     var rangeLength = this.props.range.stop - this.props.range.start;
     // If range is too large, do not render 'canvas'
-    if (rangeLength >  GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
+    if (rangeLength >  GA4GHAlignmentSource.MAX_BASE_PAIRS_TO_FETCH) {
        return (
         <div>
             <div className='center'>

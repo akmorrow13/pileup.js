@@ -6,7 +6,7 @@
 
 import type {Alignment, AlignmentDataSource} from '../Alignment';
 import type Interval from '../Interval';
-import GA4GHDataSource from '../sources/GA4GHDataSource';
+import GA4GHAlignmentSource from '../sources/GA4GHAlignmentSource';
 import type {TwoBitSource} from '../sources/TwoBitDataSource';
 import type {DataCanvasRenderingContext2D} from 'data-canvas';
 import type {BinSummary} from './CoverageCache';
@@ -196,7 +196,7 @@ class PileupCoverageTrack extends React.Component {
   render(): any {
     var rangeLength = this.props.range.stop - this.props.range.start;
     // Render coverage if base pairs is less than threshold
-    if (rangeLength <= GA4GHDataSource.MAX_BASE_PAIRS_TO_FETCH) {
+    if (rangeLength <= GA4GHAlignmentSource.MAX_BASE_PAIRS_TO_FETCH) {
       return <canvas ref='canvas' onClick={this.handleClick.bind(this)} />;
     } else return <div></div>;
   }

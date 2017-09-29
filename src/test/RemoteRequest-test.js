@@ -19,7 +19,7 @@ describe('RemoteRequest', function() {
   var basePairsPerFetch = 1000;
 
   before(function () {
-    return new RemoteFile('/test-data/chr17.1-250.json').getAllString().then(data => {
+    return new RemoteFile('/test-data/alignments.ga4gh.chr17.1-250.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
       var endpoint = '/test/chr17?start=10&end=20';

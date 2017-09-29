@@ -7,9 +7,10 @@
  */
 'use strict';
 
-import type ContigInterval from '../ContigInterval';
 import type AbstractFile from '../AbstractFile';
 import type Q from 'q';
+import ContigInterval from '../ContigInterval';
+
 
 export type Variant = {
   contig: string;
@@ -184,4 +185,6 @@ class VcfFile {
   }
 }
 
-module.exports = VcfFile;
+module.exports = {
+  VcfFile
+};

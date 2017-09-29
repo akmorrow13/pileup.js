@@ -13,6 +13,18 @@
 
 import type React from 'react';
 
+export const AllelFrequencyStrategy = {
+  Minor : {name: "Minor"},
+  Major : {name: "Major"},
+};
+
+
+export type NetworkStatus = {numRequests?: number, status?: string};
+
+export type State = {
+  networkStatus: ?NetworkStatus;
+};
+
 export type VizWithOptions = {
   component: ReactClass;
   options: ?Object;
@@ -23,7 +35,8 @@ export type Track = {
   data: Object;  // This is a DataSource object
   name?: string;
   cssClass?: string;
-  isReference?: boolean
+  isReference?: boolean;
+  options?: Object
 }
 
 export type VisualizedTrack = {
