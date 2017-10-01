@@ -40,7 +40,7 @@ function keyFunction(p: PositionCount): string {
 }
 
 function filterFunction(range: ContigInterval<string>, p: PositionCount): boolean {
-  return range.chrContainsLocus(p.contig, p.start);
+  return range.containsLocus(p.contig, p.start);
 }
 
 function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource {

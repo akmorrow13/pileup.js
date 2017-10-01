@@ -25,7 +25,7 @@ describe('ResolutionCache', function() {
               {contig:'chrM',position:107}];
 
   function filterFunction(range: ContigInterval<string>, p: Position): boolean {
-    return range.chrContainsLocus(p.contig, p.position);
+    return range.containsLocus(p.contig, p.position);
   }
 
   function keyFunction(p: Position): string {
