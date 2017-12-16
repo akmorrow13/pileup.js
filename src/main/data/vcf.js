@@ -7,9 +7,10 @@
  */
 'use strict';
 
-import type ContigInterval from '../ContigInterval';
+import ContigInterval from '../ContigInterval';
 import type AbstractFile from '../AbstractFile';
 import type Q from 'q';
+import {Variant as VariantClass} from './variant';
 
 export type Variant = {
   contig: string;
@@ -61,7 +62,6 @@ function extractVariant(vcfLine: string): Variant {
     end: Number(end)
   };
 }
-
 
 function compareLocusLine(a: LocusLine, b: LocusLine): number {
   // Sort lexicographically by contig, then numerically by position.
@@ -123,7 +123,7 @@ class ImmediateVcfFile {
     return contigMap;
   }
 
-  getFeaturesInRange(range: ContigInterval<string>): Variant[] {
+  getFeaturesInRange(range: ContigInterval<string>): VariantClass[] {
     var lines = this.lines;
     var contig = this.contigMap[range.contig];
     if (!contig) {
@@ -177,11 +177,13 @@ class VcfFile {
     this.immediate.done();
   }
 
-  getFeaturesInRange(range: ContigInterval<string>): Q.Promise<Variant[]> {
+  getFeaturesInRange(range: ContigInterval<string>): Q.Promise<VariantClass[]> {
     return this.immediate.then(immediate => {
       return immediate.getFeaturesInRange(range);
     });
   }
 }
 
-module.exports = VcfFile;
+module.exports = {
+  VcfFile
+};

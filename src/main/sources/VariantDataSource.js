@@ -15,8 +15,8 @@
  */
 'use strict';
 
-import type {Variant, VariantContext} from '../data/vcf';
-
+import type {VariantContext} from '../data/vcf';
+import {Variant} from  '../data/variant';
 import Q from 'q';
 import _ from 'underscore';
 import {Events} from 'backbone';
@@ -41,7 +41,7 @@ function keyFunction(vc: VariantContext): string {
 }
 
 function filterFunction(range: ContigInterval<string>, vc: VariantContext): boolean {
-  return range.chrIntersects(new ContigInterval(vc.variant.contig, vc.variant.position, vc.variant.end));
+  return range.intersects(new ContigInterval(vc.variant.contig, vc.variant.position, vc.variant.end));
 }
 
 function createFromVariantUrl(remoteSource: RemoteRequest,
@@ -80,7 +80,7 @@ function createFromVariantUrl(remoteSource: RemoteRequest,
         // parse VariantContexts
         var variants = _.map(response, v => JSON.parse(v));
 
-        // GA4GH schemas are 0-based, so we adjust the variant position 
+        // GA4GH schemas are 0-based, so we adjust the variant position
         // by 1 to display correctly
         variants = _.map(variants, v => {
           v.variant.position += 1;
@@ -99,7 +99,8 @@ function createFromVariantUrl(remoteSource: RemoteRequest,
     if (!range) return [];  // XXX why would this happen?
     var data = cache.get(range, resolution);
     var sorted = data.sort((a, b) => a.variant.position - b.variant.position);
-    return _.map(sorted, s => s.variant);
+    var variants = sorted.map(s => new Variant(s.variant));
+    return variants;
   }
 
   function getGenotypesInRange(range: ContigInterval<string>, resolution: ?number): VariantContext[] {

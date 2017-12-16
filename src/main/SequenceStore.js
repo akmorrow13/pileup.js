@@ -84,7 +84,8 @@ class SequenceStore {
    * {'chr1:10': 'A', 'chr1:11': 'C', ...}
    */
   getAsObjects(range: ContigInterval<string>): {[key:string]: ?string} {
-    return _.object(_.map(this.getAsString(range),
+    var x = this.getAsString(range);
+    return _.object(_.map(x,
                           (base, i) => [range.contig + ':' + (range.start() + i),
                                         base == '.' ? null : base]));
   }

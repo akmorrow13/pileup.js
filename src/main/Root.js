@@ -27,7 +27,9 @@ class Root extends React.Component {
     contigNames: string[];
     range: ?GenomeRange;
     settingsMenuKey: ?string;
+    updateSize: boolean;
   };
+  trackReactElements: Array<Object>; //it's an array of reactelement that are created for tracks
 
   constructor(props: Object) {
     super(props);
@@ -35,8 +37,10 @@ class Root extends React.Component {
       contigList: this.props.referenceSource.contigList(),
       contigNames: _.map(this.props.referenceSource.contigList(), contig => contig.name),
       range: null,
+      updateSize: false,
       settingsMenuKey: null
     };
+    this.trackReactElements = [];
   }
 
   componentDidMount() {
@@ -96,12 +100,17 @@ class Root extends React.Component {
   }
 
   makeDivForTrack(key: string, track: VisualizedTrack): React.Element {
+    //this should be improved, but I have no idea how (when trying to
+    //access this.trackReactElements wih string key, flow complains)
+    var intKey = parseInt(key); 
     var trackEl = (
         <VisualizationWrapper visualization={track.visualization}
             range={this.state.range}
             onRangeChange={this.handleRangeChange.bind(this)}
             source={track.source}
+            options={track.track.options}
             referenceSource={this.props.referenceSource}
+            ref = {(c) => {this.trackReactElements[intKey]=c}}
           />);
 
     var trackName = track.track.name || '(track name)';
@@ -173,6 +182,16 @@ class Root extends React.Component {
       </div>
     );
   }
+
+  componentDidUpdate(prevProps: Props, prevState: Object) {
+    if (this.state.updateSize) {
+      for (var i=0;i<this.props.tracks.length;i++) {
+        this.trackReactElements[i].setState({updateSize:this.state.updateSize});
+      }
+      this.state.updateSize=false;
+    }
+  }
+
 }
 Root.displayName = 'Root';
 

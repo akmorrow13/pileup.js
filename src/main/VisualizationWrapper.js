@@ -27,11 +27,12 @@ type Props = {
   onRangeChange: (newRange: GenomeRange) => void;
   referenceSource: TwoBitSource;
   source: any;
+  options: ?Object;
 };
 
 class VisualizationWrapper extends React.Component {
   props: Props;
-  state: {width: number; height: number};
+  state: {width: number; height: number; updateSize: boolean};
   hasDragBeenInitialized: boolean;
   onResizeListener: Object;  //listener that handles window.onresize event
 
@@ -39,6 +40,7 @@ class VisualizationWrapper extends React.Component {
     super(props);
     this.hasDragBeenInitialized = false;
     this.state = {
+      updateSize: false,
       width: 0,
       height: 0
     };
@@ -47,6 +49,7 @@ class VisualizationWrapper extends React.Component {
   updateSize(): any {
     var parentDiv = ReactDOM.findDOMNode(this).parentNode;
     this.setState({
+      updateSize: false,
       width: parentDiv.offsetWidth,
       height: parentDiv.offsetHeight
     });
@@ -122,12 +125,19 @@ class VisualizationWrapper extends React.Component {
     }
   }
 
+  componentWillUpdate(nextProps:Props, nextState: Object) {
+    if (nextState.updateSize) {
+      this.updateSize();
+    }
+  }
+
   render(): any {
     const range = this.props.range;
     const component = this.props.visualization.component;
     if (!range) {
       return <EmptyTrack className={component.displayName} />;
     }
+    var options = _.extend({},this.props.visualization.options,this.props.options);
 
     var el = React.createElement(component, ({
       range: range,
@@ -135,7 +145,7 @@ class VisualizationWrapper extends React.Component {
       referenceSource: this.props.referenceSource,
       width: this.state.width,
       height: this.state.height,
-      options: this.props.visualization.options
+      options: options
     } : VizProps));
 
     return <div className='drag-wrapper'>{el}</div>;

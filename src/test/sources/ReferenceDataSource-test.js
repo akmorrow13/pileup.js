@@ -72,9 +72,7 @@ describe('ReferenceDataSource', function() {
     expect(str).to.equal('....');
 
     source.on('newdata', () => {
-      console.log("new data");
       obj = source.getRange(range);
-      console.log("range", obj);
       expect(obj).to.deep.equal({
        'chrM:0': 'N',
        'chrM:1': 'G',
@@ -88,14 +86,14 @@ describe('ReferenceDataSource', function() {
     });
     source.rangeChanged(range);
     server.respond();
-    done();
   });
 
 
    it('should fetch nearby base pairs', function(done) {
 
      source.on('newdata', () => {
-       expect(source.getRange({contig: 'chrM', start: 0, stop: 14}))
+       var x = source.getRange({contig: 'chrM', start: 0, stop: 14});
+       expect(x)
            .to.deep.equal({
              'chrM:0':  'N',
              'chrM:1':  'G',
@@ -106,7 +104,7 @@ describe('ReferenceDataSource', function() {
              'chrM:6':  'T',
              'chrM:7':  'G',
              'chrM:8':  'T',
-             'chrM:9':  'A',  // end of actual requuest
+             'chrM:9':  'A',  // end of actual request
              'chrM:10': 'G',
              'chrM:11': 'C',
              'chrM:12': 'T',
@@ -116,7 +114,7 @@ describe('ReferenceDataSource', function() {
        done();
      });
      source.rangeChanged({contig: 'chrM', start: 4, stop: 9});
-     server.respond();
+        server.respond();
    });
 
    it('should add chr', function(done) {

@@ -36,13 +36,13 @@ describe('TwoBitDataSource', function() {
    * (in millions) and afterwards we set the range to small subrange
    * of the huge range. The huge range shouldn't be fetched from
    * 2bit file. But due to //github.com/hammerlab/pileup.js/issues/416
-   * every small request from the big range wasn't handled properly 
+   * every small request from the big range wasn't handled properly
    * afterwardfs.
-   * 
+   *
    */
   it('should fetch base pairs (bug 416)', function(done) {
     var source = getTestSource();
-    //this range shouldn't be fetched because is huge 
+    //this range shouldn't be fetched because is huge
     var hugeRange= {contig: 'chr22', start: 0, stop: 114529884};
 
     //small range that due to bug wasn't properly handled

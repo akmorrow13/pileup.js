@@ -60,7 +60,7 @@ function keyFunction(f: Feature): string {
 }
 
 function filterFunction(range: ContigInterval<string>, f: Feature): boolean {
-  return range.chrIntersects(new ContigInterval(f.contig, f.start, f.stop));
+  return range.intersects(new ContigInterval(f.contig, f.start, f.stop));
 }
 
 

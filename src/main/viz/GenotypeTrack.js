@@ -22,7 +22,7 @@ import TiledCanvas from './TiledCanvas';
 import dataCanvas from 'data-canvas';
 import style from '../style';
 import utils from '../utils';
-import type {State, NetworkStatus} from './pileuputils';
+import type {State, NetworkStatus} from '../types';
 
 var MONSTER_REQUEST = 10000;
 var LABEL_WIDTH = 100;

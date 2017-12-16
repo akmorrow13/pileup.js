@@ -44,7 +44,7 @@ describe('VariantDataSource', function() {
       var variants = source.getVariantsInRange(range);
       expect(variants).to.have.length(3);
       expect(variants[1].contig).to.equal('chrM');
-      expect(variants[1].position).to.equal(20);
+      expect(variants[1].position).to.equal(21);
       expect(variants[1].ref).to.equal('G');
       expect(variants[1].alt).to.equal('T');
       done();

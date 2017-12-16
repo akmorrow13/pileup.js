@@ -87,7 +87,7 @@ class GeneTrack extends React.Component {
     // Visualize new reference data as it comes in from the network.
     this.props.source.on('newdata', (range) => {
       this.setState({
-        genes: this.props.source.getGenesInRange(range)
+        genes: this.props.source.getFeaturesInRange(range)
       });
     });
 
@@ -134,7 +134,7 @@ class GeneTrack extends React.Component {
     ctx.font = `${style.GENE_FONT_SIZE}px ${style.GENE_FONT}`;
     ctx.textAlign = 'center';
     this.state.genes.forEach(gene => {
-      if (!gene.position.chrIntersects(range)) return;
+      if (!gene.position.intersects(range)) return;
       ctx.pushObject(gene);
       ctx.lineWidth = 1;
       ctx.strokeStyle = style.GENE_COLOR;

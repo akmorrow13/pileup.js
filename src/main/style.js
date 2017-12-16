@@ -61,6 +61,8 @@ module.exports = {
   LOC_FONT_COLOR: 'black',
 
   // Variant Track
+  VARIANT_STROKE: 'blue',
+  VARIANT_FILL: '#ddd',
   VARIANT_HEIGHT: 14,
 
   // Genotype Track

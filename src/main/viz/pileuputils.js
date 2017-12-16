@@ -4,6 +4,7 @@
 import type SamRead from '../data/SamRead';
 import type {Alignment, CigarSymbol} from '../Alignment';
 import type Interval from '../Interval';
+import type {NetworkStatus} from '../types';
 
 /**
  * Given a list of Intervals, return a parallel list of row numbers for each.
@@ -140,7 +141,7 @@ export type OpInfo = {
 function getOpInfo(read: Alignment, referenceSource: Object): OpInfo {
   var ops = read.cigarOps;
   // console.log(read);
-  
+
   var range = read.getInterval(),
       start = range.start(),
       seq = read.getSequence(),
@@ -206,12 +207,6 @@ function getOpInfo(read: Alignment, referenceSource: Object): OpInfo {
   };
 }
 
-// State information. Used in viz
-export type NetworkStatus = {numRequests?: number, status?: string};
-export type State = {
-  networkStatus: ?NetworkStatus;
-};
-
 function formatStatus(status: NetworkStatus): string {
   if (status.numRequests) {
     var pluralS = status.numRequests > 1 ? 's' : '';
@@ -226,6 +221,6 @@ module.exports = {
   pileup,
   addToPileup,
   getOpInfo,
-  formatStatus,
-  CigarOp
+  CigarOp,
+  formatStatus
 };

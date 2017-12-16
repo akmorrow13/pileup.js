@@ -16,7 +16,8 @@ describe('CoverageDataSource', function() {
     return new RemoteFile('/test-data/chr17-coverage.json').getAllString().then(data => {
       response = data;
       server = sinon.fakeServer.create();
-      server.respondWith('GET', '/coverage/17?start=1&end=1000&binning=1',[200, { "Content-Type": "application/json" }, response]);
+
+      server.respondWith('GET', '/coverage/17?start=1&end=5000&binning=1',[200, { "Content-Type": "application/json" }, response]);
     });
   });
 

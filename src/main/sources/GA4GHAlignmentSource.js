@@ -16,6 +16,7 @@ import GA4GHAlignment from '../GA4GHAlignment';
 
 var ALIGNMENTS_PER_REQUEST = 200;  // TODO: explain this choice.
 var MAX_BASE_PAIRS_TO_FETCH = 40000;
+var ZERO_BASED = false;
 
 
 // Genome ranges are rounded to multiples of this for fetching.
@@ -25,20 +26,13 @@ var MAX_BASE_PAIRS_TO_FETCH = 40000;
 // bulkier requests.
 var BASE_PAIRS_PER_FETCH = 1000;
 
-function expandRange(range: ContigInterval<string>) {
-  var roundDown = x => x - x % BASE_PAIRS_PER_FETCH;
-  var newStart = Math.max(1, roundDown(range.start())),
-      newStop = roundDown(range.stop() + BASE_PAIRS_PER_FETCH - 1);
-
-  return new ContigInterval(range.contig, newStart, newStop);
-}
-
-type GA4GHSpec = {
+export type GA4GHSpec = {
   endpoint: string;
   readGroupId: string;
-  // HACK if set, strips "chr" from reference names.
-  // See https://github.com/ga4gh/schemas/issues/362
-  killChr: boolean;
+  // HACK for demo. If set, will always use this reference id.
+  // This is for fetching referenceIds specified in GA4GH reference
+  // server
+  forcedReferenceId: ?string;
 };
 
 function create(spec: GA4GHSpec): AlignmentDataSource {
@@ -50,27 +44,28 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
   var coveredRanges: ContigInterval<string>[] = [];
 
   function addReadsFromResponse(response: Object) {
+    if (response.alignments === undefined) {
+      return;
+    }
     response.alignments.forEach(alignment => {
-      try{
-        // optimization: don't bother constructing a GA4GHAlignment unless it's new.
-        var key = GA4GHAlignment.keyFromGA4GHResponse(alignment);
-        if (key in reads) return;
-
+      // optimization: don't bother constructing a GA4GHAlignment unless it's new.
+      var key = GA4GHAlignment.keyFromGA4GHResponse(alignment);
+      if (key in reads) return;
+      try {
         var ga4ghAlignment = new GA4GHAlignment(alignment);
         reads[key] = ga4ghAlignment;
-      } catch(TypeError){
-        console.log("Error in Matepair Data Source.");
+      } catch (e) {
+        // sometimes, data from the server does not have an alignment.
+        // this will catch an exception in the GA4GHAlignment constructor
       }
     });
   }
 
   function rangeChanged(newRange: GenomeRange) {
-    // HACK FOR DEMO
-    var contig = spec.killChr ? newRange.contig.replace(/^chr/, '') : newRange.contig;
-    var interval = new ContigInterval(contig, newRange.start, newRange.stop);
+    var interval = new ContigInterval(newRange.contig, newRange.start, newRange.stop);
     if (interval.isCoveredBy(coveredRanges)) return;
 
-    interval = expandRange(interval);
+    interval = interval.round(BASE_PAIRS_PER_FETCH, ZERO_BASED);
 
     // if range is too large, return immediately
     if (interval.length() > MAX_BASE_PAIRS_TO_FETCH) {
@@ -138,11 +133,17 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
     });
 
     o.trigger('networkprogress', {numRequests});
+    // hack for DEMO. force GA4GH reference ID
+    var contig = range.contig;
+    if (spec.forcedReferenceId !== null)
+    {
+      contig = spec.forcedReferenceId;
+    }
     xhr.send(JSON.stringify({
       pageToken: pageToken,
       pageSize: ALIGNMENTS_PER_REQUEST,
       readGroupIds: [spec.readGroupId],
-      referenceName: range.contig,
+      referenceId: contig,
       start: range.start(),
       end: range.stop()
     }));
@@ -151,10 +152,8 @@ function create(spec: GA4GHSpec): AlignmentDataSource {
   function getAlignmentsInRange(range: ContigInterval<string>): Alignment[] {
     if (!range) return [];
 
-    // HACK FOR DEMO
-    if (spec.killChr) {
-      range = new ContigInterval(range.contig.replace(/^chr/, ''), range.start(), range.stop());
-    }
+    range = new ContigInterval(range.contig, range.start(), range.stop());
+
     return _.filter(reads, read => read.intersects(range));
   }
 

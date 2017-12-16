@@ -23,7 +23,7 @@ import canvasUtils from './canvas-utils';
 import style from '../style';
 import ContigInterval from '../ContigInterval';
 import TiledCanvas from './TiledCanvas';
-import type {State, NetworkStatus} from './pileuputils';
+import type {State, NetworkStatus} from '../types';
 
 
 class CoverageTiledCanvas extends TiledCanvas {

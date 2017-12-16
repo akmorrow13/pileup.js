@@ -40,7 +40,7 @@ function keyFunction(p: PositionCount): string {
 }
 
 function filterFunction(range: ContigInterval<string>, p: PositionCount): boolean {
-  return range.chrIntersects(new ContigInterval(p.contig, p.start, p.end));
+  return range.intersects(new ContigInterval(p.contig, p.start, p.end));
 }
 
 function createFromCoverageUrl(remoteSource: RemoteRequest): CoverageDataSource {
