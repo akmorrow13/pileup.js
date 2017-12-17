@@ -266,8 +266,9 @@ class PileupTrack extends React.Component {
     // Adding a vertical scrollbar shrinks the visible area, but we have to act
     // as though it doesn't, since adjusting the scale would put it out of sync
     // with other tracks.
+    // This was removed for contracting reads in hide alignments.
     var containerStyles = {
-      'height': '100%'
+      // 'height': '100%'
     };
 
     var statusEl = null,
@@ -298,7 +299,7 @@ class PileupTrack extends React.Component {
       return (
         <div>
           {statusEl}
-          <div ref='container' style={containerStyles}>
+          <div ref='container' style={containerStyles} >
             <canvas ref='canvas' onClick={this.handleClick.bind(this)} />
           </div>
         </div>
@@ -430,7 +431,7 @@ class PileupTrack extends React.Component {
     if (parent) parent.style.minHeight = "";
 
     // Height can only be computed after the pileup has been updated.
-    var height = yForRow(this.cache.pileupHeightForRef(this.props.range.contig));
+    var height = pileupHeight(this.cache.pileupHeightForRef(this.props.range.contig));
 
     d3utils.sizeCanvas(canvas, width, height);
 
