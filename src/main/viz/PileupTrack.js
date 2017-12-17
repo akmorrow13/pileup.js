@@ -37,7 +37,7 @@ var MAX_ROWS = 1000; // max rows to print pileup
 
 function pileupHeight(rows: number): number {
   var modified_rows = Math.min(MAX_ROWS, rows);
-  return modified_rows * (READ_HEIGHT + READ_SPACING);
+  return modified_rows * (READ_HEIGHT*2 + READ_SPACING*2);
 }
 
 var READ_STRAND_ARROW_WIDTH = 5;
@@ -390,7 +390,8 @@ class PileupTrack extends React.Component {
     if (width === 0 || typeof canvas == 'undefined') return;
 
     // Height can only be computed after the pileup has been updated.
-    var height = yForRow(this.tiles.heightForRef(this.props.range.contig));
+    var height = this.tiles.heightForRef(this.props.range.contig);
+    //var height = yForRow(x);
 
     d3utils.sizeCanvas(canvas, width, height);
 

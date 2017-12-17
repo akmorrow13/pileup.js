@@ -25,7 +25,6 @@
 .track-label {
   flex: 0 0 100px;  /* fixed-width track labels */
   text-align: right;
-  overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9em;
   position: relative;  /* make this an offset parent for positioning the label. */
@@ -192,7 +191,6 @@
 .pileup-root > .pileup, .pileup-root > .genotypes {
   flex: 1;  /* stretch to fill remaining space */
   flex-basis: auto;
-  min-height: 300px; /* prevent tracks from becoming too small */
 }
 .pileup .alignment .match {
   fill: #c8c8c8;  /* matches IGV */

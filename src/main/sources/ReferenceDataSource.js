@@ -60,6 +60,10 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
       return Q.when();  // empty promise
     }
 
+    // if range is valid, cover it
+    coveredRanges.push(range);
+    coveredRanges = ContigInterval.coalesce(coveredRanges);
+
     // TODO remote Source
     remoteSource.getFeaturesInRange(range)
       .then(letters => {
@@ -118,8 +122,6 @@ var createFromReferenceUrl = function(remoteSource: Sequence): TwoBitSource {
 
         range = expandRange(range);
         var newRanges = range.complementIntervals(coveredRanges);
-        coveredRanges.push(range);
-        coveredRanges = ContigInterval.coalesce(coveredRanges);
 
         for (var newRange of newRanges) {
           fetch(newRange);
